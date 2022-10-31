@@ -5,8 +5,6 @@ import copy
 import http.client
 import logging
 
-import jinja2
-
 from firestone.spec import _base
 
 # This is a list of all HTTP methods supported on high-level resource base
@@ -24,6 +22,7 @@ _LOGGER = logging.getLogger(__name__)
 class SchemaMissingAttribute(Exception):
     """Schema is missing an attribute."""
 
+
 def get_opid(path: str, method: str):
     """Get a unique operationId given the patha nd method."""
     opid = path[1:].replace("/", "_")
@@ -36,7 +35,7 @@ def get_mthod_op(path: str, method: str, schema: dict, desc: str = None):
     """Get the specified method seciton for the paths."""
     if not desc:
         desc = f"{method} operation for {path}"
-    op = {
+    opr = {
         "description": desc,
         "operationId": get_opid(path, method),
         "responses": {
@@ -52,9 +51,9 @@ def get_mthod_op(path: str, method: str, schema: dict, desc: str = None):
     }
 
     if method == "head":
-        del op["responses"]
+        del opr["responses"]
     if method == "post":
-        op["requestBody"] = {
+        opr["requestBody"] = {
             "description": f"The request body for {path}",
             "required": True,
             "content": {
@@ -64,9 +63,9 @@ def get_mthod_op(path: str, method: str, schema: dict, desc: str = None):
             },
         }
     if "query_params" not in schema:
-        return op
+        return opr
 
-    op["paramaters"] = []
+    opr["paramaters"] = []
     for param in copy.deepcopy(schema["query_params"]):
         _LOGGER.debug(f"param: {param}")
         methods = param.get("methods", [])
@@ -75,7 +74,7 @@ def get_mthod_op(path: str, method: str, schema: dict, desc: str = None):
             del param["methods"]
         if methods and method not in methods:
             continue
-        op["paramaters"].append(
+        opr["paramaters"].append(
             {
                 "name": param["name"],
                 "in": "query",
@@ -84,10 +83,10 @@ def get_mthod_op(path: str, method: str, schema: dict, desc: str = None):
             }
         )
     # cleanup if no parameters due to methods set
-    if not op["paramaters"]:
-        del op["paramaters"]
+    if not opr["paramaters"]:
+        del opr["paramaters"]
 
-    return op
+    return opr
 
 
 def get_paths(rsrc_name: str, schema: dict, base_url: str, paths: dict):
@@ -111,7 +110,7 @@ def get_paths(rsrc_name: str, schema: dict, base_url: str, paths: dict):
 
     # 2. Add paths for each attribtue
     if schema["type"] == "array" and not "key" in schema:
-        raise MissingAttribute("A 'key' is missing in schema {yaml.dump(schema)}")
+        raise SchemaMissingAttribute("A 'key' is missing in schema {yaml.dump(schema)}")
 
     key = schema["key"]["name"]
     instance_baseurl = "/".join([base_url, f"{{{key}}}"])
@@ -138,7 +137,7 @@ def get_paths(rsrc_name: str, schema: dict, base_url: str, paths: dict):
     for prop in schema["items"]["properties"]:
         path = "/".join([instance_baseurl, prop])
         _LOGGER.debug(f"path: {path}")
-        inst_op = copy.deepcopy(paths[instance_baseurl][method])
+        # inst_op = copy.deepcopy(paths[instance_baseurl][method])
         prop_schema = schema["items"]["properties"][prop]
 
         paths[path] = {}
@@ -170,15 +169,15 @@ def get_paths(rsrc_name: str, schema: dict, base_url: str, paths: dict):
 def generate(rsrc_data: list, title: str, desc: str, summary: str):
     """Generate an OpenAPI spec based ont he resource data sent and other meta data."""
     all_paths = {}
-    for rd in rsrc_data:
-        rsrc_name = rd["name"]
+    for rsrs in rsrc_data:
+        rsrc_name = rsrs["name"]
         base_url = "/"
-        if rd["versionInPath"]:
-            base_url += f"v{rd['version']}/"
+        if rsrs["versionInPath"]:
+            base_url += f"v{rsrs['version']}/"
         base_url += rsrc_name
         _LOGGER.debug(f"base_url: {base_url}")
 
-        paths = get_paths(rsrc_name, rd["schema"], base_url, {})
+        paths = get_paths(rsrc_name, rsrs["schema"], base_url, {})
         _LOGGER.debug(f"paths: {paths}")
         all_paths.update(paths)
 
