@@ -32,11 +32,11 @@ jobs:
         poetry build
     - name: pylint and pycodestyle
       run: |
-        poetry run pylint firestone_lib test
-        poetry run pycodestyle --config .pycodestyle firestone_lib test
+        poetry run pylint firestone test
+        poetry run pycodestyle --config .pycodestyle firestone test
     - name: Test with pytest
       run: |
-        poetry run pytest --cache-clear --cov=firestone_lib test/ > pytest-coverage.txt
+        poetry run pytest --cache-clear --cov=firestone test/ > pytest-coverage.txt
     - name: Comment coverage
       uses: coroo/pytest-coverage-commentator@v1.0.2
     - name: Coverage Badge

@@ -22,12 +22,14 @@ firestone-lib = "^0.1.0"
 black = "^22.10.0"
 pytest = "^7.2.0"
 pylint = "^2.15.5"
-pep8 = "^1.7.1"
 pytest-mock = "^3.10.0"
+mock = "^4.0.3"
+pycodestyle = "^2.9.1"
+pytest-cov = "^4.0.0"
+swagger-ui-py = "^22.7.13"
 
 #[tool.poetry.dev-dependencies]
 #firestone-lib = { path = "../firestone-lib/", develop = true }
-swagger-ui-py = "^22.7.13"
 
 [tool.poetry.extras]
 caching = ["quart", "asyncapi"]
@@ -38,3 +40,17 @@ firestone = 'firestone.__main__:main'
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 100
+target-version = ["py37", "py310"]
+
+[tool.pylint.'MESSAGES CONTROL']
+max-line-length = 150
+good-names = [
+    "fh"
+]
+disable = """
+    logging-fstring-interpolation,
+    fixme
+"""

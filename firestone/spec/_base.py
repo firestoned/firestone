@@ -11,6 +11,7 @@ JINJA_ENV = jinja2.Environment(
 
 
 def yaml_pretty(data, indent=2):
+    """A simple YAML pretty print for Jinja."""
     dump = yaml.dump(data, indent=2)
     res = ""
     for line in dump.split("\n"):

@@ -15,8 +15,7 @@ _LOGGER = logging.getLogger(__name__)
 
 @click.group()
 @click.option("--debug", help="Turn on debugging", is_flag=True)
-@click.pass_context
-def main(ctx, debug):
+def main(debug):
     """Main entry point"""
     cli.init_logging("firestone_lib.resources.logging", "cli.conf")
 
@@ -94,6 +93,7 @@ def openapi(rsrc_data, output, ui_server):
     print(openapi_spec, file=output)
 
     if ui_server:
+        # pylint: disable=import-outside-toplevel,import-error,no-member
         import quart
         import swagger_ui
 
@@ -106,4 +106,5 @@ def openapi(rsrc_data, output, ui_server):
 
 
 if __name__ == "main":
+    # pylint: disable=no-value-for-parameter
     main()
