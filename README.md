@@ -14,7 +14,7 @@ you
 
 ## Quick Start
 
-You can use pip or poetry to run and use ``firestone``. We suggest using pipif you wish to install
+You can use pip or poetry to run and use ``firestone``. We suggest using pip if you wish to install
 `firestone`` machine-wode, else, for local use, use poetry.
 
 ### pip
@@ -52,7 +52,7 @@ firestone generate --title 'Addressbook resource' --description 'A simple addres
 
 Let's quickly disect this command:
 
-- we are telling firestone to generate and ``openapi` spec, given the ``title``,
+- we are telling firestone to generate an `openapi` spec, given the ``title``,
   ``description`` and the given resource file at ``examples/addressbook/resource.yaml``.
 - By default, this will output the speciificaton file to stdout, alternatively
   you can provide the `-O` option to output to a specific file.
