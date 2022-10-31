@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-
+    permissions: read-all
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -39,5 +39,9 @@ jobs:
         poetry run pytest --cache-clear --cov=firestone test/ > pytest-coverage.txt
     - name: Comment coverage
       uses: coroo/pytest-coverage-commentator@v1.0.2
+      with:
+        pytest-coverage: pytest-coverage.txt
+        token: ${{ secrets.GITHUB_TOKEN }}
+
     #- name: Coverage Badge
     #  uses: tj-actions/coverage-badge-py@v1.8
