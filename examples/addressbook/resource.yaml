@@ -1,0 +1,55 @@
+name: addressbook
+description: An example of an addressbook resource
+version: 1.0
+versionInPath: false
+schema:
+  type: array
+  key:
+    name: address_key
+    schema:
+      description: A unique identitfier for an addressbook entry.
+      type: string
+  # You can limit the overal HTTP methods for the high level resource endpoint
+  #methods:
+  #  - get
+  #responseCodes:
+  # - 200
+  # - 201
+  query_params:
+    - name: city
+      description: Filter by city name
+      schema:
+        type: string
+      methods:
+        - get
+  descriptions:
+    get: List all addresses in this addressbook
+    head: Determine the existence and size of addresses in this addressbook
+    patch: Patch one or more addresses in this addressbook
+    post: Create a new address in this addressbook, a new address key will be created
+  items:
+    descriptions:
+      get: Get a specific address from this addressbook
+      head: Determine the existence and size of this address
+      patch: Patch this address in the addressbook
+      put: Put a new address in this addressbook, with the given address key
+    type: object
+    properties:
+      addrtype:
+        description: The address type, e.g. work or home
+        type: string
+        enum:
+          - work
+          - home
+      street:
+        description: The street and civic number of this address
+        type: string
+      city:
+        description: The city of this address
+        type: string
+      state:
+        description: The state of this address
+        type: string
+      country:
+        description: The country of this address
+        type: string

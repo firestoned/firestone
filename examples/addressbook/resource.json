@@ -1,0 +1,38 @@
+{
+    "name": "addressbook",
+    "description": "An example of an addressbook resource",
+    "version": 1.0,
+    "readOnly": false,
+    "key": {
+      "name": "addresskey",
+      "schema": {
+        "type": "string",
+        "description": "A unique identitfier for an adressbook entry."
+      }
+    },
+    "schema": {
+      "type": "object",
+      "properties": {
+        "addrtype": {
+          "description": "The address type, e.g. work or home",
+          "type": "string",
+          "enum": [
+            "work",
+            "home"
+          ]
+        },
+        "street": {
+          "description": "The street and civic number of this entry",
+          "type": "string"
+        },
+        "city": {
+          "description": "The city of this entry",
+          "type": "string"
+        },
+        "state": {
+          "description": "The state of this entry",
+          "type": "string"
+        }
+      }
+    }
+}

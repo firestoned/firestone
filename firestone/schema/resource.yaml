@@ -1,0 +1,63 @@
+type: object
+properties:
+  name:
+    description: The name of the resource
+    type: string
+  description:
+    description: The description of the resource
+    type: string
+  version:
+    description: The version of the resource
+    type: number
+  versionInPath:
+    description: Whether to prepend to all paths version to the path, e.g. /v1.0
+    type: boolean
+  schema:
+    description: The schema of the resource
+    type: object
+    properties:
+      key:
+        description: The unique identifier for the resource
+        type: object
+      quary_params:
+        description: Query params to be added to select HTTP methods
+        type: array
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+            descrioption:
+              type: string
+            schema:
+              type: object
+            methods:
+              description: a list of mehtods to expose, else all for this level of resource exposure
+              type: string
+              enum:
+                - delete
+                - get
+                - head
+                - patch
+                - post
+      descriptions:
+        description: An overrideble dictionary of descriptions, per HTTP method, for a resource
+        type: object
+        properties:
+          get:
+            type: string
+          head:
+            type: string
+          patch:
+            type: string
+          post:
+            type: string
+    required:
+      - key
+    additionalProperties: true
+
+required:
+  - name
+  - version
+  - schema
+additionalProperties: true
