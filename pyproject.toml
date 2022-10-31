@@ -1,0 +1,40 @@
+[tool.poetry]
+name = "firestone"
+version = "0.1.0"
+description = "Build OpneAPI and AsyncAPI specs based off one or more resource json schema files"
+authors = ["Erick Bourgeois <erick@jeb.ca>"]
+license = "Apache 2.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.8,<4.0"
+click = "^8.1.3"
+quart = {version = "^0.18.3", optional = true }
+Jinja2 = "^3.1.2"
+setuptools = "^65.5.0"
+asyncapi = {version = "^0.14.1", optional = true}
+jsonschema = "^4.16.0"
+pyyaml = "^6.0"
+jsonref = "^1.0.0.post1"
+firestone-lib = "^0.1.0"
+
+[tool.poetry.group.build.dependencies]
+black = "^22.10.0"
+pytest = "^7.2.0"
+pylint = "^2.15.5"
+pep8 = "^1.7.1"
+pytest-mock = "^3.10.0"
+
+#[tool.poetry.dev-dependencies]
+#firestone-lib = { path = "../firestone-lib/", develop = true }
+swagger-ui-py = "^22.7.13"
+
+[tool.poetry.extras]
+caching = ["quart", "asyncapi"]
+
+[tool.poetry.scripts]
+firestone = 'firestone.__main__:main'
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
