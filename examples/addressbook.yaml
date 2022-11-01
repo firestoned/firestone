@@ -2,12 +2,23 @@ name: addressbook
 description: An example of an addressbook resource
 version: 1.0
 versionInPath: false
+default_query_params:
+  - name: limit
+    description: Limit the number of responses back
+    in: params
+    schema:
+      type: integer
+  - name: offset
+    description: The offset to start returning resources
+    in: params
+    schema:
+      type: integer
 schema:
   type: array
   key:
     name: address_key
+    description: A unique identitfier for an addressbook entry.
     schema:
-      description: A unique identitfier for an addressbook entry.
       type: string
   # You can limit the overal HTTP methods for the high level resource endpoint
   #methods:
