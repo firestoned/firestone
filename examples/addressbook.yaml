@@ -38,6 +38,8 @@ schema:
       addrtype:
         description: The address type, e.g. work or home
         type: string
+        # Don't expose this attribute in the URL/specification
+        # expose: false
         enum:
           - work
           - home

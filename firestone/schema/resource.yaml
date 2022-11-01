@@ -41,7 +41,7 @@ properties:
                 - patch
                 - post
       descriptions:
-        description: An overrideble dictionary of descriptions, per HTTP method, for a resource
+        description: An overrideble dictionary of descriptions, per HTTP method, for the resource
         type: object
         properties:
           get:
@@ -52,8 +52,31 @@ properties:
             type: string
           post:
             type: string
+      items:
+        type: object
+        properties:
+          descriptions:
+            description: An overrideble dictionary of descriptions, per HTTP method, for a resource instance
+            type: object
+            properties:
+              get:
+                type: string
+              head:
+                type: string
+              patch:
+                type: string
+              post:
+                type: string
+          properties:
+            description: a list of properties this resource has
+            type: object
+          additionalProperties: true
+        required:
+          - properties
+        additionalProperties: true
     required:
       - key
+      - items
     additionalProperties: true
 
 required:

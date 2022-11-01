@@ -17,5 +17,5 @@ class OpenAPITest(unittest.TestCase):
         self.assertEqual(opid, "foo_bar_get")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

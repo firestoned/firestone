@@ -1,5 +1,5 @@
 """
-Generate OpenAPI Spec >= 3.1
+Generate OpenAPI 3.0 Spec
 """
 import copy
 import http.client
@@ -31,27 +31,75 @@ def get_opid(path: str, method: str):
     return f"{opid}_{method}"
 
 
-def get_mthod_op(path: str, method: str, schema: dict, desc: str = None):
-    """Get the specified method seciton for the paths."""
-    if not desc:
-        desc = f"{method} operation for {path}"
-    opr = {
-        "description": desc,
-        "operationId": get_opid(path, method),
-        "responses": {
-            http.client.OK.value: {
-                "description": http.client.OK.name,
-                "content": {
-                    "application/json": {
-                        "schema": schema["items"] if "items" in schema else schema,
-                    },
+def get_responses(
+    method: str,
+    schema: dict,
+    content_type: str,
+    comp_name: str = None,
+    is_list: bool = None,
+):
+    """Set schema for a given oepration type."""
+    if method == "head":
+        return None
+
+    resp_code_enum = http.client.OK
+    if method == "post":
+        resp_code_enum = http.client.CREATED
+
+    responses = {
+        resp_code_enum.value: {
+            "description": resp_code_enum.name,
+            "content": {
+                content_type: {
+                    "schema": {},
                 },
             },
         },
     }
+    # Default to using the schema directly in the file
+    schema_value = schema["items"] if "items" in schema else schema
 
-    if method == "head":
-        del opr["responses"]
+    # if a component name is provided, use that to reference it
+    if comp_name:
+        schema_value = f"#/components/schemas/{comp_name}"
+
+    responses[resp_code_enum.value]["content"][content_type]["schema"]["$ref"] = schema_value
+    if is_list:
+        responses[resp_code_enum.value]["content"][content_type]["schema"] = {
+            "type": "array",
+            "items": {"$ref": schema_value},
+        }
+
+    return responses
+
+
+def get_mthod_op(
+    path: str,
+    method: str,
+    schema: dict,
+    desc: str = None,
+    comp_name: str = None,
+    is_list: bool = None,
+):
+    """Get the specified method seciton for the paths."""
+    if not desc:
+        desc = f"{method} operation for {path}"
+    content_type = "application/json"
+    opr = {
+        "description": desc,
+        "operationId": get_opid(path, method),
+    }
+
+    # Now set the schema for responses
+    _LOGGER.debug(f"method: {method}")
+    opr["responses"] = get_responses(
+        method,
+        schema,
+        content_type,
+        comp_name=comp_name,
+        is_list=is_list,
+    )
+
     if method == "post":
         opr["requestBody"] = {
             "description": f"The request body for {path}",
@@ -103,7 +151,12 @@ def get_paths(rsrc_name: str, schema: dict, base_url: str, paths: dict):
             )
             continue
         paths[base_url][method] = get_mthod_op(
-            base_url, method, schema, rsrc_descs.get(method)
+            base_url,
+            method,
+            schema,
+            desc=rsrc_descs.get(method),
+            comp_name=rsrc_name,
+            is_list=(method == "get"),
         )
         paths[base_url][method]["tags"] = [rsrc_name]
         _LOGGER.debug(f"paths[base_url][{method}]: {paths[base_url][method]}")
@@ -126,12 +179,12 @@ def get_paths(rsrc_name: str, schema: dict, base_url: str, paths: dict):
             )
             continue
         paths[instance_baseurl][method] = get_mthod_op(
-            instance_baseurl, method, schema, rsrc_inst_descs.get(method)
+            instance_baseurl, method, schema,
+            desc=rsrc_inst_descs.get(method),
+            comp_name=rsrc_name,
         )
         paths[instance_baseurl][method]["tags"] = [rsrc_name]
-        _LOGGER.debug(
-            f"paths[instance_baseurl][{method}]: {paths[instance_baseurl][method]}"
-        )
+        _LOGGER.debug(f"paths[instance_baseurl][{method}]: {paths[instance_baseurl][method]}")
 
     # 3. Add attribute path for instance of this resource
     for prop in schema["items"]["properties"]:
@@ -139,6 +192,9 @@ def get_paths(rsrc_name: str, schema: dict, base_url: str, paths: dict):
         _LOGGER.debug(f"path: {path}")
         # inst_op = copy.deepcopy(paths[instance_baseurl][method])
         prop_schema = schema["items"]["properties"][prop]
+
+        if "expose" in prop_schema and not prop_schema["expose"]:
+            continue
 
         paths[path] = {}
         for method in RSRC_ATTR_HTTP_METHODS:
@@ -148,16 +204,12 @@ def get_paths(rsrc_name: str, schema: dict, base_url: str, paths: dict):
                     "as it is not in the defined methods requested"
                 )
                 continue
-            inst_attr_op = get_mthod_op(
-                path, method, prop_schema
-            )
+            inst_attr_op = get_mthod_op(path, method, prop_schema)
             _LOGGER.debug(f"inst_attr_op: {inst_attr_op}")
 
             paths[path][method] = inst_attr_op
             paths[path][method]["tags"] = [rsrc_name]
-            _LOGGER.debug(
-                f"paths[path][{method}]: {paths[path][method]}"
-            )
+            _LOGGER.debug(f"paths[path][{method}]: {paths[path][method]}")
 
             # TODO test and add recursivness
             if "items" in prop_schema:
@@ -168,16 +220,24 @@ def get_paths(rsrc_name: str, schema: dict, base_url: str, paths: dict):
 
 def generate(rsrc_data: list, title: str, desc: str, summary: str):
     """Generate an OpenAPI spec based ont he resource data sent and other meta data."""
+    components = {"schemas": {}}
     all_paths = {}
-    for rsrs in rsrc_data:
-        rsrc_name = rsrs["name"]
+    for rsrc in rsrc_data:
+        rsrc_name = rsrc["name"]
         base_url = "/"
-        if rsrs["versionInPath"]:
-            base_url += f"v{rsrs['version']}/"
+        if rsrc["versionInPath"]:
+            base_url += f"v{rsrc['version']}/"
         base_url += rsrc_name
         _LOGGER.debug(f"base_url: {base_url}")
 
-        paths = get_paths(rsrc_name, rsrs["schema"], base_url, {})
+        # Extract and set high-level resource component schema
+        rschema = rsrc["schema"]
+        comp_schema = copy.deepcopy(rschema["items"])
+        if "descriptions" in comp_schema:
+            del comp_schema["descriptions"]
+        components["schemas"][rsrc_name] = comp_schema
+
+        paths = get_paths(rsrc_name, rschema, base_url, {})
         _LOGGER.debug(f"paths: {paths}")
         all_paths.update(paths)
 
@@ -186,6 +246,6 @@ def generate(rsrc_data: list, title: str, desc: str, summary: str):
         title=title,
         summary=summary,
         description=desc,
-        components=[],
-        paths=paths,
+        components=components,
+        paths=all_paths,
     )
