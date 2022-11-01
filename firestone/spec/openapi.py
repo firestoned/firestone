@@ -36,6 +36,7 @@ def get_responses(
     schema: dict,
     content_type: str,
     comp_name: str = None,
+    attr_name: bool = None,
     is_list: bool = None,
 ):
     """Set schema for a given oepration type."""
@@ -62,6 +63,8 @@ def get_responses(
     # if a component name is provided, use that to reference it
     if comp_name:
         schema_value = f"#/components/schemas/{comp_name}"
+    if attr_name:
+        schema_value = f"#/components/schemas/{comp_name}/properties/{attr_name}"
 
     responses[resp_code_enum.value]["content"][content_type]["schema"]["$ref"] = schema_value
     if is_list:
@@ -79,6 +82,7 @@ def get_mthod_op(
     schema: dict,
     desc: str = None,
     comp_name: str = None,
+    attr_name: str = None,
     is_list: bool = None,
 ):
     """Get the specified method seciton for the paths."""
@@ -97,6 +101,7 @@ def get_mthod_op(
         schema,
         content_type,
         comp_name=comp_name,
+        attr_name=attr_name,
         is_list=is_list,
     )
 
@@ -110,39 +115,62 @@ def get_mthod_op(
                 },
             },
         }
-    if "query_params" not in schema:
-        return opr
-
-    opr["paramaters"] = []
-    for param in copy.deepcopy(schema["query_params"]):
-        _LOGGER.debug(f"param: {param}")
-        methods = param.get("methods", [])
-        _LOGGER.debug(f"methods: {methods}")
-        if methods:
-            del param["methods"]
-        if methods and method not in methods:
-            continue
-        opr["paramaters"].append(
-            {
-                "name": param["name"],
-                "in": "query",
-                "required": param.get("required", False),
-                "schema": param.get("schema", "string"),
-            }
-        )
-    # cleanup if no parameters due to methods set
-    if not opr["paramaters"]:
-        del opr["paramaters"]
 
     return opr
 
 
-def get_paths(rsrc_name: str, schema: dict, base_url: str, paths: dict):
+def get_params(method: str, schema: dict, path_name: str = None, param_schema: dict = None):
+    """Get the parameters for this method."""
+    parameters = []
+
+    # Handle query params
+    if "query_params" in schema:
+        for param in copy.deepcopy(schema["query_params"]):
+            _LOGGER.debug(f"param: {param}")
+            methods = param.get("methods", [])
+            _LOGGER.debug(f"methods: {methods}")
+            if methods:
+                del param["methods"]
+            if methods and method not in methods:
+                continue
+            parameters.append(
+                {
+                    "name": param["name"],
+                    "in": "query",
+                    "required": param.get("required", False),
+                    "schema": param.get("schema", {"type": "string"}),
+                }
+            )
+
+    # Handle path params
+    if path_name:
+        parameters.append(
+            {
+                "name": path_name,
+                "in": "path",
+                "required": True,
+                "schema": param_schema or {"type": "string"},
+            }
+        )
+
+    return parameters
+
+
+# TODO split out each step into different functions
+# pylint: disable=too-many-locals
+def get_paths(
+    rsrc_name: str,
+    schema: dict,
+    baseurl: str,
+    paths: dict = None,
+    default_query_params: dict = None,
+):
     """Get tshe paths for resource."""
     # 1. Add methods to high-level baseurl
-    paths[base_url] = {}
+    paths[baseurl] = {}
     rsrc_methods = schema.get("methods", [])
     rsrc_descs = schema.get("descriptions", {})
+
     for method in RSRC_HTTP_METHODS:
         if rsrc_methods and method not in rsrc_methods:
             _LOGGER.info(
@@ -150,23 +178,30 @@ def get_paths(rsrc_name: str, schema: dict, base_url: str, paths: dict):
                 "as it is not in the defined methods requested"
             )
             continue
-        paths[base_url][method] = get_mthod_op(
-            base_url,
+        paths[baseurl][method] = get_mthod_op(
+            baseurl,
             method,
             schema,
             desc=rsrc_descs.get(method),
             comp_name=rsrc_name,
             is_list=(method == "get"),
         )
-        paths[base_url][method]["tags"] = [rsrc_name]
-        _LOGGER.debug(f"paths[base_url][{method}]: {paths[base_url][method]}")
+        paths[baseurl][method]["tags"] = [rsrc_name]
+        _LOGGER.debug(f"paths[{baseurl}][{method}]: {paths[baseurl][method]}")
+
+        # Add parameters
+        params = get_params(method, schema)
+        if default_query_params:
+            params.extend(default_query_params)
+        _LOGGER.debug(f"params: {params}")
+        paths[baseurl][method]["parameters"] = params
 
     # 2. Add paths for each attribtue
     if schema["type"] == "array" and not "key" in schema:
         raise SchemaMissingAttribute("A 'key' is missing in schema {yaml.dump(schema)}")
 
     key = schema["key"]["name"]
-    instance_baseurl = "/".join([base_url, f"{{{key}}}"])
+    instance_baseurl = "/".join([baseurl, f"{{{key}}}"])
     _LOGGER.debug(f"instance_baseurl: {instance_baseurl}")
     rsrc_inst_descs = schema["items"].get("descriptions", {})
 
@@ -179,10 +214,19 @@ def get_paths(rsrc_name: str, schema: dict, base_url: str, paths: dict):
             )
             continue
         paths[instance_baseurl][method] = get_mthod_op(
-            instance_baseurl, method, schema,
+            instance_baseurl,
+            method,
+            schema,
             desc=rsrc_inst_descs.get(method),
             comp_name=rsrc_name,
         )
+
+        # Add parameters
+        params = get_params(method, schema, path_name=key)
+        _LOGGER.debug(f"params: {params}")
+        paths[instance_baseurl][method]["parameters"] = params
+
+        # Add tags
         paths[instance_baseurl][method]["tags"] = [rsrc_name]
         _LOGGER.debug(f"paths[instance_baseurl][{method}]: {paths[instance_baseurl][method]}")
 
@@ -190,7 +234,6 @@ def get_paths(rsrc_name: str, schema: dict, base_url: str, paths: dict):
     for prop in schema["items"]["properties"]:
         path = "/".join([instance_baseurl, prop])
         _LOGGER.debug(f"path: {path}")
-        # inst_op = copy.deepcopy(paths[instance_baseurl][method])
         prop_schema = schema["items"]["properties"][prop]
 
         if "expose" in prop_schema and not prop_schema["expose"]:
@@ -204,10 +247,17 @@ def get_paths(rsrc_name: str, schema: dict, base_url: str, paths: dict):
                     "as it is not in the defined methods requested"
                 )
                 continue
-            inst_attr_op = get_mthod_op(path, method, prop_schema)
+            inst_attr_op = get_mthod_op(path, method, prop_schema, comp_name=rsrc_name, attr_name=prop)
             _LOGGER.debug(f"inst_attr_op: {inst_attr_op}")
 
             paths[path][method] = inst_attr_op
+
+            # Add parameters
+            params = get_params(method, schema, path_name=key)
+            _LOGGER.debug(f"params: {params}")
+            paths[path][method]["parameters"] = params
+
+            # Add tags
             paths[path][method]["tags"] = [rsrc_name]
             _LOGGER.debug(f"paths[path][{method}]: {paths[path][method]}")
 
@@ -224,11 +274,11 @@ def generate(rsrc_data: list, title: str, desc: str, summary: str):
     all_paths = {}
     for rsrc in rsrc_data:
         rsrc_name = rsrc["name"]
-        base_url = "/"
+        baseurl = "/"
         if rsrc["versionInPath"]:
-            base_url += f"v{rsrc['version']}/"
-        base_url += rsrc_name
-        _LOGGER.debug(f"base_url: {base_url}")
+            baseurl += f"v{rsrc['version']}/"
+        baseurl += rsrc_name
+        _LOGGER.debug(f"baseurl: {baseurl}")
 
         # Extract and set high-level resource component schema
         rschema = rsrc["schema"]
@@ -237,7 +287,12 @@ def generate(rsrc_data: list, title: str, desc: str, summary: str):
             del comp_schema["descriptions"]
         components["schemas"][rsrc_name] = comp_schema
 
-        paths = get_paths(rsrc_name, rschema, base_url, {})
+        default_query_params = rsrc.get("default_query_params", [])
+        _LOGGER.debug(f"default_query_params: {default_query_params}")
+
+        paths = get_paths(
+            rsrc_name, rschema, baseurl, paths={}, default_query_params=default_query_params
+        )
         _LOGGER.debug(f"paths: {paths}")
         all_paths.update(paths)
 

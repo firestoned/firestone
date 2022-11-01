@@ -62,7 +62,7 @@ firestone generate --title 'Addressbook resource' --description 'A simple addres
 Let's quickly disect this command:
 
 - we are telling firestone to generate an `openapi` spec, given the ``title``,
-  ``description`` and the given resource file at ``examples/addressbook/resource.yaml``.
+  ``description`` and the two given resource files.
 - By default, this will output the speciificaton file to stdout, alternatively
   you can provide the `-O` option to output to a specific file.
 
@@ -70,7 +70,11 @@ You can also, add the command line `--ui-server` tot he end, which will launch a
 small webserver and run the Swagger UI to view this specification file.
 
 ```
-firestone generate --title 'Addressbook resource' --description 'A simple addressbook example' --resources examples/addressbook/resource.yaml openapi
+poetry run firestone --debug generate --title 'Example person and addressbook API' \
+    --description 'An example API with more than one resource' \
+    --resources examples/addressbook.yaml,examples/person.yaml \
+    openapi \
+    --ui-server
 # ...
 * Serving Quart app 'firestone.__main__'
  * Environment: production
