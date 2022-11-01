@@ -42,6 +42,5 @@ jobs:
       with:
         pytest-coverage: pytest-coverage.txt
         token: ${{ secrets.GITHUB_TOKEN }}
-
     #- name: Coverage Badge
     #  uses: tj-actions/coverage-badge-py@v1.8

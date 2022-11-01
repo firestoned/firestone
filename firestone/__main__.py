@@ -61,9 +61,7 @@ def generate(ctx, description, resources, summary, title):
     for rsrc in resources:
         _LOGGER.debug(f"rsrc: {rsrc}")
         rsrc_data = firestone_rsrc.get_resource_schema(rsrc)
-        _LOGGER.info(
-            f"Validating resource {rsrc_data['name']} against firestone JSON schema."
-        )
+        _LOGGER.info(f"Validating resource {rsrc_data['name']} against firestone JSON schema.")
         firestone_rsrc.validate(rsrc_data)
 
         ctx.obj["data"].append(rsrc_data)
