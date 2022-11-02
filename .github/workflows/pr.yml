@@ -33,13 +33,9 @@ jobs:
           poetry run pycodestyle --config .pycodestyle firestone test
       - name: Test with pytest
         run: |
-          poetry run pytest --color=yes --cache-clear \
-            --junit-xml=./pytest-junit-coverage.xml \
-            --cov-report xml:./pytest-coverage.xml \
-            --cov=firestone test/ > ./pytest-coverage.txt
+          poetry run pytest --color=yes --cache-clear --cov-report=term-missing:skip-covered --junitxml=./pytest-coverage.xml --cov=firestone test/ > ./pytest-coverage.txt
       - name: Pytest coverage comment
         uses: MishaKav/pytest-coverage-comment@main
         with:
-          junitxml-path: ./pytest-junit-coverage.xml
           pytest-coverage-path: ./pytest-coverage.txt
-          pytest-xml-coverage-path: ./pytest-coverage.xml
+          junitxml-path: ./pytest-coverage.xml
