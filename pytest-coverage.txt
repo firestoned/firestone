@@ -1,5 +1,7 @@
 [1m============================= test session starts ==============================[0m
+
 platform linux -- Python 3.10.8, pytest-7.2.0, pluggy-1.0.0
+
 rootdir: /home/runner/work/firestone/firestone
 plugins: mock-3.10.0, cov-4.0.0
 collected 1 item
@@ -20,5 +22,4 @@ firestone/spec/openapi.py        132    113    14%
 --------------------------------------------------
 TOTAL                            206    180    13%
 
-
-[32m============================== [32m[1m1 passed[0m[32m in 0.14s[0m[32m ===============================[0m
+[32m============================== [32m[1m1 passed[0m[32m in 0.16s[0m[32m ===============================[0m
