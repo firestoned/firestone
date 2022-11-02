@@ -1,5 +1,4 @@
-[![Push and PR Builds 🐍](https://github.com/firestoned/firestone/actions/workflows/pr.yml/badge.svg)](https://github.com/firestoned/firestone/actions/workflows/pr.yml)
-<!-- Pytest Coverage Comment:Begin --><!-- Pytest Coverage Comment:End -->
+[![Last PR Build 🐍](https://github.com/firestoned/firestone/actions/workflows/pr.yml/badge.svg)](https://github.com/firestoned/firestone/actions/workflows/pr.yml)
 
 # Firestone
 
@@ -189,3 +188,7 @@ above, you woudl get: `/v1.0/addressbook`.
 
 ## Contributing
 
+## Coverage
+
+<!-- Pytest Coverage Comment:Begin -->
+<!-- Pytest Coverage Comment:End -->
