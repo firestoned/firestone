@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: ["3.10"]
 
     steps:
       - uses: actions/checkout@v3
@@ -32,19 +32,15 @@ jobs:
           poetry run pycodestyle --config .pycodestyle firestone test
       - name: Test with pytest
         run: |
-          poetry run pytest --color=yes --cache-clear \
-            --junit-xml=./pytest-junit-coverage.xml \
-            --cov-report xml:./pytest-coverage.xml \
-            --cov=firestone test/ > pytest-coverage.txt
+          poetry run pytest --color=yes --cache-clear --cov-report=term-missing:skip-covered --junitxml=./pytest-coverage.xml --cov=firestone test/ > ./pytest-coverage.txt
       - name: Pytest coverage comment
         if: ${{ github.ref == 'refs/heads/main' }}
         id: coverageComment
         uses: MishaKav/pytest-coverage-comment@main
         with:
-          #hide-comment: true
-          junitxml-path: ./pytest-junit-coverage.xml
+          hide-comment: true
           pytest-coverage-path: ./pytest-coverage.txt
-          pytest-xml-coverage-path: ./pytest-coverage.xml
+          junitxml-path: ./pytest-coverage.xml
       - name: Update README with Coverage HTML
         if: ${{ github.ref == 'refs/heads/main' }}
         run: |
@@ -53,7 +49,7 @@ jobs:
           echo "Coverage Color - ${{ steps.coverageComment.outputs.color }}"
           echo "Coverage Html - ${{ steps.coverageComment.outputs.coverageHtml }}"
           echo "Coverage Content - ${{ steps.coverageComment.outputs.content }}"
-          sed -i '/<!-- Pytest Coverage Comment:Begin -->/,/<!-- Pytest Coverage Comment:End -->/c\<!-- Pytest Coverage Comment:Begin -->\${{ steps.coverageComment.outputs.content }}<!-- Pytest Coverage Comment:End -->' ./README.md
+          #sed -i '/<!-- Pytest Coverage Comment:Begin -->/,/<!-- Pytest Coverage Comment:End -->/c\<!-- Pytest Coverage Comment:Begin -->\n\${{ steps.coverageComment.outputs.coverageHtml }}\n<!-- Pytest Coverage Comment:End -->' ./README.md
       - name: Commit & Push changes to README
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: actions-js/push@master
