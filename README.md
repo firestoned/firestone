@@ -1,6 +1,5 @@
 [![Push and PR Builds 🐍](https://github.com/firestoned/firestone/actions/workflows/pr.yml/badge.svg)](https://github.com/firestoned/firestone/actions/workflows/pr.yml)
-<!-- Pytest Coverage Comment:Begin -->
-\n<!-- Pytest Coverage Comment:End -->
+<!-- Pytest Coverage Comment:Begin --><!-- Pytest Coverage Comment:End -->
 
 # Firestone
 
