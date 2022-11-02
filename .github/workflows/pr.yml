@@ -35,16 +35,9 @@ jobs:
         poetry run pycodestyle --config .pycodestyle firestone test
     - name: Test with pytest
       run: |
-        poetry run pytest --cache-clear --cov=firestone test/ > pytest-coverage.txt
+        poetry run pytest --color=yes --cache-clear --junit-xml=./pytest-coverage.xml --cov=firestone test/ > pytest-coverage.txt
     - name: Pytest coverage comment
       uses: MishaKav/pytest-coverage-comment@main
       with:
         pytest-coverage-path: ./pytest-coverage.txt
-        #junitxml-path: ./pytest.xml
-    #- name: Comment coverage
-    #  uses: coroo/pytest-coverage-commentator@v1.0.2
-    #  with:
-    #    pytest-coverage: pytest-coverage.txt
-    #    token: ${{ secrets.GITHUB_TOKEN }}
-    #- name: Coverage Badge
-    #  uses: tj-actions/coverage-badge-py@v1.8
+        junitxml-path: ./pytest-coverage.xml
