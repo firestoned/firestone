@@ -1,12 +1,14 @@
 [1m============================= test session starts ==============================[0m
-platform linux -- Python 3.9.15, pytest-7.2.0, pluggy-1.0.0
+
+platform linux -- Python 3.10.8, pytest-7.2.0, pluggy-1.0.0
+
 rootdir: /home/runner/work/firestone/firestone
 plugins: mock-3.10.0, cov-4.0.0
 collected 1 item
 
 test/spec/test_openapi.py [32m.[0m[32m                                              [100%][0m
 
----------- coverage: platform linux, python 3.9.15-final-0 -----------
+---------- coverage: platform linux, python 3.10.8-final-0 -----------
 Name                           Stmts   Miss  Cover
 --------------------------------------------------
 firestone/__init__.py              0      0   100%
@@ -19,6 +21,5 @@ firestone/spec/asyncapi.py         0      0   100%
 firestone/spec/openapi.py        132    113    14%
 --------------------------------------------------
 TOTAL                            206    180    13%
-
 
 [32m============================== [32m[1m1 passed[0m[32m in 0.16s[0m[32m ===============================[0m
