@@ -39,6 +39,7 @@ jobs:
         uses: MishaKav/pytest-coverage-comment@main
         with:
           hide-comment: true
+          hide-report: true
           pytest-coverage-path: ./pytest-coverage.txt
           junitxml-path: ./pytest-coverage.xml
       - name: Update README with Coverage HTML
