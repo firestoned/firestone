@@ -156,17 +156,21 @@ def get_params(method: str, schema: dict, path_name: str = None, param_schema: d
     return parameters
 
 
-# TODO split out each step into different functions
-# pylint: disable=too-many-locals
-def get_paths(
+def add_resource_methods(
     rsrc_name: str,
     schema: dict,
     baseurl: str,
     paths: dict = None,
     default_query_params: dict = None,
 ):
-    """Get tshe paths for resource."""
-    # 1. Add methods to high-level baseurl
+    """Add resource level methods to the paths.
+
+    :param str rsrc_name: the resource name
+    :param dict schema: the schema for this resource name
+    :param str baseurl: the baseurl to use for paths
+    :param str key: the key name for the instance of this resource
+    :param dict paths: the paths
+    """
     paths[baseurl] = {}
     rsrc_methods = schema.get("methods", [])
     rsrc_descs = schema.get("descriptions", {})
@@ -187,7 +191,6 @@ def get_paths(
             is_list=(method == "get"),
         )
         paths[baseurl][method]["tags"] = [rsrc_name]
-        _LOGGER.debug(f"paths[{baseurl}][{method}]: {paths[baseurl][method]}")
 
         # Add parameters
         params = get_params(method, schema)
@@ -196,16 +199,26 @@ def get_paths(
         _LOGGER.debug(f"params: {params}")
         paths[baseurl][method]["parameters"] = params
 
-    # 2. Add paths for each attribtue
-    if schema["type"] == "array" and not "key" in schema:
-        raise SchemaMissingAttribute("A 'key' is missing in schema {yaml.dump(schema)}")
 
-    key = schema["key"]["name"]
-    instance_baseurl = "/".join([baseurl, f"{{{key}}}"])
-    _LOGGER.debug(f"instance_baseurl: {instance_baseurl}")
+def add_instance_methods(
+    rsrc_name: str,
+    schema: dict,
+    baseurl: str,
+    key: str,
+    paths: dict = None,
+):
+    """Add the instance methods to the paths.
+
+    :param str rsrc_name: the resource name
+    :param dict schema: the schema for this resource name
+    :param str baseurl: the baseurl to use for paths
+    :param str key: the key name for the instance of this resource
+    :param dict paths: the paths
+    """
+    rsrc_methods = schema.get("methods", [])
     rsrc_inst_descs = schema["items"].get("descriptions", {})
 
-    paths[instance_baseurl] = {}
+    paths[baseurl] = {}
     for method in RSRC_INST_HTTP_METHODS:
         if rsrc_methods and method not in rsrc_methods:
             _LOGGER.info(
@@ -213,8 +226,8 @@ def get_paths(
                 "as it is not in the defined methods requested"
             )
             continue
-        paths[instance_baseurl][method] = get_mthod_op(
-            instance_baseurl,
+        paths[baseurl][method] = get_mthod_op(
+            baseurl,
             method,
             schema,
             desc=rsrc_inst_descs.get(method),
@@ -224,15 +237,31 @@ def get_paths(
         # Add parameters
         params = get_params(method, schema, path_name=key)
         _LOGGER.debug(f"params: {params}")
-        paths[instance_baseurl][method]["parameters"] = params
+        paths[baseurl][method]["parameters"] = params
 
         # Add tags
-        paths[instance_baseurl][method]["tags"] = [rsrc_name]
-        _LOGGER.debug(f"paths[instance_baseurl][{method}]: {paths[instance_baseurl][method]}")
+        paths[baseurl][method]["tags"] = [rsrc_name]
+        _LOGGER.debug(f"paths[baseurl][{method}]: {paths[baseurl][method]}")
 
-    # 3. Add attribute path for instance of this resource
+
+def add_instance_attr_methods(
+    rsrc_name: str,
+    schema: dict,
+    baseurl: str,
+    key: str,
+    paths: dict = None,
+):
+    """Add the instance attr methods to the paths.
+
+    :param str rsrc_name: the resource name
+    :param dict schema: the schema for this resource name
+    :param str baseurl: the baseurl to use for paths
+    :param str key: the key name for the instance of this resource
+    :param dict paths: the paths
+    """
+    rsrc_methods = schema.get("methods", [])
     for prop in schema["items"]["properties"]:
-        path = "/".join([instance_baseurl, prop])
+        path = "/".join([baseurl, prop])
         _LOGGER.debug(f"path: {path}")
         prop_schema = schema["items"]["properties"][prop]
 
@@ -264,6 +293,50 @@ def get_paths(
             # TODO test and add recursivness
             if "items" in prop_schema:
                 get_paths(rsrc_name, prop_schema, path, paths)
+
+
+def get_paths(
+    rsrc_name: str,
+    schema: dict,
+    baseurl: str,
+    paths: dict = None,
+    default_query_params: dict = None,
+):
+    """Get tshe paths for resource."""
+    # 1. Add methods to high-level baseurl
+    add_resource_methods(
+        rsrc_name,
+        schema,
+        baseurl,
+        paths=paths,
+        default_query_params=default_query_params,
+    )
+    _LOGGER.debug(f"paths[{baseurl}]: {paths[baseurl]}")
+
+    if schema["type"] == "array" and not "key" in schema:
+        raise SchemaMissingAttribute("A 'key' is missing in schema {yaml.dump(schema)}")
+
+    key = schema["key"]["name"]
+    instance_baseurl = "/".join([baseurl, f"{{{key}}}"])
+    _LOGGER.debug(f"instance_baseurl: {instance_baseurl}")
+
+    # 2. Add paths for each attribtue
+    add_instance_methods(
+        rsrc_name,
+        schema,
+        instance_baseurl,
+        key,
+        paths=paths,
+    )
+
+    # 3. Add attribute path for instance of this resource
+    add_instance_attr_methods(
+        rsrc_name,
+        schema,
+        instance_baseurl,
+        key,
+        paths=paths,
+    )
 
     return paths
 
