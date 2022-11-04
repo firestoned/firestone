@@ -19,12 +19,6 @@ schema:
     description: A UUID associated to this person
     schema:
       type: string
-  # You can limit the overal HTTP methods for the high level resource endpoint
-  #methods:
-  #  - get
-  #responseCodes:
-  # - 200
-  # - 201
   query_params:
     - name: last_name
       description: Filter by last name
