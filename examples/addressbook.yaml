@@ -46,6 +46,46 @@ schema:
       put: Put a new address in this addressbook, with the given address key
     type: object
     properties:
+      person:
+        # embeded person
+        schema:
+          type: array
+          key:
+            name: uuid
+            description: A UUID associated to this person
+            schema:
+              type: string
+          query_params:
+            - name: last_name
+              description: Filter by last name
+              schema:
+                type: string
+              methods:
+                - get
+          descriptions:
+            get: List all persons in this collection
+            head: Determine the existence and size of persons in this collection
+            patch: Patch one or more persons in this collection
+            post: Create a new person in this collection, a new UUID key will be created
+          items:
+            descriptions:
+              get: Get a specific person from this collection
+              head: Determine the existence and size of this person
+              patch: Patch this person in the collection
+              put: Put a new person in this collection, with the given UUId key
+            type: object
+            properties:
+              first_name:
+                description: The person's first name
+                type: string
+                # Don't expose this attribute in the URL/specification
+                # expose: false
+              last_name:
+                description: The person's last name
+                type: string
+              age:
+                description: The person's age
+                type: integer
       addrtype:
         description: The address type, e.g. work or home
         type: string

@@ -250,6 +250,8 @@ def add_instance_attr_methods(
     baseurl: str,
     key: str,
     paths: dict = None,
+    default_query_params: dict = None,
+    components: dict = None,
 ):
     """Add the instance attr methods to the paths.
 
@@ -258,6 +260,7 @@ def add_instance_attr_methods(
     :param str baseurl: the baseurl to use for paths
     :param str key: the key name for the instance of this resource
     :param dict paths: the paths
+    :param dict default_query_params: the paths
     """
     rsrc_methods = schema.get("methods", [])
     for prop in schema["items"]["properties"]:
@@ -276,7 +279,9 @@ def add_instance_attr_methods(
                     "as it is not in the defined methods requested"
                 )
                 continue
-            inst_attr_op = get_mthod_op(path, method, prop_schema, comp_name=rsrc_name, attr_name=prop)
+            inst_attr_op = get_mthod_op(
+                path, method, prop_schema, comp_name=rsrc_name, attr_name=prop
+            )
             _LOGGER.debug(f"inst_attr_op: {inst_attr_op}")
 
             paths[path][method] = inst_attr_op
@@ -291,8 +296,15 @@ def add_instance_attr_methods(
             _LOGGER.debug(f"paths[path][{method}]: {paths[path][method]}")
 
             # TODO test and add recursivness
-            if "items" in prop_schema:
-                get_paths(rsrc_name, prop_schema, path, paths)
+            if "schema" in prop_schema:
+                components["schemas"][prop] = prop_schema["schema"]["items"]
+                get_paths(
+                    prop,
+                    prop_schema["schema"],
+                    path,
+                    paths,
+                    default_query_params=default_query_params,
+                )
 
 
 def get_paths(
@@ -301,6 +313,7 @@ def get_paths(
     baseurl: str,
     paths: dict = None,
     default_query_params: dict = None,
+    components: dict = None,
 ):
     """Get tshe paths for resource."""
     # 1. Add methods to high-level baseurl
@@ -336,6 +349,8 @@ def get_paths(
         instance_baseurl,
         key,
         paths=paths,
+        default_query_params=default_query_params,
+        components=components,
     )
 
     return paths
@@ -364,7 +379,12 @@ def generate(rsrc_data: list, title: str, desc: str, summary: str):
         _LOGGER.debug(f"default_query_params: {default_query_params}")
 
         paths = get_paths(
-            rsrc_name, rschema, baseurl, paths={}, default_query_params=default_query_params
+            rsrc_name,
+            rschema,
+            baseurl,
+            paths={},
+            default_query_params=default_query_params,
+            components=components,
         )
         _LOGGER.debug(f"paths: {paths}")
         all_paths.update(paths)
