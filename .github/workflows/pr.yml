@@ -27,6 +27,9 @@ jobs:
           python -m pip install poetry
           poetry install
           poetry build
+      - name: Run black check
+        run: |
+          poetry run black --check .
       - name: pylint and pycodestyle
         run: |
           poetry run pylint firestone test

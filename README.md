@@ -41,7 +41,7 @@ sudo pip install firestone
 
 [Poetry](https://python-poetry.org/) is a great build tool for python that
 allows you to build and run all locally in a virtual environment. This is great
-for checking out the tool and playiong around.
+for checking out the tool and playing around with `firestone` itself.
 
 ```
 brew install poetry
@@ -103,7 +103,7 @@ Here is the full file:
 name: addressbook
 description: An example of an addressbook resource
 version: 1.0
-versionInPath: false
+version_in_path: false
 schema:
   type: array
   key:
@@ -182,9 +182,9 @@ generated sopecification files.
 #### `version`
 
 The verison of this resource definition, this cna alternatively be used in the
-URL as well, see beloe `versionInPath`
+URL as well, see beloe `version_in_path`
 
-#### `versionInPath`
+#### `version_in_path`
 
 This attribute defines whether to prepend the version defined above in the URL paths, e.g., for the
 above, you woudl get: `/v1.0/addressbook`.

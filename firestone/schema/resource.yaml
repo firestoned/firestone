@@ -9,7 +9,7 @@ properties:
   version:
     description: The version of the resource
     type: number
-  versionInPath:
+  version_in_path:
     description: Whether to prepend to all paths version to the path, e.g. /v1.0
     type: boolean
   schema:
