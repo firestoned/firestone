@@ -1,7 +1,7 @@
 name: addressbook
 description: An example of an addressbook resource
 version: 1.0
-versionInPath: false
+version_in_path: false
 default_query_params:
   - name: limit
     description: Limit the number of responses back

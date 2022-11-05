@@ -76,7 +76,7 @@ def get_responses(
     return responses
 
 
-def get_mthod_op(
+def get_method_op(
     path: str,
     method: str,
     schema: dict,
@@ -160,7 +160,7 @@ def add_resource_methods(
     rsrc_name: str,
     schema: dict,
     baseurl: str,
-    paths: dict = None,
+    paths: dict,
     default_query_params: dict = None,
 ):
     """Add resource level methods to the paths.
@@ -182,7 +182,7 @@ def add_resource_methods(
                 "as it is not in the defined methods requested"
             )
             continue
-        paths[baseurl][method] = get_mthod_op(
+        paths[baseurl][method] = get_method_op(
             baseurl,
             method,
             schema,
@@ -199,13 +199,15 @@ def add_resource_methods(
         _LOGGER.debug(f"params: {params}")
         paths[baseurl][method]["parameters"] = params
 
+    return paths
+
 
 def add_instance_methods(
     rsrc_name: str,
     schema: dict,
     baseurl: str,
     key: str,
-    paths: dict = None,
+    paths: dict,
 ):
     """Add the instance methods to the paths.
 
@@ -226,7 +228,7 @@ def add_instance_methods(
                 "as it is not in the defined methods requested"
             )
             continue
-        paths[baseurl][method] = get_mthod_op(
+        paths[baseurl][method] = get_method_op(
             baseurl,
             method,
             schema,
@@ -249,7 +251,7 @@ def add_instance_attr_methods(
     schema: dict,
     baseurl: str,
     key: str,
-    paths: dict = None,
+    paths: dict,
     default_query_params: dict = None,
     components: dict = None,
 ):
@@ -279,7 +281,7 @@ def add_instance_attr_methods(
                     "as it is not in the defined methods requested"
                 )
                 continue
-            inst_attr_op = get_mthod_op(
+            inst_attr_op = get_method_op(
                 path, method, prop_schema, comp_name=rsrc_name, attr_name=prop
             )
             _LOGGER.debug(f"inst_attr_op: {inst_attr_op}")
@@ -295,7 +297,7 @@ def add_instance_attr_methods(
             paths[path][method]["tags"] = [rsrc_name]
             _LOGGER.debug(f"paths[path][{method}]: {paths[path][method]}")
 
-            # TODO test and add recursivness
+            # Recursively get paths for this property
             if "schema" in prop_schema:
                 components["schemas"][prop] = prop_schema["schema"]["items"]
                 get_paths(
@@ -304,6 +306,7 @@ def add_instance_attr_methods(
                     path,
                     paths,
                     default_query_params=default_query_params,
+                    components=components,
                 )
 
 
@@ -316,12 +319,15 @@ def get_paths(
     components: dict = None,
 ):
     """Get tshe paths for resource."""
+    if not paths:
+        paths = {}
+
     # 1. Add methods to high-level baseurl
     add_resource_methods(
         rsrc_name,
         schema,
         baseurl,
-        paths=paths,
+        paths,
         default_query_params=default_query_params,
     )
     _LOGGER.debug(f"paths[{baseurl}]: {paths[baseurl]}")
@@ -339,7 +345,7 @@ def get_paths(
         schema,
         instance_baseurl,
         key,
-        paths=paths,
+        paths,
     )
 
     # 3. Add attribute path for instance of this resource
@@ -348,7 +354,7 @@ def get_paths(
         schema,
         instance_baseurl,
         key,
-        paths=paths,
+        paths,
         default_query_params=default_query_params,
         components=components,
     )
@@ -363,7 +369,7 @@ def generate(rsrc_data: list, title: str, desc: str, summary: str):
     for rsrc in rsrc_data:
         rsrc_name = rsrc["name"]
         baseurl = "/"
-        if rsrc["versionInPath"]:
+        if "version_in_path" in rsrc and rsrc["version_in_path"]:
             baseurl += f"v{rsrc['version']}/"
         baseurl += rsrc_name
         _LOGGER.debug(f"baseurl: {baseurl}")

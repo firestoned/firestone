@@ -1,7 +1,7 @@
 name: persons
 description: An example of a persons resource
 version: 1.0
-versionInPath: false
+version_in_path: false
 default_query_params:
   - name: limit
     description: Limit the number of responses back
