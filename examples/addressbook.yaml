@@ -20,7 +20,7 @@ schema:
     description: A unique identitfier for an addressbook entry.
     schema:
       type: string
-  # You can limit the overal HTTP methods for the high level resource endpoint
+  # You can limit the overall HTTP methods for the high level resource endpoint
   #methods:
   #  - get
   #responseCodes:
