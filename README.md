@@ -7,15 +7,15 @@
 
 Resource-Based Approach to Building APIs
 
-``firestone`` allows you to build OpneAPI, AsyncAPI and gRPC specs based off one or
+``firestone`` allows you to build OpenAPI, AsyncAPI and gRPC specs based off one or
 more resource json schema files. This allows you to focus on what really
 matters, the resource you are developing!
 
-Once you have generated the appropriate specfication file for your project, you
-can then use the myriad of libraries and fraemworks to geenrate stub code for
+Once you have generated the appropriate specification file for your project, you
+can then use the myriad of libraries and frameworks to generate stub code for
 you.
 
-**The primary premise of this project is not to introdue any new "language" to describe your
+**The primary premise of this project is not to introduce any new "language" to describe your
 resources(s), use JSON Schema!**
 
 THis makes it easy to come up to speed and little to no prior knowledge to get
@@ -26,8 +26,8 @@ see [schema](#schema) section.
 
 ## Quick Start
 
-You can use pip or poetry to run and use ``firestone``. We suggest using pip if you wish to install
-`firestone`` machine-wode, else, for local use, use poetry.
+You can use pip or poetry to install and run ``firestone``. We suggest using pip if you wish to install
+`firestone`` machine-wide, else, for local use, use poetry.
 
 ### pip
 
@@ -51,31 +51,31 @@ poetry build
 
 ## Running
 
-Now that you have a copy of ``firestone``, let's try running it wihtt he
-example reosouce rpovided, an addressbook!
+Now that you have a copy of ``firestone``, let's try running it with the
+example resource provided, an addressbook!
 
-Note: if running wihtin poetry build, simply prepend commands with ``poetry run``
+Note: if running within poetry build, simply prepend commands with ``poetry run``
 
 ### Generate an OpenAPI Spec
 
 ```
-firestone generate --title 'Addressbook resource' --description 'A simple addressbook example' --resources examples/addressbook/resource.yaml openapi
+firestone generate --title 'Addressbook resource' --description 'A simple addressBook example' --resources examples/addressBook/resource.yaml openapi
 ```
 
-Let's quickly disect this command:
+Let's quickly dissect this command:
 
 - we are telling firestone to generate an `openapi` spec, given the ``title``,
   ``description`` and the two given resource files.
-- By default, this will output the speciificaton file to stdout, alternatively
+- By default, this will output the specification file to stdout, alternatively
   you can provide the `-O` option to output to a specific file.
 
 You can also, add the command line `--ui-server` tot he end, which will launch a
 small webserver and run the Swagger UI to view this specification file.
 
 ```
-poetry run firestone --debug generate --title 'Example person and addressbook API' \
+poetry run firestone --debug generate --title 'Example person and addressBook API' \
     --description 'An example API with more than one resource' \
-    --resources examples/addressbook.yaml,examples/person.yaml \
+    --resources examples/addressBook.yaml,examples/person.yaml \
     openapi \
     --ui-server
 # ...
@@ -92,26 +92,37 @@ Now you can use your browser to navigate to `http://127.0.0.1:5000/apidocs`
 
 ## Schema
 
-It all begins with your resource definition! This is done usign JSON schema and
-we have provided an example in our `examples` directory, called addressbook. We
+It all begins with your resource definition! This is done using JSON schema and
+we have provided an example in our `examples` directory, called addressBook. We
 will use this to describe how the schema is setup and how you can adapt to your
 own.
 
 Here is the full file:
 
 ```yaml
-name: addressbook
-description: An example of an addressbook resource
+name: addressBook
+description: An example of an addressBook resource
 version: 1.0
 version_in_path: false
+default_query_params:
+  - name: limit
+    description: Limit the number of responses back
+    in: params
+    schema:
+      type: integer
+  - name: offset
+    description: The offset to start returning resources
+    in: params
+    schema:
+      type: integer
 schema:
   type: array
   key:
     name: address_key
     schema:
-      description: A unique identitfier for an addressbook entry.
+      description: A unique identifier for an addressbook entry.
       type: string
-  # You can limit the overal HTTP methods for the high level resource endpoint
+  # You can limit the overall HTTP methods for the high level resource endpoint
   #methods:
   #  - get
   #responseCodes:
@@ -125,16 +136,16 @@ schema:
       methods:
         - get
   descriptions:
-    get: List all addresses in this addressbook
-    head: Determine the existence and size of addresses in this addressbook
-    patch: Patch one or more addresses in this addressbook
-    post: Create a new address in this addressbook, a new address key will be created
+    get: List all addresses in this addressBook
+    head: Determine the existence and size of addresses in this addressBook
+    patch: Patch one or more addresses in this addressBook
+    post: Create a new address in this addressBook, a new address key will be created
   items:
     descriptions:
-      get: Get a specific address from this addressbook
+      get: Get a specific address from this addressBook
       head: Determine the existence and size of this address
-      patch: Patch this address in the addressbook
-      put: Put a new address in this addressbook, with the given address key
+      patch: Patch this address in the addressBook
+      put: Put a new address in this addressBook, with the given address key
     type: object
     properties:
       addrtype:
@@ -159,34 +170,39 @@ schema:
 
 ### Metadata
 
-There is a certain amount of metadata that all of hese specifications
+There is a certain amount of metadata that all of these specifications
 use/require, and this is done at the top of the resource,yaml; for posterity,
 they are:
 
 ```yaml
-name: addressbook
-description: An example of an addressbook resource
+name: addressBook
+description: An example of an addressBook resource
 version: 1.0
 ```
 
 #### `name`
 
 The name is used in various places, including as the root to API URLs, for
-example in OpenAPI, `/addressbook`
+example in OpenAPI, `/addressBook`
 
 #### `description`
 
 This is self evident, I hope, the description of this resource and is used nt he
-generated sopecification files.
+generated specification files.
 
 #### `version`
 
-The verison of this resource definition, this cna alternatively be used in the
-URL as well, see beloe `version_in_path`
+The version of this resource definition, this cna alternatively be used in the
+URL as well, see below `version_in_path`
 
 #### `version_in_path`
 
 This attribute defines whether to prepend the version defined above in the URL paths, e.g., for the
-above, you woudl get: `/v1.0/addressbook`.
+above, you would get: `/v1.0/addressBook`.
+
+#### `default_query_params`
+
+You can provide a list of default query parameters that will be added to all HTTP methods,
+or optionally you can provide a list of the HTTP methods, for which `firestone` will add.
 
 ## Contributing
