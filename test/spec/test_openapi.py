@@ -6,17 +6,12 @@ import http.client
 import unittest
 from unittest import mock
 
+from firestone.spec import _base as spec_base
 from firestone.spec import openapi
 
-
+# pylint: disable=duplicate-code
 class TestOpenAPIGetResponses(unittest.TestCase):
     """Test all aspects of firestone.spec.openapi.get_responses"""
-
-    def test_get_opid_correct_return(self):
-        """Test firestone.spec.openapi.get_opid returns correct opid."""
-
-        opid = openapi.get_opid("/foo/{bar}", "get")
-        self.assertEqual(opid, "foo_bar_get")
 
     def test_head(self):
         """Test firestone.spec.openapi.get_responses() HEAD."""
@@ -610,7 +605,7 @@ class TestOpenAPIGetPaths(unittest.TestCase):
     @mock.patch("firestone.spec.openapi.add_instance_attr_methods")
     def test_raise_exc(self, _inst_attr_meth_mock, _inst_meth_mock):
         """Test no paths."""
-        with self.assertRaises(openapi.SchemaMissingAttribute):
+        with self.assertRaises(spec_base.SchemaMissingAttribute):
             paths = openapi.get_paths(
                 "foo",
                 {

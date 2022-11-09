@@ -103,6 +103,24 @@ def openapi(rsrc_data, output, ui_server):
         app.run()
 
 
+@generate.command()
+@click.option(
+    "--output",
+    "-O",
+    help="Output the specificaton to file name provided, or `-` for stdout",
+    type=click.File("w"),
+    default="-",
+)
+@click.pass_obj
+def asyncapi(rsrc_data, output):
+    """Generate an AsyncAPI specification for the given resource data."""
+
+    openapi_spec = firestone_spec.asyncapi.generate(
+        rsrc_data["data"], rsrc_data["title"], rsrc_data["desc"], rsrc_data["summary"]
+    )
+    print(openapi_spec, file=output)
+
+
 if __name__ == "main":
     # pylint: disable=no-value-for-parameter
     main()

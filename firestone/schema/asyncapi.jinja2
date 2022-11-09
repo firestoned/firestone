@@ -1,0 +1,15 @@
+asyncapi: 2.5.0
+defaultContentType: application/json
+info:
+  title: {{ title }}
+  description: {{ description }}
+  version: '{{ version }}'
+{%- if components %}
+servers:
+{{ servers|yaml_pretty }}
+{%- endif -%}
+{%- if components -%}
+components:
+{{ components|yaml_pretty }}{% endif -%}
+channels:
+{{ channels|yaml_pretty }}

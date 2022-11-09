@@ -1,0 +1,1086 @@
+openapi: 3.0.0
+info:
+  title: Example person and addressbook API
+  summary: 
+  description: An example API with more than one resource
+  version: 
+# https://www.jvt.me/posts/2022/05/29/openapi-json-patch/
+components:
+  schemas:
+    addressbook:
+      properties:
+        addrtype:
+          description: The address type, e.g. work or home
+          enum:
+          - work
+          - home
+          type: string
+        city:
+          description: The city of this address
+          type: string
+        country:
+          description: The country of this address
+          type: string
+        person:
+          schema:
+            descriptions:
+              get: List all persons in this collection
+              head: Determine the existence and size of persons in this collection
+              patch: Patch one or more persons in this collection
+              post: Create a new person in this collection, a new UUID key will be created
+            items:
+              descriptions:
+                get: Get a specific person from this collection
+                head: Determine the existence and size of this person
+                patch: Patch this person in the collection
+                put: Put a new person in this collection, with the given UUId key
+              properties:
+                age:
+                  description: The person's age
+                  type: integer
+                first_name:
+                  description: The person's first name
+                  type: string
+                last_name:
+                  description: The person's last name
+                  type: string
+              type: object
+            key:
+              description: A UUID associated to this person
+              name: uuid
+              schema:
+                type: string
+            query_params:
+            - description: Filter by last name
+              methods:
+              - get
+              name: last_name
+              schema:
+                type: string
+            type: array
+        state:
+          description: The state of this address
+          type: string
+        street:
+          description: The street and civic number of this address
+          type: string
+      type: object
+    person:
+      descriptions:
+        get: Get a specific person from this collection
+        head: Determine the existence and size of this person
+        patch: Patch this person in the collection
+        put: Put a new person in this collection, with the given UUId key
+      properties:
+        age:
+          description: The person's age
+          type: integer
+        first_name:
+          description: The person's first name
+          type: string
+        last_name:
+          description: The person's last name
+          type: string
+      type: object
+  
+
+paths:
+  /addressbook:
+    delete:
+      description: delete operation for /addressbook
+      operationId: addressbook_delete
+      parameters:
+      - &id001
+        description: Limit the number of responses back
+        in: params
+        name: limit
+        schema:
+          type: integer
+      - &id002
+        description: The offset to start returning resources
+        in: params
+        name: offset
+        schema:
+          type: integer
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/addressbook'
+          description: OK
+      tags:
+      - addressbook
+    get:
+      description: List all addresses in this addressbook
+      operationId: addressbook_get
+      parameters:
+      - in: query
+        name: city
+        required: false
+        schema:
+          type: string
+      - *id001
+      - *id002
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/addressbook'
+                type: array
+          description: OK
+      tags:
+      - addressbook
+    head:
+      description: Determine the existence and size of addresses in this addressbook
+      operationId: addressbook_head
+      parameters:
+      - *id001
+      - *id002
+      responses: null
+      tags:
+      - addressbook
+    patch:
+      description: Patch one or more addresses in this addressbook
+      operationId: addressbook_patch
+      parameters:
+      - *id001
+      - *id002
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/addressbook'
+          description: OK
+      tags:
+      - addressbook
+    post:
+      description: Create a new address in this addressbook, a new address key will
+        be created
+      operationId: addressbook_post
+      parameters:
+      - *id001
+      - *id002
+      requestBody:
+        content:
+          application/json:
+            schema:
+              descriptions:
+                get: Get a specific address from this addressbook
+                head: Determine the existence and size of this address
+                patch: Patch this address in the addressbook
+                put: Put a new address in this addressbook, with the given address key
+              properties:
+                addrtype:
+                  description: The address type, e.g. work or home
+                  enum:
+                  - work
+                  - home
+                  type: string
+                city:
+                  description: The city of this address
+                  type: string
+                country:
+                  description: The country of this address
+                  type: string
+                person:
+                  schema:
+                    descriptions:
+                      get: List all persons in this collection
+                      head: Determine the existence and size of persons in this collection
+                      patch: Patch one or more persons in this collection
+                      post: Create a new person in this collection, a new UUID key will
+                        be created
+                    items: &id003
+                      descriptions:
+                        get: Get a specific person from this collection
+                        head: Determine the existence and size of this person
+                        patch: Patch this person in the collection
+                        put: Put a new person in this collection, with the given UUId
+                          key
+                      properties:
+                        age:
+                          description: The person's age
+                          type: integer
+                        first_name:
+                          description: The person's first name
+                          type: string
+                        last_name:
+                          description: The person's last name
+                          type: string
+                      type: object
+                    key:
+                      description: A UUID associated to this person
+                      name: uuid
+                      schema:
+                        type: string
+                    query_params:
+                    - description: Filter by last name
+                      methods:
+                      - get
+                      name: last_name
+                      schema:
+                        type: string
+                    type: array
+                state:
+                  description: The state of this address
+                  type: string
+                street:
+                  description: The street and civic number of this address
+                  type: string
+              type: object
+        description: The request body for /addressbook
+        required: true
+      responses:
+        201:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/addressbook'
+          description: CREATED
+      tags:
+      - addressbook
+  /addressbook/{address_key}:
+    delete:
+      description: delete operation for /addressbook/{address_key}
+      operationId: addressbook_address_key_delete
+      parameters:
+      - in: path
+        name: address_key
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/addressbook'
+          description: OK
+      tags:
+      - addressbook
+    get:
+      description: Get a specific address from this addressbook
+      operationId: addressbook_address_key_get
+      parameters:
+      - in: query
+        name: city
+        required: false
+        schema:
+          type: string
+      - in: path
+        name: address_key
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/addressbook'
+          description: OK
+      tags:
+      - addressbook
+    head:
+      description: Determine the existence and size of this address
+      operationId: addressbook_address_key_head
+      parameters:
+      - in: path
+        name: address_key
+        required: true
+        schema:
+          type: string
+      responses: null
+      tags:
+      - addressbook
+    patch:
+      description: Patch this address in the addressbook
+      operationId: addressbook_address_key_patch
+      parameters:
+      - in: path
+        name: address_key
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/addressbook'
+          description: OK
+      tags:
+      - addressbook
+    put:
+      description: Put a new address in this addressbook, with the given address key
+      operationId: addressbook_address_key_put
+      parameters:
+      - in: path
+        name: address_key
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/addressbook'
+          description: OK
+      tags:
+      - addressbook
+  /addressbook/{address_key}/addrtype:
+    delete:
+      description: delete operation for /addressbook/{address_key}/addrtype
+      operationId: addressbook_address_key_addrtype_delete
+      parameters:
+      - in: path
+        name: address_key
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/addressbook/properties/addrtype'
+          description: OK
+      tags:
+      - addressbook
+    get:
+      description: get operation for /addressbook/{address_key}/addrtype
+      operationId: addressbook_address_key_addrtype_get
+      parameters:
+      - in: query
+        name: city
+        required: false
+        schema:
+          type: string
+      - in: path
+        name: address_key
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/addressbook/properties/addrtype'
+          description: OK
+      tags:
+      - addressbook
+    head:
+      description: head operation for /addressbook/{address_key}/addrtype
+      operationId: addressbook_address_key_addrtype_head
+      parameters:
+      - in: path
+        name: address_key
+        required: true
+        schema:
+          type: string
+      responses: null
+      tags:
+      - addressbook
+    put:
+      description: put operation for /addressbook/{address_key}/addrtype
+      operationId: addressbook_address_key_addrtype_put
+      parameters:
+      - in: path
+        name: address_key
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/addressbook/properties/addrtype'
+          description: OK
+      tags:
+      - addressbook
+  /addressbook/{address_key}/city:
+    delete:
+      description: delete operation for /addressbook/{address_key}/city
+      operationId: addressbook_address_key_city_delete
+      parameters:
+      - in: path
+        name: address_key
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/addressbook/properties/city'
+          description: OK
+      tags:
+      - addressbook
+    get:
+      description: get operation for /addressbook/{address_key}/city
+      operationId: addressbook_address_key_city_get
+      parameters:
+      - in: query
+        name: city
+        required: false
+        schema:
+          type: string
+      - in: path
+        name: address_key
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/addressbook/properties/city'
+          description: OK
+      tags:
+      - addressbook
+    head:
+      description: head operation for /addressbook/{address_key}/city
+      operationId: addressbook_address_key_city_head
+      parameters:
+      - in: path
+        name: address_key
+        required: true
+        schema:
+          type: string
+      responses: null
+      tags:
+      - addressbook
+    put:
+      description: put operation for /addressbook/{address_key}/city
+      operationId: addressbook_address_key_city_put
+      parameters:
+      - in: path
+        name: address_key
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/addressbook/properties/city'
+          description: OK
+      tags:
+      - addressbook
+  /addressbook/{address_key}/country:
+    delete:
+      description: delete operation for /addressbook/{address_key}/country
+      operationId: addressbook_address_key_country_delete
+      parameters:
+      - in: path
+        name: address_key
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/addressbook/properties/country'
+          description: OK
+      tags:
+      - addressbook
+    get:
+      description: get operation for /addressbook/{address_key}/country
+      operationId: addressbook_address_key_country_get
+      parameters:
+      - in: query
+        name: city
+        required: false
+        schema:
+          type: string
+      - in: path
+        name: address_key
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/addressbook/properties/country'
+          description: OK
+      tags:
+      - addressbook
+    head:
+      description: head operation for /addressbook/{address_key}/country
+      operationId: addressbook_address_key_country_head
+      parameters:
+      - in: path
+        name: address_key
+        required: true
+        schema:
+          type: string
+      responses: null
+      tags:
+      - addressbook
+    put:
+      description: put operation for /addressbook/{address_key}/country
+      operationId: addressbook_address_key_country_put
+      parameters:
+      - in: path
+        name: address_key
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/addressbook/properties/country'
+          description: OK
+      tags:
+      - addressbook
+  /addressbook/{address_key}/person:
+    delete:
+      description: delete operation for /addressbook/{address_key}/person
+      operationId: addressbook_address_key_person_delete
+      parameters:
+      - *id001
+      - *id002
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/person'
+          description: OK
+      tags:
+      - person
+    get:
+      description: List all persons in this collection
+      operationId: addressbook_address_key_person_get
+      parameters:
+      - in: query
+        name: last_name
+        required: false
+        schema:
+          type: string
+      - *id001
+      - *id002
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/person'
+                type: array
+          description: OK
+      tags:
+      - person
+    head:
+      description: Determine the existence and size of persons in this collection
+      operationId: addressbook_address_key_person_head
+      parameters:
+      - *id001
+      - *id002
+      responses: null
+      tags:
+      - person
+    patch:
+      description: Patch one or more persons in this collection
+      operationId: addressbook_address_key_person_patch
+      parameters:
+      - *id001
+      - *id002
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/person'
+          description: OK
+      tags:
+      - person
+    post:
+      description: Create a new person in this collection, a new UUID key will be created
+      operationId: addressbook_address_key_person_post
+      parameters:
+      - *id001
+      - *id002
+      requestBody:
+        content:
+          application/json:
+            schema: *id003
+        description: The request body for /addressbook/{address_key}/person
+        required: true
+      responses:
+        201:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/person'
+          description: CREATED
+      tags:
+      - person
+  /addressbook/{address_key}/person/{uuid}:
+    delete:
+      description: delete operation for /addressbook/{address_key}/person/{uuid}
+      operationId: addressbook_address_key_person_uuid_delete
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/person'
+          description: OK
+      tags:
+      - person
+    get:
+      description: Get a specific person from this collection
+      operationId: addressbook_address_key_person_uuid_get
+      parameters:
+      - in: query
+        name: last_name
+        required: false
+        schema:
+          type: string
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/person'
+          description: OK
+      tags:
+      - person
+    head:
+      description: Determine the existence and size of this person
+      operationId: addressbook_address_key_person_uuid_head
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses: null
+      tags:
+      - person
+    patch:
+      description: Patch this person in the collection
+      operationId: addressbook_address_key_person_uuid_patch
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/person'
+          description: OK
+      tags:
+      - person
+    put:
+      description: Put a new person in this collection, with the given UUId key
+      operationId: addressbook_address_key_person_uuid_put
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/person'
+          description: OK
+      tags:
+      - person
+  /addressbook/{address_key}/person/{uuid}/age:
+    delete:
+      description: delete operation for /addressbook/{address_key}/person/{uuid}/age
+      operationId: addressbook_address_key_person_uuid_age_delete
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/person/properties/age'
+          description: OK
+      tags:
+      - person
+    get:
+      description: get operation for /addressbook/{address_key}/person/{uuid}/age
+      operationId: addressbook_address_key_person_uuid_age_get
+      parameters:
+      - in: query
+        name: last_name
+        required: false
+        schema:
+          type: string
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/person/properties/age'
+          description: OK
+      tags:
+      - person
+    head:
+      description: head operation for /addressbook/{address_key}/person/{uuid}/age
+      operationId: addressbook_address_key_person_uuid_age_head
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses: null
+      tags:
+      - person
+    put:
+      description: put operation for /addressbook/{address_key}/person/{uuid}/age
+      operationId: addressbook_address_key_person_uuid_age_put
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/person/properties/age'
+          description: OK
+      tags:
+      - person
+  /addressbook/{address_key}/person/{uuid}/first_name:
+    delete:
+      description: delete operation for /addressbook/{address_key}/person/{uuid}/first_name
+      operationId: addressbook_address_key_person_uuid_first_name_delete
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/person/properties/first_name'
+          description: OK
+      tags:
+      - person
+    get:
+      description: get operation for /addressbook/{address_key}/person/{uuid}/first_name
+      operationId: addressbook_address_key_person_uuid_first_name_get
+      parameters:
+      - in: query
+        name: last_name
+        required: false
+        schema:
+          type: string
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/person/properties/first_name'
+          description: OK
+      tags:
+      - person
+    head:
+      description: head operation for /addressbook/{address_key}/person/{uuid}/first_name
+      operationId: addressbook_address_key_person_uuid_first_name_head
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses: null
+      tags:
+      - person
+    put:
+      description: put operation for /addressbook/{address_key}/person/{uuid}/first_name
+      operationId: addressbook_address_key_person_uuid_first_name_put
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/person/properties/first_name'
+          description: OK
+      tags:
+      - person
+  /addressbook/{address_key}/person/{uuid}/last_name:
+    delete:
+      description: delete operation for /addressbook/{address_key}/person/{uuid}/last_name
+      operationId: addressbook_address_key_person_uuid_last_name_delete
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/person/properties/last_name'
+          description: OK
+      tags:
+      - person
+    get:
+      description: get operation for /addressbook/{address_key}/person/{uuid}/last_name
+      operationId: addressbook_address_key_person_uuid_last_name_get
+      parameters:
+      - in: query
+        name: last_name
+        required: false
+        schema:
+          type: string
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/person/properties/last_name'
+          description: OK
+      tags:
+      - person
+    head:
+      description: head operation for /addressbook/{address_key}/person/{uuid}/last_name
+      operationId: addressbook_address_key_person_uuid_last_name_head
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses: null
+      tags:
+      - person
+    put:
+      description: put operation for /addressbook/{address_key}/person/{uuid}/last_name
+      operationId: addressbook_address_key_person_uuid_last_name_put
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/person/properties/last_name'
+          description: OK
+      tags:
+      - person
+  /addressbook/{address_key}/state:
+    delete:
+      description: delete operation for /addressbook/{address_key}/state
+      operationId: addressbook_address_key_state_delete
+      parameters:
+      - in: path
+        name: address_key
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/addressbook/properties/state'
+          description: OK
+      tags:
+      - addressbook
+    get:
+      description: get operation for /addressbook/{address_key}/state
+      operationId: addressbook_address_key_state_get
+      parameters:
+      - in: query
+        name: city
+        required: false
+        schema:
+          type: string
+      - in: path
+        name: address_key
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/addressbook/properties/state'
+          description: OK
+      tags:
+      - addressbook
+    head:
+      description: head operation for /addressbook/{address_key}/state
+      operationId: addressbook_address_key_state_head
+      parameters:
+      - in: path
+        name: address_key
+        required: true
+        schema:
+          type: string
+      responses: null
+      tags:
+      - addressbook
+    put:
+      description: put operation for /addressbook/{address_key}/state
+      operationId: addressbook_address_key_state_put
+      parameters:
+      - in: path
+        name: address_key
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/addressbook/properties/state'
+          description: OK
+      tags:
+      - addressbook
+  /addressbook/{address_key}/street:
+    delete:
+      description: delete operation for /addressbook/{address_key}/street
+      operationId: addressbook_address_key_street_delete
+      parameters:
+      - in: path
+        name: address_key
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/addressbook/properties/street'
+          description: OK
+      tags:
+      - addressbook
+    get:
+      description: get operation for /addressbook/{address_key}/street
+      operationId: addressbook_address_key_street_get
+      parameters:
+      - in: query
+        name: city
+        required: false
+        schema:
+          type: string
+      - in: path
+        name: address_key
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/addressbook/properties/street'
+          description: OK
+      tags:
+      - addressbook
+    head:
+      description: head operation for /addressbook/{address_key}/street
+      operationId: addressbook_address_key_street_head
+      parameters:
+      - in: path
+        name: address_key
+        required: true
+        schema:
+          type: string
+      responses: null
+      tags:
+      - addressbook
+    put:
+      description: put operation for /addressbook/{address_key}/street
+      operationId: addressbook_address_key_street_put
+      parameters:
+      - in: path
+        name: address_key
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/addressbook/properties/street'
+          description: OK
+      tags:
+      - addressbook
+  
+
