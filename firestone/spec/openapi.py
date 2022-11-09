@@ -1,11 +1,14 @@
 """
 Generate OpenAPI 3.0 Spec
 """
+# TODO: fix dupe code
+# pylint: disable=duplicate-code
+
 import copy
 import http.client
 import logging
 
-from firestone.spec import _base
+from firestone.spec import _base as spec_base
 
 # This is a list of all HTTP methods supported on high-level resource base
 RSRC_HTTP_METHODS = ["delete", "get", "head", "patch", "post"]
@@ -19,18 +22,6 @@ RSRC_ATTR_HTTP_METHODS = ["delete", "get", "head", "put"]
 _LOGGER = logging.getLogger(__name__)
 
 
-class SchemaMissingAttribute(Exception):
-    """Schema is missing an attribute."""
-
-
-def get_opid(path: str, method: str):
-    """Get a unique operationId given the patha nd method."""
-    opid = path[1:].replace("/", "_")
-    opid = opid.replace("{", "")
-    opid = opid.replace("}", "")
-    return f"{opid}_{method}"
-
-
 def get_responses(
     method: str,
     schema: dict,
@@ -39,7 +30,7 @@ def get_responses(
     attr_name: bool = None,
     is_list: bool = None,
 ):
-    """Set schema for a given oepration type."""
+    """Set schema for a given operation type."""
     if method == "head":
         return None
 
@@ -88,10 +79,10 @@ def get_method_op(
     """Get the specified method seciton for the paths."""
     if not desc:
         desc = f"{method} operation for {path}"
-    content_type = "application/json"
+    content_type = spec_base.DEFAULT_CONTENT_TYPE
     opr = {
         "description": desc,
-        "operationId": get_opid(path, method),
+        "operationId": spec_base.get_opid(path, method),
     }
 
     # Now set the schema for responses
@@ -110,7 +101,7 @@ def get_method_op(
             "description": f"The request body for {path}",
             "required": True,
             "content": {
-                "application/json": {
+                spec_base.DEFAULT_CONTENT_TYPE: {
                     "schema": schema["items"] if "items" in schema else schema,
                 },
             },
@@ -168,8 +159,8 @@ def add_resource_methods(
     :param str rsrc_name: the resource name
     :param dict schema: the schema for this resource name
     :param str baseurl: the baseurl to use for paths
-    :param str key: the key name for the instance of this resource
     :param dict paths: the paths
+    :param dict default_query_params: the paths
     """
     paths[baseurl] = {}
     rsrc_methods = schema.get("methods", [])
@@ -318,7 +309,7 @@ def get_paths(
     default_query_params: dict = None,
     components: dict = None,
 ):
-    """Get tshe paths for resource."""
+    """Get the paths for resource."""
     if not paths:
         paths = {}
 
@@ -333,13 +324,13 @@ def get_paths(
     _LOGGER.debug(f"paths[{baseurl}]: {paths[baseurl]}")
 
     if schema["type"] == "array" and not "key" in schema:
-        raise SchemaMissingAttribute("A 'key' is missing in schema {yaml.dump(schema)}")
+        raise spec_base.SchemaMissingAttribute("A 'key' is missing in schema {yaml.dump(schema)}")
 
     key = schema["key"]["name"]
     instance_baseurl = "/".join([baseurl, f"{{{key}}}"])
     _LOGGER.debug(f"instance_baseurl: {instance_baseurl}")
 
-    # 2. Add paths for each attribtue
+    # 2. Add paths for each attribute
     add_instance_methods(
         rsrc_name,
         schema,
@@ -395,7 +386,7 @@ def generate(rsrc_data: list, title: str, desc: str, summary: str):
         _LOGGER.debug(f"paths: {paths}")
         all_paths.update(paths)
 
-    tmpl = _base.JINJA_ENV.get_template("openapi.jinja2")
+    tmpl = spec_base.JINJA_ENV.get_template("openapi.jinja2")
     return tmpl.render(
         title=title,
         summary=summary,
