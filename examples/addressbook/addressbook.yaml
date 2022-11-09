@@ -1,3 +1,4 @@
+# Meta data: start
 name: addressbook
 description: An example of an addressbook resource
 version: 1.0
@@ -13,6 +14,17 @@ default_query_params:
     in: params
     schema:
       type: integer
+asyncapi:
+  servers:
+    dev:
+      url: ws://localhost
+      protocol: ws
+      description: The development websocket server
+  channels:
+    resources: true
+    instances: true
+    instance_attrs: true
+# Meta data: end
 schema:
   type: array
   key:
@@ -29,6 +41,7 @@ schema:
   query_params:
     - name: city
       description: Filter by city name
+      required: true
       schema:
         type: string
       methods:
@@ -46,8 +59,8 @@ schema:
       put: Put a new address in this addressbook, with the given address key
     type: object
     properties:
+      # embeded person
       person:
-        # embeded person
         schema:
           type: array
           key:
