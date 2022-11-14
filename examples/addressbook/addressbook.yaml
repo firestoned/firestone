@@ -6,12 +6,12 @@ version_in_path: false
 default_query_params:
   - name: limit
     description: Limit the number of responses back
-    in: params
+    in: query
     schema:
       type: integer
   - name: offset
     description: The offset to start returning resources
-    in: params
+    in: query
     schema:
       type: integer
 asyncapi:
@@ -29,7 +29,7 @@ schema:
   type: array
   key:
     name: address_key
-    description: A unique identitfier for an addressbook entry.
+    description: A unique identifier for an addressbook entry.
     schema:
       type: string
   # You can limit the overall HTTP methods for the high level resource endpoint
@@ -41,7 +41,7 @@ schema:
   query_params:
     - name: city
       description: Filter by city name
-      required: true
+      required: false
       schema:
         type: string
       methods:
@@ -60,45 +60,9 @@ schema:
     type: object
     properties:
       # embeded person
-      person:
-        schema:
-          type: array
-          key:
-            name: uuid
-            description: A UUID associated to this person
-            schema:
-              type: string
-          query_params:
-            - name: last_name
-              description: Filter by last name
-              schema:
-                type: string
-              methods:
-                - get
-          descriptions:
-            get: List all persons in this collection
-            head: Determine the existence and size of persons in this collection
-            patch: Patch one or more persons in this collection
-            post: Create a new person in this collection, a new UUID key will be created
-          items:
-            descriptions:
-              get: Get a specific person from this collection
-              head: Determine the existence and size of this person
-              patch: Patch this person in the collection
-              put: Put a new person in this collection, with the given UUId key
-            type: object
-            properties:
-              first_name:
-                description: The person's first name
-                type: string
-                # Don't expose this attribute in the URL/specification
-                # expose: false
-              last_name:
-                description: The person's last name
-                type: string
-              age:
-                description: The person's age
-                type: integer
+      person_uuid:
+        description: reference to the person's UUID, for this address
+        type: string
       addrtype:
         description: The address type, e.g. work or home
         type: string

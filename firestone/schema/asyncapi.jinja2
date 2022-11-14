@@ -4,12 +4,13 @@ info:
   title: {{ title }}
   description: {{ description }}
   version: '{{ version }}'
-{%- if components %}
+{% if components -%}
 servers:
 {{ servers|yaml_pretty }}
-{%- endif -%}
-{%- if components -%}
+{% endif -%}
+{% if components -%}
 components:
-{{ components|yaml_pretty }}{% endif -%}
+{{ components|yaml_pretty }}
+{%- endif -%}
 channels:
 {{ channels|yaml_pretty }}
