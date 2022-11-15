@@ -425,7 +425,7 @@ def get_channels(
 
 
 # pylint: disable=too-many-locals
-def generate(rsrc_data: list, title: str, desc: str, summary: str):
+def generate(rsrc_data: list, title: str, desc: str, summary: str, version: str):
     """Generate an AsyncAPI spec based on the resource data sent and other meta data."""
     components = {"schemas": {}}
     all_channels = {}
@@ -468,6 +468,7 @@ def generate(rsrc_data: list, title: str, desc: str, summary: str):
         title=title,
         summary=summary,
         description=desc,
+        version=version,
         servers=servers,
         components=components,
         channels=all_channels,
