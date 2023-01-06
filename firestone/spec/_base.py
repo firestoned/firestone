@@ -22,7 +22,7 @@ def yaml_pretty(data, indent=2):
     res = ""
     for line in dump.split("\n"):
         res += " " * indent + line + "\n"
-    return res
+    return res.rstrip()
 
 
 JINJA_ENV.filters["yaml_pretty"] = yaml_pretty

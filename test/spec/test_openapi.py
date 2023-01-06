@@ -23,7 +23,7 @@ class TestOpenAPIGetResponses(unittest.TestCase):
             None,
             None,
         )
-        self.assertIsNone(responses)
+        self.assertIsNotNone(responses)
 
     def test_get_comp_name(self):
         """Test firestone.spec.openapi.get_responses() 'get' with comp name."""
@@ -76,7 +76,7 @@ class TestOpenAPIGetResponses(unittest.TestCase):
         self.assertIsInstance(responses, dict)
         self.assertEqual(
             responses[http.client.OK]["content"]["application/json"]["schema"],
-            {"$ref": "#/components/schemas/bar/properties/baz"},
+            {"type": "object", "properties": {"foo": {"type": "string"}}},
         )
 
     def test_get_attr_name_is_list(self):
@@ -94,10 +94,7 @@ class TestOpenAPIGetResponses(unittest.TestCase):
         self.assertIsInstance(responses, dict)
         self.assertEqual(
             responses[http.client.OK]["content"]["application/json"]["schema"],
-            {
-                "type": "array",
-                "items": {"$ref": "#/components/schemas/bar/properties/baz"},
-            },
+            {"type": "object", "properties": {"foo": {"type": "string"}}},
         )
 
 
@@ -162,6 +159,7 @@ class TestOpenAPIGetParams(unittest.TestCase):
     def test_no_query(self):
         """Test firestone.spec.openapi.test_get_params() no query_params."""
         params = openapi.get_params(
+            "/foo",
             "get",
             {
                 "type": "array",
@@ -175,12 +173,20 @@ class TestOpenAPIGetParams(unittest.TestCase):
     def test_with_path_name(self):
         """Test firestone.spec.openapi.test_get_params() with path_name."""
         params = openapi.get_params(
+            "/foo/{foo}",
             "get",
             {
                 "type": "array",
                 "items": {"type": "object", "properties": {"foo": {"type": "string"}}},
             },
-            path_name="foo",
+            keys=[
+                {
+                    "name": "foo",
+                    "schema": {
+                        "type": "string",
+                    },
+                }
+            ],
         )
 
         self.assertIsNotNone(params)
@@ -200,13 +206,21 @@ class TestOpenAPIGetParams(unittest.TestCase):
     def test_with_path_name_schema(self):
         """Test firestone.spec.openapi.test_get_params() with path_name and param_schema."""
         params = openapi.get_params(
+            "/foo/{foo}",
             "get",
             {
                 "type": "array",
                 "items": {"type": "object", "properties": {"foo": {"type": "string"}}},
             },
-            path_name="foo",
             param_schema={"type": "integer"},
+            keys=[
+                {
+                    "name": "foo",
+                    "schema": {
+                        "type": "string",
+                    },
+                }
+            ],
         )
 
         self.assertIsNotNone(params)
@@ -226,6 +240,7 @@ class TestOpenAPIGetParams(unittest.TestCase):
     def test_with_query_params(self):
         """Test firestone.spec.openapi.test_get_params() with query_params, default False."""
         params = openapi.get_params(
+            "/foo/{foo}",
             "get",
             {
                 "type": "array",
@@ -257,6 +272,7 @@ class TestOpenAPIGetParams(unittest.TestCase):
     def test_with_query_params_meth(self):
         """Test firestone.spec.openapi.test_get_params() with query_params and method skipping."""
         params = openapi.get_params(
+            "/foo/{foo}",
             "post",
             {
                 "type": "array",
@@ -277,6 +293,7 @@ class TestOpenAPIGetParams(unittest.TestCase):
     def test_with_query_params_true(self):
         """Test firestone.spec.openapi.test_get_params() with query_params, with required=True."""
         params = openapi.get_params(
+            "/foo/{foo}",
             "get",
             {
                 "type": "array",
@@ -421,7 +438,6 @@ class TestOpenAPIAddInstanceMethods(unittest.TestCase):
                 "items": {"type": "object", "properties": {"foo": {"type": "string"}}},
             },
             "/foo/{foo_key}",
-            "foo_key",
             paths,
         )
 
@@ -447,7 +463,6 @@ class TestOpenAPIAddInstanceMethods(unittest.TestCase):
                 "methods": ["get"],
             },
             "/foo/{foo_key}",
-            "foo_key",
             paths,
         )
 
@@ -472,7 +487,6 @@ class TestOpenAPIAddInstanceMethods(unittest.TestCase):
                 "items": {"type": "object", "properties": {"foo": {"type": "string"}}},
             },
             "/foo/{foo_key}",
-            "foo_key",
             paths,
         )
 
@@ -496,8 +510,8 @@ class TestOpenAPIAddInstanceAttrMethods(unittest.TestCase):
                 "items": {"type": "object", "properties": {"bar": {"type": "string"}}},
             },
             "/foo/{foo_key}",
-            "foo_key",
             paths,
+            components={"schemas": {}},
         )
 
         self.assertIsNotNone(paths)
@@ -524,7 +538,6 @@ class TestOpenAPIAddInstanceAttrMethods(unittest.TestCase):
                 },
             },
             "/foo/{foo_key}",
-            "foo_key",
             paths,
         )
 
@@ -544,8 +557,8 @@ class TestOpenAPIAddInstanceAttrMethods(unittest.TestCase):
                 "methods": ["get"],
             },
             "/foo/{foo_key}",
-            "foo_key",
             paths,
+            components={"schemas": {}},
         )
 
         self.assertIsNotNone(paths)
@@ -585,7 +598,6 @@ class TestOpenAPIAddInstanceAttrMethods(unittest.TestCase):
                 },
             },
             "/foo/{foo_key}",
-            "foo_key",
             paths,
             components={"schemas": {}},
         )
@@ -629,6 +641,7 @@ class TestOpenAPIGetPaths(unittest.TestCase):
                 "items": {"type": "object", "properties": {"bar": {"type": "string"}}},
             },
             "/foo",
+            keys=[{"name": "foo_key", "schema": {"type": "string"}}],
         )
 
         self.assertIsNotNone(paths)
@@ -641,8 +654,8 @@ class TestOpenAPIGetPaths(unittest.TestCase):
                 "items": {"type": "object", "properties": {"bar": {"type": "string"}}},
             },
             "/foo/{foo_key}",
-            "foo_key",
             mock.ANY,
+            keys=[{"name": "foo_key", "schema": {"type": "string"}}],
             default_query_params=None,
             components=None,
         )
@@ -669,6 +682,7 @@ class TestOpenAPIGenerate(unittest.TestCase):
             "Foo API",
             "Some Foo API",
             "Summary of Foo API",
+            "1.0",
         )
 
         self.assertIsNotNone(spec)
@@ -698,6 +712,7 @@ class TestOpenAPIGenerate(unittest.TestCase):
             "Foo API",
             "Some Foo API",
             "Summary of Foo API",
+            "1.0",
         )
 
         self.assertIsNotNone(spec)
@@ -719,11 +734,11 @@ class TestOpenAPIGenerate(unittest.TestCase):
                             "name": "foo_key",
                             "schema": {"type": "string"},
                         },
+                        "descriptions": {
+                            "get": "The get method is fabulous",
+                        },
                         "items": {
                             "type": "object",
-                            "descriptions": {
-                                "get": "The get method is fabulous",
-                            },
                             "properties": {"bar": {"type": "string"}},
                         },
                     },
@@ -732,7 +747,9 @@ class TestOpenAPIGenerate(unittest.TestCase):
             "Foo API",
             "Some Foo API",
             "Summary of Foo API",
+            "1.0",
         )
+        print(f"spec: {spec}")
 
         self.assertIsNotNone(spec)
 
@@ -742,6 +759,7 @@ class TestOpenAPIGenerate(unittest.TestCase):
         self.assertIn("/foo", spec)
         self.assertIn("/foo/{foo_key}", spec)
         self.assertIn("The get method is fabulous", spec)
+        self.assertIn("1.0", spec)
 
 
 if __name__ == "__main__":

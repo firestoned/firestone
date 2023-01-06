@@ -49,14 +49,21 @@ def main(debug):
     help="The title of this project",
     required=True,
 )
+@click.option(
+    "--version",
+    "-v",
+    help="The overal version of this spec",
+    required=True,
+)
 @click.pass_context
-def generate(ctx, description, resources, summary, title):
+def generate(ctx, description, resources, summary, title, version):
     """Upper command for gathering common resource information for the generators."""
     ctx.obj = {
         "data": [],
         "desc": description,
         "summary": summary,
         "title": title,
+        "version": version,
     }
     for rsrc in resources:
         _LOGGER.debug(f"rsrc: {rsrc}")
@@ -90,7 +97,12 @@ def openapi(rsrc_data, output, ui_server, prefix):
     """Generate an OpenAPI specification for the given resource data."""
 
     openapi_spec = firestone_spec.openapi.generate(
-        rsrc_data["data"], rsrc_data["title"], rsrc_data["desc"], rsrc_data["summary"], prefix=prefix,
+        rsrc_data["data"],
+        rsrc_data["title"],
+        rsrc_data["desc"],
+        rsrc_data["summary"],
+        rsrc_data["version"],
+        prefix=prefix,
     )
     print(openapi_spec, file=output)
 
@@ -120,7 +132,11 @@ def asyncapi(rsrc_data, output):
     """Generate an AsyncAPI specification for the given resource data."""
 
     openapi_spec = firestone_spec.asyncapi.generate(
-        rsrc_data["data"], rsrc_data["title"], rsrc_data["desc"], rsrc_data["summary"]
+        rsrc_data["data"],
+        rsrc_data["title"],
+        rsrc_data["desc"],
+        rsrc_data["summary"],
+        rsrc_data["version"],
     )
     print(openapi_spec, file=output)
 
