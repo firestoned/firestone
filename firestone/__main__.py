@@ -88,8 +88,12 @@ def generate(ctx, description, resources, summary, title, version):
     help="Launch web server to vierw Swagger UI",
     is_flag=True,
 )
+@click.option(
+    "--prefix",
+    help="A prefix to all URLs, this will add a 'servers' section to the openapi spec doc",
+)
 @click.pass_obj
-def openapi(rsrc_data, output, ui_server):
+def openapi(rsrc_data, output, ui_server, prefix):
     """Generate an OpenAPI specification for the given resource data."""
 
     openapi_spec = firestone_spec.openapi.generate(
@@ -98,6 +102,7 @@ def openapi(rsrc_data, output, ui_server):
         rsrc_data["desc"],
         rsrc_data["summary"],
         rsrc_data["version"],
+        prefix=prefix,
     )
     print(openapi_spec, file=output)
 
