@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "firestone"
 version = "0.1.0"
-description = "Build OpneAPI and AsyncAPI specs based off one or more resource json schema files"
+description = "Build OpenAPI and AsyncAPI specs based off one or more resource json schema files"
 authors = ["Erick Bourgeois <erick@jeb.ca>"]
 license = "Apache 2.0"
 readme = "README.md"

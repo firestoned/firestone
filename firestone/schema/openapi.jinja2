@@ -5,6 +5,10 @@ info:
   description: {{ description }}
   version: {{ version }}
 # https://www.jvt.me/posts/2022/05/29/openapi-json-patch/
+{%- if servers %}
+servers:
+{{ servers|yaml_pretty }}
+{%- endif -%}
 {%- if components %}
 components:
 {{ components|yaml_pretty }}

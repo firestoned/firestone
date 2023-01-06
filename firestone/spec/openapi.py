@@ -353,7 +353,7 @@ def get_paths(
     return paths
 
 
-def generate(rsrc_data: list, title: str, desc: str, summary: str):
+def generate(rsrc_data: list, title: str, desc: str, summary: str, prefix: str = None):
     """Generate an OpenAPI spec based ont he resource data sent and other meta data."""
     components = {"schemas": {}}
     all_paths = {}
@@ -386,6 +386,12 @@ def generate(rsrc_data: list, title: str, desc: str, summary: str):
         _LOGGER.debug(f"paths: {paths}")
         all_paths.update(paths)
 
+    servers = []
+    if prefix:
+        servers.append({
+            "url": prefix
+        })
+
     tmpl = spec_base.JINJA_ENV.get_template("openapi.jinja2")
     return tmpl.render(
         title=title,
@@ -393,4 +399,5 @@ def generate(rsrc_data: list, title: str, desc: str, summary: str):
         description=desc,
         components=components,
         paths=all_paths,
+        servers=servers,
     )
