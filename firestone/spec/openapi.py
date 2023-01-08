@@ -53,14 +53,16 @@ def get_responses(
         },
     }
     # Default to using the schema directly in the file
-    schema_value = schema["items"] if "items" in schema else schema
+    schema_value = schema["items"] if "items" in schema and schema["type"] != "array" else schema
 
     # if a component name is provided, use that to reference it
     if comp_name:
         schema_value = f"#/components/schemas/{comp_name}"
     if attr_name:
         # schema_value = f"#/components/schemas/{comp_name}/properties/{attr_name}"
-        schema_value = schema["items"] if "items" in schema else schema
+        schema_value = (
+            schema["items"] if "items" in schema and schema["type"] != "array" else schema
+        )
         responses[resp_code_enum.value]["content"][content_type]["schema"] = schema_value
         return responses
 
@@ -94,6 +96,8 @@ def get_method_op(
 
     # Now set the schema for responses
     _LOGGER.debug(f"method: {method}")
+    _LOGGER.debug(f"schema: {schema}")
+    _LOGGER.debug(f"is_list: {is_list}")
     opr["responses"] = get_responses(
         method,
         schema,

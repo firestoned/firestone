@@ -50,3 +50,8 @@ schema:
       age:
         description: The person's age
         type: integer
+      hobbies:
+        description: The person's hobbies
+        type: array
+        items:
+          type: string
