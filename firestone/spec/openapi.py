@@ -361,13 +361,12 @@ def get_paths(
 
     key = None
     if "key" in schema:
+        _LOGGER.info(f"There is a key in schema")
         key = schema["key"]
-        has_param = False
-        if keys:
-            has_param = next((item for item in keys if item["name"] == key["name"]), None)
-            _LOGGER.debug(f"has_param: {has_param}")
-            if not has_param:
-                keys.append(key)
+        has_param = next((item for item in keys if item["name"] == key["name"]), None)
+        _LOGGER.debug(f"has_param: {has_param}")
+        if not has_param:
+            keys.append(key)
 
     # 1. Add methods to high-level baseurl
     add_resource_methods(
