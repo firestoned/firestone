@@ -361,7 +361,6 @@ def get_paths(
 
     key = None
     if "key" in schema:
-        _LOGGER.info(f"There is a key in schema")
         key = schema["key"]
         has_param = next((item for item in keys if item["name"] == key["name"]), None)
         _LOGGER.debug(f"has_param: {has_param}")
