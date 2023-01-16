@@ -444,7 +444,7 @@ paths:
                 $ref: '#/components/schemas/person'
           description: Response for OK
       tags:
-      - person
+      - addressbook
     get:
       description: get operation for /addressbook/{address_key}/person
       operationId: addressbook_address_key_person_get
@@ -471,7 +471,7 @@ paths:
                 type: array
           description: Response for OK
       tags:
-      - person
+      - addressbook
     head:
       description: head operation for /addressbook/{address_key}/person
       operationId: addressbook_address_key_person_head
@@ -487,7 +487,7 @@ paths:
         default:
           description: Default HEAD response
       tags:
-      - person
+      - addressbook
     patch:
       description: patch operation for /addressbook/{address_key}/person
       operationId: addressbook_address_key_person_patch
@@ -507,7 +507,7 @@ paths:
                 $ref: '#/components/schemas/person'
           description: Response for OK
       tags:
-      - person
+      - addressbook
     post:
       description: post operation for /addressbook/{address_key}/person
       operationId: addressbook_address_key_person_post
@@ -533,7 +533,7 @@ paths:
               schema: *id007
           description: Response for CREATED
       tags:
-      - person
+      - addressbook
   /addressbook/{address_key}/person/{uuid}:
     delete:
       description: delete operation for /addressbook/{address_key}/person/{uuid}
@@ -557,7 +557,7 @@ paths:
                 $ref: '#/components/schemas/person'
           description: Response for OK
       tags:
-      - person
+      - addressbook
     get:
       description: get operation for /addressbook/{address_key}/person/{uuid}
       operationId: addressbook_address_key_person_uuid_get
@@ -585,7 +585,7 @@ paths:
                 $ref: '#/components/schemas/person'
           description: Response for OK
       tags:
-      - person
+      - addressbook
     head:
       description: head operation for /addressbook/{address_key}/person/{uuid}
       operationId: addressbook_address_key_person_uuid_head
@@ -604,7 +604,7 @@ paths:
         default:
           description: Default HEAD response
       tags:
-      - person
+      - addressbook
     patch:
       description: patch operation for /addressbook/{address_key}/person/{uuid}
       operationId: addressbook_address_key_person_uuid_patch
@@ -627,7 +627,7 @@ paths:
                 $ref: '#/components/schemas/person'
           description: Response for OK
       tags:
-      - person
+      - addressbook
     put:
       description: put operation for /addressbook/{address_key}/person/{uuid}
       operationId: addressbook_address_key_person_uuid_put
@@ -650,7 +650,7 @@ paths:
                 $ref: '#/components/schemas/person'
           description: Response for OK
       tags:
-      - person
+      - addressbook
   /addressbook/{address_key}/person/{uuid}/age:
     delete:
       description: delete operation for /addressbook/{address_key}/person/{uuid}/age
@@ -675,7 +675,7 @@ paths:
                 type: integer
           description: Response for OK
       tags:
-      - person
+      - addressbook
     get:
       description: get operation for /addressbook/{address_key}/person/{uuid}/age
       operationId: addressbook_address_key_person_uuid_age_get
@@ -702,7 +702,7 @@ paths:
               schema: *id008
           description: Response for OK
       tags:
-      - person
+      - addressbook
     head:
       description: head operation for /addressbook/{address_key}/person/{uuid}/age
       operationId: addressbook_address_key_person_uuid_age_head
@@ -721,7 +721,7 @@ paths:
         default:
           description: Default HEAD response
       tags:
-      - person
+      - addressbook
     put:
       description: put operation for /addressbook/{address_key}/person/{uuid}/age
       operationId: addressbook_address_key_person_uuid_age_put
@@ -743,7 +743,7 @@ paths:
               schema: *id008
           description: Response for OK
       tags:
-      - person
+      - addressbook
   /addressbook/{address_key}/person/{uuid}/first_name:
     delete:
       description: delete operation for /addressbook/{address_key}/person/{uuid}/first_name
@@ -768,7 +768,7 @@ paths:
                 type: string
           description: Response for OK
       tags:
-      - person
+      - addressbook
     get:
       description: get operation for /addressbook/{address_key}/person/{uuid}/first_name
       operationId: addressbook_address_key_person_uuid_first_name_get
@@ -795,7 +795,7 @@ paths:
               schema: *id009
           description: Response for OK
       tags:
-      - person
+      - addressbook
     head:
       description: head operation for /addressbook/{address_key}/person/{uuid}/first_name
       operationId: addressbook_address_key_person_uuid_first_name_head
@@ -814,7 +814,7 @@ paths:
         default:
           description: Default HEAD response
       tags:
-      - person
+      - addressbook
     put:
       description: put operation for /addressbook/{address_key}/person/{uuid}/first_name
       operationId: addressbook_address_key_person_uuid_first_name_put
@@ -836,7 +836,7 @@ paths:
               schema: *id009
           description: Response for OK
       tags:
-      - person
+      - addressbook
   /addressbook/{address_key}/person/{uuid}/hobbies:
     delete:
       description: delete operation for /addressbook/{address_key}/person/{uuid}/hobbies
@@ -863,7 +863,7 @@ paths:
                 type: array
           description: Response for OK
       tags:
-      - person
+      - addressbook
     get:
       description: get operation for /addressbook/{address_key}/person/{uuid}/hobbies
       operationId: addressbook_address_key_person_uuid_hobbies_get
@@ -890,7 +890,7 @@ paths:
               schema: *id010
           description: Response for OK
       tags:
-      - person
+      - addressbook
     head:
       description: head operation for /addressbook/{address_key}/person/{uuid}/hobbies
       operationId: addressbook_address_key_person_uuid_hobbies_head
@@ -909,7 +909,7 @@ paths:
         default:
           description: Default HEAD response
       tags:
-      - person
+      - addressbook
     put:
       description: put operation for /addressbook/{address_key}/person/{uuid}/hobbies
       operationId: addressbook_address_key_person_uuid_hobbies_put
@@ -931,7 +931,7 @@ paths:
               schema: *id010
           description: Response for OK
       tags:
-      - person
+      - addressbook
   /addressbook/{address_key}/person/{uuid}/last_name:
     delete:
       description: delete operation for /addressbook/{address_key}/person/{uuid}/last_name
@@ -956,7 +956,7 @@ paths:
                 type: string
           description: Response for OK
       tags:
-      - person
+      - addressbook
     get:
       description: get operation for /addressbook/{address_key}/person/{uuid}/last_name
       operationId: addressbook_address_key_person_uuid_last_name_get
@@ -983,7 +983,7 @@ paths:
               schema: *id011
           description: Response for OK
       tags:
-      - person
+      - addressbook
     head:
       description: head operation for /addressbook/{address_key}/person/{uuid}/last_name
       operationId: addressbook_address_key_person_uuid_last_name_head
@@ -1002,7 +1002,7 @@ paths:
         default:
           description: Default HEAD response
       tags:
-      - person
+      - addressbook
     put:
       description: put operation for /addressbook/{address_key}/person/{uuid}/last_name
       operationId: addressbook_address_key_person_uuid_last_name_put
@@ -1024,7 +1024,7 @@ paths:
               schema: *id011
           description: Response for OK
       tags:
-      - person
+      - addressbook
   /addressbook/{address_key}/state:
     delete:
       description: delete operation for /addressbook/{address_key}/state
