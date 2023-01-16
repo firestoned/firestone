@@ -23,7 +23,7 @@ RSRC_ATTR_HTTP_METHODS = ["delete", "get", "head", "put"]
 
 _LOGGER = logging.getLogger(__name__)
 
-# TODO add support for JSON Patch: ttps://www.jvt.me/posts/2022/05/29/openapi-json-patch/
+# TODO add support for JSON Patch: https://www.jvt.me/posts/2022/05/29/openapi-json-patch/
 
 
 def get_responses(
@@ -44,7 +44,7 @@ def get_responses(
 
     responses = {
         resp_code_enum.value: {
-            "description": resp_code_enum.name,
+            "description": f"Response for {resp_code_enum.name}",
             "content": {
                 content_type: {
                     "schema": {},
