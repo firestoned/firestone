@@ -64,9 +64,9 @@ schema:
     type: object
     properties:
       # embeded person
-      person_uuid:
-        description: reference to the person's UUID, for this address
-        type: string
+      person:
+        schema:
+          $ref: "person.yaml#/schema"
       addrtype:
         description: The address type, e.g. work or home
         type: string
@@ -75,9 +75,6 @@ schema:
         enum:
           - work
           - home
-      person:
-        schema:
-          $ref: "person.yaml#/schema"
       street:
         description: The street and civic number of this address
         type: string
