@@ -658,6 +658,7 @@ class TestOpenAPIGetPaths(unittest.TestCase):
             keys=[{"name": "foo_key", "schema": {"type": "string"}}],
             default_query_params=None,
             components=None,
+            orig_rsrc_name=None,
         )
 
 

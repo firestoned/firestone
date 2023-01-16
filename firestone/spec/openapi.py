@@ -190,6 +190,7 @@ def add_resource_methods(
     paths: dict,
     keys: list = None,
     default_query_params: dict = None,
+    orig_rsrc_name: str = None,
 ):
     """Add resource level methods to the paths.
 
@@ -222,7 +223,7 @@ def add_resource_methods(
             comp_name=rsrc_name,
             is_list=(method == "get"),
         )
-        paths[baseurl][method]["tags"] = [rsrc_name]
+        paths[baseurl][method]["tags"] = [orig_rsrc_name or rsrc_name]
 
         # Add parameters
         params = get_params(baseurl, method, schema, keys=keys)
@@ -240,6 +241,7 @@ def add_instance_methods(
     baseurl: str,
     paths: dict,
     keys: list = None,
+    orig_rsrc_name: str = None,
 ):
     """Add the instance methods to the paths.
 
@@ -277,10 +279,7 @@ def add_instance_methods(
         paths[baseurl][method]["parameters"] = params
 
         # Add tags
-        if "tags" in paths[baseurl][method]:
-            paths[baseurl][method]["tags"].append(rsrc_name)
-        else:
-            paths[baseurl][method]["tags"] = [rsrc_name]
+        paths[baseurl][method]["tags"] = [orig_rsrc_name or rsrc_name]
         _LOGGER.debug(f"paths[baseurl][{method}]: {paths[baseurl][method]}")
 
 
@@ -292,6 +291,7 @@ def add_instance_attr_methods(
     keys: list = None,
     default_query_params: dict = None,
     components: dict = None,
+    orig_rsrc_name: str = None,
 ):
     """Add the instance attr methods to the paths.
 
@@ -332,10 +332,7 @@ def add_instance_attr_methods(
             paths[path][method]["parameters"] = params
 
             # Add tags
-            if "tags" in paths[path][method]:
-                paths[path][method]["tags"].append(rsrc_name)
-            else:
-                paths[path][method]["tags"] = [rsrc_name]
+            paths[path][method]["tags"] = [orig_rsrc_name or rsrc_name]
             _LOGGER.debug(f"paths[{path}][{method}]: {paths[path][method]}")
 
             # Recursively get paths for this property
@@ -364,6 +361,7 @@ def add_instance_attr_methods(
                     keys=keys,
                     default_query_params=default_query_params,
                     components=components,
+                    orig_rsrc_name=orig_rsrc_name,
                 )
 
 
@@ -375,6 +373,7 @@ def get_paths(
     keys: list = None,
     default_query_params: dict = None,
     components: dict = None,
+    orig_rsrc_name: str = None,
 ):
     """Get the paths for resource."""
     if not paths:
@@ -399,6 +398,7 @@ def get_paths(
         paths,
         keys=keys,
         default_query_params=default_query_params,
+        orig_rsrc_name=orig_rsrc_name,
     )
     _LOGGER.debug(f"paths[{baseurl}]: {paths[baseurl]}")
 
@@ -412,6 +412,7 @@ def get_paths(
         instance_baseurl,
         paths,
         keys=keys,
+        orig_rsrc_name=orig_rsrc_name,
     )
 
     # 3. Add attribute path for instance of this resource
@@ -423,6 +424,7 @@ def get_paths(
         keys=keys,
         default_query_params=default_query_params,
         components=components,
+        orig_rsrc_name=orig_rsrc_name,
     )
 
     return paths
@@ -461,6 +463,7 @@ def generate(
             keys=[],
             default_query_params=default_query_params,
             components=components,
+            orig_rsrc_name=rsrc_name,
         )
         _LOGGER.debug(f"paths: {paths}")
         all_paths.update(paths)
