@@ -68,6 +68,7 @@ def generate(ctx, description, resources, summary, title, version):
     for rsrc in resources:
         _LOGGER.debug(f"rsrc: {rsrc}")
         rsrc_data = firestone_rsrc.get_resource_schema(rsrc)
+        _LOGGER.debug(f"rsrc_data: {rsrc_data}")
         _LOGGER.info(f"Validating resource {rsrc_data['name']} against firestone JSON schema.")
         firestone_rsrc.validate(rsrc_data)
 

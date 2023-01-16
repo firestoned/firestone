@@ -33,8 +33,12 @@ schema:
     schema:
       type: string
   # You can limit the overall HTTP methods for the high level resource endpoint
-  #methods:
-  #  - get
+  methods:
+    - delete
+    - get
+    - head
+    - post
+    - put
   #responseCodes:
   # - 200
   # - 201
@@ -71,6 +75,9 @@ schema:
         enum:
           - work
           - home
+      person:
+        schema:
+          $ref: "person.yaml#/schema"
       street:
         description: The street and civic number of this address
         type: string
