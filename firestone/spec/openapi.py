@@ -84,7 +84,6 @@ def get_method_op(
     comp_name: str = None,
     attr_name: str = None,
     is_list: bool = None,
-    components: dict = None,
 ):
     """Get the specified method seciton for the paths."""
     if not desc:
@@ -112,8 +111,13 @@ def get_method_op(
         request_schema = (
             copy.deepcopy(schema["items"]) if "items" in schema else copy.deepcopy(schema)
         )
-        if "$ref" in opr["responses"][http.client.CREATED]["content"][content_type]["schema"]:
-            request_schema = opr["responses"][http.client.CREATED]["content"][content_type]["schema"]
+        if (
+            http.client.CREATED in opr["responses"]
+            and "$ref" in opr["responses"][http.client.CREATED]["content"][content_type]["schema"]
+        ):
+            request_schema = opr["responses"][http.client.CREATED]["content"][content_type][
+                "schema"
+            ]
 
         if "descriptions" in request_schema:
             del request_schema["descriptions"]
@@ -348,9 +352,9 @@ def add_instance_attr_methods(
                     rsrc_name in components["schemas"]
                     and prop in components["schemas"][rsrc_name]["properties"]
                 ):
-                    components["schemas"][rsrc_name]["properties"][
-                        prop
-                        ] = { "$ref": f"#/components/schemas/{prop}"}
+                    components["schemas"][rsrc_name]["properties"][prop] = {
+                        "$ref": f"#/components/schemas/{prop}"
+                    }
 
                 get_paths(
                     prop,
