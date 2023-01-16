@@ -21,50 +21,7 @@ components:
           description: The country of this address
           type: string
         person:
-          schema:
-            descriptions:
-              get: List all persons in this collection
-              head: Determine the existence and size of persons in this collection
-              patch: Patch one or more persons in this collection
-              post: Create a new person in this collection, a new UUID key will be created
-            items:
-              descriptions:
-                get: Get a specific person from this collection
-                head: Determine the existence and size of this person
-                patch: Patch this person in the collection
-                put: Put a new person in this collection, with the given UUId key
-              properties:
-                age:
-                  description: The person's age
-                  type: integer
-                first_name:
-                  description: The person's first name
-                  type: string
-                hobbies:
-                  description: The person's hobbies
-                  items:
-                    type: string
-                  type: array
-                last_name:
-                  description: The person's last name
-                  type: string
-              type: object
-            key:
-              description: A UUID associated to this person
-              name: uuid
-              schema:
-                type: string
-            query_params:
-            - description: Filter by last name
-              methods:
-              - get
-              name: last_name
-              schema:
-                type: string
-            type: array
-        person_uuid:
-          description: reference to the person's UUID, for this address
-          type: string
+          $ref: '#/components/schemas/person'
         state:
           description: The state of this address
           type: string
@@ -159,82 +116,15 @@ paths:
       requestBody:
         content:
           application/json:
-            schema:
-              properties:
-                addrtype:
-                  description: The address type, e.g. work or home
-                  enum:
-                  - work
-                  - home
-                  type: string
-                city:
-                  description: The city of this address
-                  type: string
-                country:
-                  description: The country of this address
-                  type: string
-                person:
-                  schema:
-                    descriptions:
-                      get: List all persons in this collection
-                      head: Determine the existence and size of persons in this collection
-                      patch: Patch one or more persons in this collection
-                      post: Create a new person in this collection, a new UUID key will
-                        be created
-                    items:
-                      descriptions:
-                        get: Get a specific person from this collection
-                        head: Determine the existence and size of this person
-                        patch: Patch this person in the collection
-                        put: Put a new person in this collection, with the given UUId
-                          key
-                      properties:
-                        age:
-                          description: The person's age
-                          type: integer
-                        first_name:
-                          description: The person's first name
-                          type: string
-                        hobbies:
-                          description: The person's hobbies
-                          items:
-                            type: string
-                          type: array
-                        last_name:
-                          description: The person's last name
-                          type: string
-                      type: object
-                    key:
-                      description: A UUID associated to this person
-                      name: uuid
-                      schema:
-                        type: string
-                    query_params:
-                    - description: Filter by last name
-                      methods:
-                      - get
-                      name: last_name
-                      schema:
-                        type: string
-                    type: array
-                person_uuid:
-                  description: reference to the person's UUID, for this address
-                  type: string
-                state:
-                  description: The state of this address
-                  type: string
-                street:
-                  description: The street and civic number of this address
-                  type: string
-              type: object
+            schema: &id003
+              $ref: '#/components/schemas/addressbook'
         description: The request body for /addressbook
         required: true
       responses:
         201:
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/addressbook'
+              schema: *id003
           description: Response for CREATED
       tags:
       - addressbook
@@ -326,7 +216,7 @@ paths:
         200:
           content:
             application/json:
-              schema: &id003
+              schema: &id004
                 description: The address type, e.g. work or home
                 enum:
                 - work
@@ -353,7 +243,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id003
+              schema: *id004
           description: Response for OK
       tags:
       - addressbook
@@ -384,7 +274,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id003
+              schema: *id004
           description: Response for OK
       tags:
       - addressbook
@@ -402,7 +292,7 @@ paths:
         200:
           content:
             application/json:
-              schema: &id004
+              schema: &id005
                 description: The city of this address
                 type: string
           description: Response for OK
@@ -426,7 +316,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id004
+              schema: *id005
           description: Response for OK
       tags:
       - addressbook
@@ -457,7 +347,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id004
+              schema: *id005
           description: Response for OK
       tags:
       - addressbook
@@ -475,7 +365,7 @@ paths:
         200:
           content:
             application/json:
-              schema: &id005
+              schema: &id006
                 description: The country of this address
                 type: string
           description: Response for OK
@@ -499,7 +389,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id005
+              schema: *id006
           description: Response for OK
       tags:
       - addressbook
@@ -530,7 +420,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id005
+              schema: *id006
           description: Response for OK
       tags:
       - addressbook
@@ -632,31 +522,15 @@ paths:
       requestBody:
         content:
           application/json:
-            schema:
-              properties:
-                age:
-                  description: The person's age
-                  type: integer
-                first_name:
-                  description: The person's first name
-                  type: string
-                hobbies:
-                  description: The person's hobbies
-                  items:
-                    type: string
-                  type: array
-                last_name:
-                  description: The person's last name
-                  type: string
-              type: object
+            schema: &id007
+              $ref: '#/components/schemas/person'
         description: The request body for /addressbook/{address_key}/person
         required: true
       responses:
         201:
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/person'
+              schema: *id007
           description: Response for CREATED
       tags:
       - person
@@ -796,7 +670,7 @@ paths:
         200:
           content:
             application/json:
-              schema: &id006
+              schema: &id008
                 description: The person's age
                 type: integer
           description: Response for OK
@@ -825,7 +699,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id006
+              schema: *id008
           description: Response for OK
       tags:
       - person
@@ -866,7 +740,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id006
+              schema: *id008
           description: Response for OK
       tags:
       - person
@@ -889,7 +763,7 @@ paths:
         200:
           content:
             application/json:
-              schema: &id007
+              schema: &id009
                 description: The person's first name
                 type: string
           description: Response for OK
@@ -918,7 +792,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id007
+              schema: *id009
           description: Response for OK
       tags:
       - person
@@ -959,7 +833,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id007
+              schema: *id009
           description: Response for OK
       tags:
       - person
@@ -982,7 +856,7 @@ paths:
         200:
           content:
             application/json:
-              schema: &id008
+              schema: &id010
                 description: The person's hobbies
                 items:
                   type: string
@@ -1013,7 +887,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id008
+              schema: *id010
           description: Response for OK
       tags:
       - person
@@ -1054,7 +928,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id008
+              schema: *id010
           description: Response for OK
       tags:
       - person
@@ -1077,7 +951,7 @@ paths:
         200:
           content:
             application/json:
-              schema: &id009
+              schema: &id011
                 description: The person's last name
                 type: string
           description: Response for OK
@@ -1106,7 +980,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id009
+              schema: *id011
           description: Response for OK
       tags:
       - person
@@ -1147,83 +1021,10 @@ paths:
         200:
           content:
             application/json:
-              schema: *id009
+              schema: *id011
           description: Response for OK
       tags:
       - person
-  /addressbook/{address_key}/person_uuid:
-    delete:
-      description: delete operation for /addressbook/{address_key}/person_uuid
-      operationId: addressbook_address_key_person_uuid_delete
-      parameters:
-      - in: path
-        name: address_key
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema: &id010
-                description: reference to the person's UUID, for this address
-                type: string
-          description: Response for OK
-      tags:
-      - addressbook
-    get:
-      description: get operation for /addressbook/{address_key}/person_uuid
-      operationId: addressbook_address_key_person_uuid_get
-      parameters:
-      - in: query
-        name: city
-        required: false
-        schema:
-          type: string
-      - in: path
-        name: address_key
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema: *id010
-          description: Response for OK
-      tags:
-      - addressbook
-    head:
-      description: head operation for /addressbook/{address_key}/person_uuid
-      operationId: addressbook_address_key_person_uuid_head
-      parameters:
-      - in: path
-        name: address_key
-        required: true
-        schema:
-          type: string
-      responses:
-        default:
-          description: Default HEAD response
-      tags:
-      - addressbook
-    put:
-      description: put operation for /addressbook/{address_key}/person_uuid
-      operationId: addressbook_address_key_person_uuid_put
-      parameters:
-      - in: path
-        name: address_key
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema: *id010
-          description: Response for OK
-      tags:
-      - addressbook
   /addressbook/{address_key}/state:
     delete:
       description: delete operation for /addressbook/{address_key}/state
@@ -1238,7 +1039,7 @@ paths:
         200:
           content:
             application/json:
-              schema: &id011
+              schema: &id012
                 description: The state of this address
                 type: string
           description: Response for OK
@@ -1262,7 +1063,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id011
+              schema: *id012
           description: Response for OK
       tags:
       - addressbook
@@ -1293,7 +1094,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id011
+              schema: *id012
           description: Response for OK
       tags:
       - addressbook
@@ -1311,7 +1112,7 @@ paths:
         200:
           content:
             application/json:
-              schema: &id012
+              schema: &id013
                 description: The street and civic number of this address
                 type: string
           description: Response for OK
@@ -1335,7 +1136,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id012
+              schema: *id013
           description: Response for OK
       tags:
       - addressbook
@@ -1366,7 +1167,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id012
+              schema: *id013
           description: Response for OK
       tags:
       - addressbook

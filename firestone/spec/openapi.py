@@ -84,6 +84,7 @@ def get_method_op(
     comp_name: str = None,
     attr_name: str = None,
     is_list: bool = None,
+    components: dict = None,
 ):
     """Get the specified method seciton for the paths."""
     if not desc:
@@ -111,6 +112,9 @@ def get_method_op(
         request_schema = (
             copy.deepcopy(schema["items"]) if "items" in schema else copy.deepcopy(schema)
         )
+        if "$ref" in opr["responses"][http.client.CREATED]["content"][content_type]["schema"]:
+            request_schema = opr["responses"][http.client.CREATED]["content"][content_type]["schema"]
+
         if "descriptions" in request_schema:
             del request_schema["descriptions"]
 
@@ -269,7 +273,10 @@ def add_instance_methods(
         paths[baseurl][method]["parameters"] = params
 
         # Add tags
-        paths[baseurl][method]["tags"] = [rsrc_name]
+        if "tags" in paths[baseurl][method]:
+            paths[baseurl][method]["tags"].append(rsrc_name)
+        else:
+            paths[baseurl][method]["tags"] = [rsrc_name]
         _LOGGER.debug(f"paths[baseurl][{method}]: {paths[baseurl][method]}")
 
 
@@ -321,17 +328,30 @@ def add_instance_attr_methods(
             paths[path][method]["parameters"] = params
 
             # Add tags
-            paths[path][method]["tags"] = [rsrc_name]
+            if "tags" in paths[path][method]:
+                paths[path][method]["tags"].append(rsrc_name)
+            else:
+                paths[path][method]["tags"] = [rsrc_name]
             _LOGGER.debug(f"paths[{path}][{method}]: {paths[path][method]}")
 
             # Recursively get paths for this property
             _LOGGER.debug(f"prop: {prop}")
             _LOGGER.debug(f"components: {yaml.dump(components['schemas'])}")
             if "schema" in prop_schema:
+                if "descriptions" in prop_schema["schema"]:
+                    del prop_schema["schema"]["descriptions"]
                 if "descriptions" in prop_schema["schema"]["items"]:
                     del prop_schema["schema"]["items"]["descriptions"]
 
                 components["schemas"][prop] = prop_schema["schema"]["items"]
+                if (
+                    rsrc_name in components["schemas"]
+                    and prop in components["schemas"][rsrc_name]["properties"]
+                ):
+                    components["schemas"][rsrc_name]["properties"][
+                        prop
+                        ] = { "$ref": f"#/components/schemas/{prop}"}
+
                 get_paths(
                     prop,
                     prop_schema["schema"],
