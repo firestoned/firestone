@@ -124,11 +124,7 @@ def get_method_op(
         if "descriptions" in request_schema:
             del request_schema["descriptions"]
     elif method == "put":
-        request_schema = (
-            copy.deepcopy(schema["items"]) if "items" in schema else copy.deepcopy(schema)
-        )
-        if comp_name and attr_name:
-            request_schema = {"$ref": f"#/components/{comp_name}/{attr_name}"}
+        request_schema = copy.deepcopy(schema)
 
     if request_schema:
         opr["requestBody"] = {
