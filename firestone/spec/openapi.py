@@ -97,6 +97,7 @@ def get_method_op(
     # Now set the schema for responses
     _LOGGER.debug(f"method: {method}")
     _LOGGER.debug(f"schema: {schema}")
+    _LOGGER.debug(f"comp_name: {comp_name}")
     _LOGGER.debug(f"is_list: {is_list}")
     opr["responses"] = get_responses(
         method,
@@ -107,6 +108,7 @@ def get_method_op(
         is_list=is_list,
     )
 
+    request_schema = None
     if method == "post":
         request_schema = (
             copy.deepcopy(schema["items"]) if "items" in schema else copy.deepcopy(schema)
@@ -121,7 +123,14 @@ def get_method_op(
 
         if "descriptions" in request_schema:
             del request_schema["descriptions"]
+    elif method == "put":
+        request_schema = (
+            copy.deepcopy(schema["items"]) if "items" in schema else copy.deepcopy(schema)
+        )
+        if comp_name and attr_name:
+            request_schema = {"$ref": f"#/components/{comp_name}/{attr_name}"}
 
+    if request_schema:
         opr["requestBody"] = {
             "description": f"The request body for {path}",
             "required": True,
