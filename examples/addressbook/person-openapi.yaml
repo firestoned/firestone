@@ -1,0 +1,570 @@
+openapi: 3.0.0
+info:
+  title: Example person and addressbook API
+  description: An example API with more than one resource
+  version: "1.0"
+# https://www.jvt.me/posts/2022/05/29/openapi-json-patch/
+components:
+  schemas:
+    persons:
+      properties:
+        age:
+          description: The person's age
+          type: integer
+        first_name:
+          description: The person's first name
+          type: string
+        hobbies:
+          description: The person's hobbies
+          items:
+            type: string
+          type: array
+        last_name:
+          description: The person's last name
+          type: string
+      type: object
+paths:
+  /persons:
+    delete:
+      description: delete operation for /persons
+      operationId: persons_delete
+      parameters:
+      - &id001
+        description: Limit the number of responses back
+        in: query
+        name: limit
+        schema:
+          type: integer
+      - &id002
+        description: The offset to start returning resources
+        in: query
+        name: offset
+        schema:
+          type: integer
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/persons'
+          description: Response for OK
+      tags:
+      - persons
+    get:
+      description: List all persons in this collection
+      operationId: persons_get
+      parameters:
+      - in: query
+        name: last_name
+        required: false
+        schema:
+          type: string
+      - *id001
+      - *id002
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/persons'
+                type: array
+          description: Response for OK
+      tags:
+      - persons
+    head:
+      description: Determine the existence and size of persons in this collection
+      operationId: persons_head
+      parameters:
+      - *id001
+      - *id002
+      responses:
+        default:
+          description: Default HEAD response
+      tags:
+      - persons
+    patch:
+      description: Patch one or more persons in this collection
+      operationId: persons_patch
+      parameters:
+      - *id001
+      - *id002
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/persons'
+          description: Response for OK
+      tags:
+      - persons
+    post:
+      description: Create a new person in this collection, a new UUID key will be created
+      operationId: persons_post
+      parameters:
+      - *id001
+      - *id002
+      requestBody:
+        content:
+          application/json:
+            schema: &id003
+              $ref: '#/components/schemas/persons'
+        description: The request body for /persons
+        required: true
+      responses:
+        201:
+          content:
+            application/json:
+              schema: *id003
+          description: Response for CREATED
+      tags:
+      - persons
+  /persons/{uuid}:
+    delete:
+      description: delete operation for /persons/{uuid}
+      operationId: persons_uuid_delete
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/persons'
+          description: Response for OK
+      tags:
+      - persons
+    get:
+      description: get operation for /persons/{uuid}
+      operationId: persons_uuid_get
+      parameters:
+      - in: query
+        name: last_name
+        required: false
+        schema:
+          type: string
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/persons'
+          description: Response for OK
+      tags:
+      - persons
+    head:
+      description: head operation for /persons/{uuid}
+      operationId: persons_uuid_head
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: Default HEAD response
+      tags:
+      - persons
+    patch:
+      description: patch operation for /persons/{uuid}
+      operationId: persons_uuid_patch
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/persons'
+          description: Response for OK
+      tags:
+      - persons
+    put:
+      description: put operation for /persons/{uuid}
+      operationId: persons_uuid_put
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                descriptions:
+                  get: Get a specific person from this collection
+                  head: Determine the existence and size of this person
+                  patch: Patch this person in the collection
+                  put: Put a new person in this collection, with the given UUId key
+                properties:
+                  age:
+                    description: The person's age
+                    type: integer
+                  first_name:
+                    description: The person's first name
+                    type: string
+                  hobbies:
+                    description: The person's hobbies
+                    items:
+                      type: string
+                    type: array
+                  last_name:
+                    description: The person's last name
+                    type: string
+                type: object
+              type: array
+        description: The request body for /persons/{uuid}
+        required: true
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/persons'
+          description: Response for OK
+      tags:
+      - persons
+  /persons/{uuid}/age:
+    delete:
+      description: delete operation for /persons/{uuid}/age
+      operationId: persons_uuid_age_delete
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema: &id004
+                description: The person's age
+                type: integer
+          description: Response for OK
+      tags:
+      - persons
+    get:
+      description: get operation for /persons/{uuid}/age
+      operationId: persons_uuid_age_get
+      parameters:
+      - in: query
+        name: last_name
+        required: false
+        schema:
+          type: string
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema: *id004
+          description: Response for OK
+      tags:
+      - persons
+    head:
+      description: head operation for /persons/{uuid}/age
+      operationId: persons_uuid_age_head
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: Default HEAD response
+      tags:
+      - persons
+    put:
+      description: put operation for /persons/{uuid}/age
+      operationId: persons_uuid_age_put
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: The person's age
+              type: integer
+        description: The request body for /persons/{uuid}/age
+        required: true
+      responses:
+        200:
+          content:
+            application/json:
+              schema: *id004
+          description: Response for OK
+      tags:
+      - persons
+  /persons/{uuid}/first_name:
+    delete:
+      description: delete operation for /persons/{uuid}/first_name
+      operationId: persons_uuid_first_name_delete
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema: &id005
+                description: The person's first name
+                type: string
+          description: Response for OK
+      tags:
+      - persons
+    get:
+      description: get operation for /persons/{uuid}/first_name
+      operationId: persons_uuid_first_name_get
+      parameters:
+      - in: query
+        name: last_name
+        required: false
+        schema:
+          type: string
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema: *id005
+          description: Response for OK
+      tags:
+      - persons
+    head:
+      description: head operation for /persons/{uuid}/first_name
+      operationId: persons_uuid_first_name_head
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: Default HEAD response
+      tags:
+      - persons
+    put:
+      description: put operation for /persons/{uuid}/first_name
+      operationId: persons_uuid_first_name_put
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: The person's first name
+              type: string
+        description: The request body for /persons/{uuid}/first_name
+        required: true
+      responses:
+        200:
+          content:
+            application/json:
+              schema: *id005
+          description: Response for OK
+      tags:
+      - persons
+  /persons/{uuid}/hobbies:
+    delete:
+      description: delete operation for /persons/{uuid}/hobbies
+      operationId: persons_uuid_hobbies_delete
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema: &id006
+                description: The person's hobbies
+                items:
+                  type: string
+                type: array
+          description: Response for OK
+      tags:
+      - persons
+    get:
+      description: get operation for /persons/{uuid}/hobbies
+      operationId: persons_uuid_hobbies_get
+      parameters:
+      - in: query
+        name: last_name
+        required: false
+        schema:
+          type: string
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema: *id006
+          description: Response for OK
+      tags:
+      - persons
+    head:
+      description: head operation for /persons/{uuid}/hobbies
+      operationId: persons_uuid_hobbies_head
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: Default HEAD response
+      tags:
+      - persons
+    put:
+      description: put operation for /persons/{uuid}/hobbies
+      operationId: persons_uuid_hobbies_put
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: The person's hobbies
+              items:
+                type: string
+              type: array
+        description: The request body for /persons/{uuid}/hobbies
+        required: true
+      responses:
+        200:
+          content:
+            application/json:
+              schema: *id006
+          description: Response for OK
+      tags:
+      - persons
+  /persons/{uuid}/last_name:
+    delete:
+      description: delete operation for /persons/{uuid}/last_name
+      operationId: persons_uuid_last_name_delete
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema: &id007
+                description: The person's last name
+                type: string
+          description: Response for OK
+      tags:
+      - persons
+    get:
+      description: get operation for /persons/{uuid}/last_name
+      operationId: persons_uuid_last_name_get
+      parameters:
+      - in: query
+        name: last_name
+        required: false
+        schema:
+          type: string
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema: *id007
+          description: Response for OK
+      tags:
+      - persons
+    head:
+      description: head operation for /persons/{uuid}/last_name
+      operationId: persons_uuid_last_name_head
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: Default HEAD response
+      tags:
+      - persons
+    put:
+      description: put operation for /persons/{uuid}/last_name
+      operationId: persons_uuid_last_name_put
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: The person's last name
+              type: string
+        description: The request body for /persons/{uuid}/last_name
+        required: true
+      responses:
+        200:
+          content:
+            application/json:
+              schema: *id007
+          description: Response for OK
+      tags:
+      - persons

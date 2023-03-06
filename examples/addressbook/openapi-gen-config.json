@@ -1,0 +1,6 @@
+{
+    "packageName": "addressbook.client",
+    "projectName": "addressbook",
+    "sortParamsByRequiredFlag": true,
+    "library": "asyncio"
+}

@@ -24,6 +24,35 @@ asyncapi:
     resources: true
     instances: true
     instance_attrs: true
+# You can limit the overall HTTP methods for the high level resource endpoint
+methods:
+  resource:
+    - get
+    - post
+    - put
+  instance:
+    - delete
+    - get
+    - head
+    - put
+  instance_attrs:
+    - delete
+    - get
+    - head
+    - put
+descriptions:
+  resource:
+    get: List all addresses in this addressbook.
+    head: Determine the existence and size of addresses in this addressbook.
+    patch: Patch one or more addresses in this addressbook.
+    post: Create a new address in this addressbook, a new address key will be created.
+    delete: Delete all addresses from this addressbook.
+  instance:
+    get: Get a specific address from this addressbook.
+    head: Determine the existence and size of this address.
+    patch: Patch this address in the addressbook.
+    put: Update an existing address in this addressbook, with the given address key.
+    delete: Delete an address from this addressbook.
 # Meta data: end
 schema:
   type: array
@@ -32,13 +61,6 @@ schema:
     description: A unique identifier for an addressbook entry.
     schema:
       type: string
-  # You can limit the overall HTTP methods for the high level resource endpoint
-  methods:
-    - delete
-    - get
-    - head
-    - post
-    - put
   #responseCodes:
   # - 200
   # - 201
@@ -50,21 +72,12 @@ schema:
         type: string
       methods:
         - get
-  descriptions:
-    get: List all addresses in this addressbook
-    head: Determine the existence and size of addresses in this addressbook
-    patch: Patch one or more addresses in this addressbook
-    post: Create a new address in this addressbook, a new address key will be created
   items:
-    descriptions:
-      get: Get a specific address from this addressbook
-      head: Determine the existence and size of this address
-      patch: Patch this address in the addressbook
-      put: Put a new address in this addressbook, with the given address key
     type: object
     properties:
       # embeded person
       person:
+        description: This is a person object that lives at this address.
         schema:
           $ref: "person.yaml#/schema"
       addrtype:
@@ -89,3 +102,9 @@ schema:
       country:
         description: The country of this address
         type: string
+    required:
+      - addrtype
+      - street
+      - city
+      - state
+      - country

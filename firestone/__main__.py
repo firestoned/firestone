@@ -5,7 +5,7 @@ import logging
 
 import click
 
-from firestone_lib import cli
+from firestone_lib import cli as firestone_cli
 
 from firestone import resource as firestone_rsrc
 from firestone import spec as firestone_spec
@@ -17,7 +17,7 @@ _LOGGER = logging.getLogger(__name__)
 @click.option("--debug", help="Turn on debugging", is_flag=True)
 def main(debug):
     """Main entry point"""
-    cli.init_logging("firestone_lib.resources.logging", "cli.conf")
+    firestone_cli.init_logging("firestone_lib.resources.logging", "cli.conf")
 
     if debug:
         logging.getLogger().setLevel(logging.DEBUG)
@@ -36,7 +36,7 @@ def main(debug):
     "-r",
     help="One or more resource files in JSON Schema format, can be JSON or YAML",
     required=True,
-    type=cli.PathList,
+    type=firestone_cli.PathList,
 )
 @click.option(
     "--summary",
@@ -93,8 +93,14 @@ def generate(ctx, description, resources, summary, title, version):
     "--prefix",
     help="A prefix to all URLs, this will add a 'servers' section to the openapi spec doc",
 )
+@click.option(
+    "--security",
+    help="Add security scheme to schema; examnple: "
+    '{"name": "bearer_auth", "scheme": "bearer", "type": "http", "bearerFormat": "JWT"}',
+    type=firestone_cli.StrDict,
+)
 @click.pass_obj
-def openapi(rsrc_data, output, ui_server, prefix):
+def openapi(rsrc_data, output, ui_server, prefix, security):
     """Generate an OpenAPI specification for the given resource data."""
 
     openapi_spec = firestone_spec.openapi.generate(
@@ -104,6 +110,7 @@ def openapi(rsrc_data, output, ui_server, prefix):
         rsrc_data["summary"],
         rsrc_data["version"],
         prefix=prefix,
+        security=security,
     )
     print(openapi_spec, file=output)
 
@@ -132,14 +139,50 @@ def openapi(rsrc_data, output, ui_server, prefix):
 def asyncapi(rsrc_data, output):
     """Generate an AsyncAPI specification for the given resource data."""
 
-    openapi_spec = firestone_spec.asyncapi.generate(
+    asyncapi_spec = firestone_spec.asyncapi.generate(
         rsrc_data["data"],
         rsrc_data["title"],
         rsrc_data["desc"],
         rsrc_data["summary"],
         rsrc_data["version"],
     )
-    print(openapi_spec, file=output)
+    print(asyncapi_spec, file=output)
+
+
+@generate.command()
+@click.option(
+    "--output",
+    "-O",
+    help="Location of the main CLI generated file name, or `-` for stdout",
+    type=click.File("w"),
+    default="-",
+    show_default=True,
+)
+@click.option(
+    "--pkg",
+    help="The package where the OpenAPI client code is.",
+    required=True,
+)
+@click.option(
+    "--client-pkg",
+    help="The package where the OpenAPI client code is.",
+    required=True,
+)
+@click.pass_obj
+def cli(rsrc_data, pkg, client_pkg, output):
+    """Generate python, Click-based CLI script.
+
+    This generated script can be used as standalone or added to console scripts."""
+    cli_spec = firestone_spec.cli.generate(
+        pkg,
+        client_pkg,
+        rsrc_data["data"],
+        rsrc_data["title"],
+        rsrc_data["desc"],
+        rsrc_data["summary"],
+        rsrc_data["version"],
+    )
+    print(cli_spec, file=output)
 
 
 if __name__ == "main":

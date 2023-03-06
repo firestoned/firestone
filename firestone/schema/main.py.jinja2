@@ -1,0 +1,163 @@
+#!/usr/bin/env python
+"""
+Main entry point for a click based CLI.
+"""
+import functools
+import logging
+
+import click
+from firestone_lib import cli
+from firestone_lib import utils as firestone_utils
+
+from {{ client_pkg }} import api_client
+from {{ client_pkg }} import configuration
+from {{ client_pkg }} import exceptions
+{% for rsrc in rsrcs -%}
+from {{ client_pkg }}.api import {{ rsrc["name"] }}_api
+from {{ client_pkg }}.models import {{ rsrc["name"] }} as {{ rsrc["name"] }}_model
+{% endfor -%}
+
+_LOGGER = logging.getLogger(__name__)
+
+
+def api_exc(func):
+    """Handle ApiExceptions in all functions."""
+    async def wrapper(*args, **kwargs):
+        api_obj = args[0]["api_obj"]
+        resp = None
+        try:
+            resp = await func(*args, **kwargs)
+        except exceptions.ApiException as apie:
+            click.echo(apie.reason)
+            await api_obj.api_client.close()
+        return resp
+
+    return functools.update_wrapper(wrapper, func)
+
+
+@click.group()
+@click.option("--debug", help="Turn on debugging", is_flag=True)
+@click.option(
+    "--api-key",
+    help="The API key to authorize against API",
+    envvar="API_KEY",
+)
+@click.option(
+    "--api-url",
+    help="The URL to the API",
+    required=True,
+    envvar="API_URL",
+)
+@click.option("--threads", help="The number of threads for client side", type=int, default=1)
+@click.pass_context
+def main(ctx, debug, api_key, api_url, threads):
+    """{{ title }}
+
+    {{ description }}
+    """
+    try:
+        cli.init_logging("{{ pkg }}.resources.logging", "cli.conf")
+    # pylint: disable=broad-except
+    except Exception:
+        logging.basicConfig(
+            level=logging.INFO,
+            format="# %(asctime)s - [%(threadName)s] %(name)s:%(lineno)d %(levelname)s - %(message)s",
+        )
+
+    logging.getLogger("asyncio").setLevel(logging.CRITICAL)
+    if debug:
+        _LOGGER.setLevel(logging.DEBUG)
+        logging.getLogger().setLevel(logging.DEBUG)
+        logging.getLogger("addressbook").setLevel(logging.DEBUG)
+        logging.getLogger("aiohttp").setLevel(logging.DEBUG)
+        logging.getLogger("urllib3").setLevel(logging.DEBUG)
+        logging.getLogger("httplib").setLevel(logging.DEBUG)
+
+    config = configuration.Configuration(host=api_url)
+    config.debug = debug
+    if api_key:
+        config.access_token = api_key
+    aclient = api_client.ApiClient(configuration=config, pool_threads=threads)
+
+    ctx.obj = {
+        "api_client": aclient,
+    }
+    _LOGGER.debug(f"ctx.obj: {ctx.obj}")
+
+
+{% for rsrc in rsrcs -%}
+@main.group()
+@click.pass_obj
+def {{ rsrc["name"] }}(ctx_obj):
+    """High level command for an {{ rsrc["name"] }}."""
+    _LOGGER.debug(f"ctx_obj: {ctx_obj}")
+    ctx_obj["api_obj"] = {{ rsrc["name"] }}_api.{{ rsrc["name"].capitalize() }}Api(api_client=ctx_obj["api_client"])
+
+
+{# high-level resource operations -#}
+{% for op in rsrc["operations"]["resource"] -%}
+@{{ rsrc["name"] }}.command("{{ op["name"] }}")
+{% for attr in op["attrs"] -%}
+@click.option("--{{ attr["name"] }}", help="{{ attr["description"] }}", type={{ attr["type"] }}, required={{ attr["required"] }})
+{% endfor -%}
+@click.pass_obj
+@firestone_utils.click_coro
+@api_exc
+async def {{ op["id"] }}(ctx_obj{% for attr in op["attrs"] -%}{{ ", " + attr["name"] }}{% endfor -%}):
+    """{{ op["description"] }}"""
+    api_obj = ctx_obj["api_obj"]
+    params = {
+        {% for attr in op["attrs"] -%}
+        "{{ attr["name"] }}":  {{ attr["name"] }},
+        {% endfor -%}
+    }
+    {% if op["name"] == "create" %}
+    req_body = {{ rsrc["name"] }}_model.{{ rsrc["name"].capitalize() }}()
+    req_body.from_dict(params)
+    resp = await api_obj.{{ op["id"] }}(req_body)
+    {% else %}
+    resp = await api_obj.{{ op["id"] }}(**params)
+    {% endif -%}
+    _LOGGER.debug(f"resp: {resp}")
+
+
+{% endfor -%}
+
+{# high-level resource instance operations -#}
+{% for op in rsrc["operations"]["instance"] -%}
+@{{ rsrc["name"] }}.command("{{ op["name"] }}")
+{% for attr in op["attrs"] -%}
+{% if attr.get("argument") -%}
+@click.argument("{{ attr["name"] }}", type={{ attr["type"] }})
+{% else -%}
+@click.option("--{{ attr["name"] }}", help="{{ attr["description"] }}", type={{ attr["type"] }}, required={{ attr["required"] }})
+{% endif -%}
+{% endfor -%}
+@click.pass_obj
+@firestone_utils.click_coro
+@api_exc
+async def {{ op["id"] }}(ctx_obj{% for attr in op["attrs"] -%}{{ ", " + attr["name"] }}{% endfor -%}):
+    """{{ op["description"] }}"""
+    api_obj = ctx_obj["api_obj"]
+    params = {
+        {% for attr in op["attrs"] -%}
+        "{{ attr["name"] }}":  {{ attr["name"] }},
+        {% endfor -%}
+    }
+    {% if op["name"] == "create" %}
+    req_body = {{ rsrc["name"] }}_model.{{ rsrc["name"].capitalize() }}()
+    req_body.from_dict(params)
+    resp = await api_obj.{{ op["id"] }}(req_body)
+    {% else %}
+    resp = await api_obj.{{ op["id"] }}(**params)
+    {% endif -%}
+    _LOGGER.debug(f"resp: {resp}")
+
+
+{% endfor -%}
+{% endfor -%}
+
+
+if __name__ == "__main__":
+    # pylint: disable=no-value-for-parameter
+    main()

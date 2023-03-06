@@ -115,6 +115,19 @@ default_query_params:
     in: params
     schema:
       type: integer
+descriptions:
+  resource:
+    get: List all addresses in this addressbook.
+    head: Determine the existence and size of addresses in this addressbook.
+    patch: Patch one or more addresses in this addressbook.
+    post: Create a new address in this addressbook, a new address key will be created.
+    delete: Delete all addresses from this addressbook.
+  instance:
+    get: Get a specific address from this addressbook.
+    head: Determine the existence and size of this address.
+    patch: Patch this address in the addressbook.
+    put: Put a new address in this addressbook, with the given address key.
+    delete: Delete an address from this addressbook.
 schema:
   type: array
   key:
@@ -135,17 +148,7 @@ schema:
         type: string
       methods:
         - get
-  descriptions:
-    get: List all addresses in this addressBook
-    head: Determine the existence and size of addresses in this addressBook
-    patch: Patch one or more addresses in this addressBook
-    post: Create a new address in this addressBook, a new address key will be created
   items:
-    descriptions:
-      get: Get a specific address from this addressBook
-      head: Determine the existence and size of this address
-      patch: Patch this address in the addressBook
-      put: Put a new address in this addressBook, with the given address key
     type: object
     properties:
       addrtype:
@@ -189,6 +192,37 @@ example in OpenAPI, `/addressBook`
 
 This is self evident, I hope, the description of this resource and is used nt he
 generated specification files.
+
+#### `descriptions`
+
+This is a map/dict of either `resource` and/or `instance`, which itself is a map or
+methods to descriptions, e.g.:
+
+
+```yaml
+descriptions:
+  resource:
+    get: List all addresses in this addressbook.
+    head: Determine the existence and size of addresses in this addressbook.
+    patch: Patch one or more addresses in this addressbook.
+    post: Create a new address in this addressbook, a new address key will be created.
+    delete: Delete all addresses from this addressbook.
+```
+
+#### `methods`
+
+This is a map/dict of `resource`, and/or `instance`, and/or `instance_attrs`
+(the instance attributes to expose), and a list of methods to explicitly expose,
+e.g.:
+
+
+```yaml
+methods:
+  resource:
+    - get
+    - post
+    - put
+```
 
 #### `version`
 
