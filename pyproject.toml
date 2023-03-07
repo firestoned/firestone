@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "firestone"
-version = "0.1.1"
+version = "0.2.1"
 description = "Build OpenAPI and AsyncAPI specs based off one or more resource json schema files"
 authors = ["Erick Bourgeois <erick@jeb.ca>"]
 license = "Apache 2.0"
@@ -16,6 +16,9 @@ jsonschema = "^4.16.0"
 pyyaml = "^6.0"
 jsonref = "^1.0.0.post1"
 firestone-lib = "^0.1.0"
+pydantic = "^1.10.5"
+python-dateutil = "^2.8.2"
+aiohttp = "^3.8.4"
 
 [tool.poetry.group.asyncapi.dependencies]
 asyncapi = {extras = ["http"], version = "^0.14.1"}
@@ -56,7 +59,8 @@ target-version = ["py37", "py310"]
 [tool.pylint.'MESSAGES CONTROL']
 max-line-length = 150
 good-names = [
-    "fh"
+    "fh",
+    "op"
 ]
 max-args = 8
 disable = """

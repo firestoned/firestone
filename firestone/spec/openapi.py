@@ -127,6 +127,15 @@ def get_method_op(
         request_schema = copy.deepcopy(schema)
 
     if request_schema:
+        if "descriptions" in request_schema:
+            del request_schema["descriptions"]
+        if "key" in request_schema:
+            del request_schema["key"]
+        if "methods" in request_schema:
+            del request_schema["methods"]
+        if "query_params" in request_schema:
+            del request_schema["query_params"]
+
         opr["requestBody"] = {
             "description": f"The request body for {path}",
             "required": True,
@@ -166,6 +175,7 @@ def get_params(
                     "in": "query",
                     "required": param.get("required", False),
                     "schema": param.get("schema", {"type": "string"}),
+                    "description": param.get("description"),
                 }
             )
 
@@ -188,11 +198,14 @@ def get_params(
     return parameters
 
 
+# pylint: disable=too-many-arguments
 def add_resource_methods(
     rsrc_name: str,
     schema: dict,
     baseurl: str,
     paths: dict,
+    methods: list = None,
+    descs: dict = None,
     keys: list = None,
     default_query_params: dict = None,
     orig_rsrc_name: str = None,
@@ -206,15 +219,14 @@ def add_resource_methods(
     :param list keys: the keys for the instance of this resource
     :param dict default_query_params: the paths
     """
+    print(f"methods: {methods}")
+    if not descs:
+        descs = {}
+
     paths[baseurl] = {}
-    rsrc_methods = schema.get("methods", [])
-    rsrc_descs = {}
-    if "descriptions" in schema:
-        rsrc_descs = copy.deepcopy(schema.get("descriptions", {}))
-        del schema["descriptions"]
 
     for method in RSRC_HTTP_METHODS:
-        if rsrc_methods and method not in rsrc_methods:
+        if methods and method not in methods:
             _LOGGER.info(
                 f"Skipping the definition of {method} in resource generation, "
                 "as it is not in the defined methods requested"
@@ -224,7 +236,7 @@ def add_resource_methods(
             baseurl,
             method,
             schema,
-            desc=rsrc_descs.get(method),
+            desc=descs.get(method),
             comp_name=rsrc_name,
             is_list=(method == "get"),
         )
@@ -245,6 +257,8 @@ def add_instance_methods(
     schema: dict,
     baseurl: str,
     paths: dict,
+    methods: list = None,
+    descs: dict = None,
     keys: list = None,
     orig_rsrc_name: str = None,
 ):
@@ -256,15 +270,12 @@ def add_instance_methods(
     :param list keys: the keys for the instance of this resource
     :param dict paths: the paths
     """
-    rsrc_methods = schema.get("methods", [])
-    rsrc_inst_descs = {}
-    if "descriptions" in schema:
-        rsrc_inst_descs = copy.deepcopy(schema.get("descriptions", {}))
-        del schema["descriptions"]
+    if not descs:
+        descs = {}
 
     paths[baseurl] = {}
     for method in RSRC_INST_HTTP_METHODS:
-        if rsrc_methods and method not in rsrc_methods:
+        if methods and method not in methods:
             _LOGGER.info(
                 f"Skipping the definition of {method} in resource instance generation, "
                 "as it is not in the defined methods requested"
@@ -274,7 +285,7 @@ def add_instance_methods(
             baseurl,
             method,
             schema,
-            desc=rsrc_inst_descs.get(method),
+            desc=descs.get(method),
             comp_name=rsrc_name,
         )
 
@@ -293,6 +304,7 @@ def add_instance_attr_methods(
     schema: dict,
     baseurl: str,
     paths: dict,
+    methods: list = None,
     keys: list = None,
     default_query_params: dict = None,
     components: dict = None,
@@ -307,7 +319,6 @@ def add_instance_attr_methods(
     :param dict paths: the paths
     :param dict default_query_params: the paths
     """
-    rsrc_methods = schema.get("methods", [])
     for prop in schema["items"]["properties"]:
         path = "/".join([baseurl, prop])
         _LOGGER.debug(f"path: {path}")
@@ -318,7 +329,7 @@ def add_instance_attr_methods(
 
         paths[path] = {}
         for method in RSRC_ATTR_HTTP_METHODS:
-            if rsrc_methods and method not in rsrc_methods:
+            if methods and method not in methods:
                 _LOGGER.info(
                     f"Skipping the definition of {method} in resource instance attribute generation, "
                     "as it is not in the defined methods requested"
@@ -372,7 +383,7 @@ def add_instance_attr_methods(
 
 def get_paths(
     rsrc_name: str,
-    schema: dict,
+    rsrc: dict,
     baseurl: str,
     paths: dict = None,
     keys: list = None,
@@ -381,6 +392,12 @@ def get_paths(
     orig_rsrc_name: str = None,
 ):
     """Get the paths for resource."""
+    # Extract and set high-level resource component schema
+    _LOGGER.debug(f"rsrc: {rsrc}")
+    schema = rsrc["schema"] if "schema" in rsrc else rsrc
+    methods = rsrc.get("methods", {})
+    descs = rsrc.get("descriptions", {})
+
     if not paths:
         paths = {}
 
@@ -401,6 +418,8 @@ def get_paths(
         schema,
         baseurl,
         paths,
+        methods=methods.get("resource", {}),
+        descs=descs.get("resource", {}),
         keys=keys,
         default_query_params=default_query_params,
         orig_rsrc_name=orig_rsrc_name,
@@ -416,6 +435,8 @@ def get_paths(
         schema,
         instance_baseurl,
         paths,
+        methods=methods.get("instance", {}),
+        descs=descs.get("instance", {}),
         keys=keys,
         orig_rsrc_name=orig_rsrc_name,
     )
@@ -426,6 +447,7 @@ def get_paths(
         schema,
         instance_baseurl,
         paths,
+        methods=methods.get("instance_attrs", []),
         keys=keys,
         default_query_params=default_query_params,
         components=components,
@@ -437,7 +459,13 @@ def get_paths(
 
 # pylint: disable=too-many-locals
 def generate(
-    rsrc_data: list, title: str, desc: str, summary: str, version: str, prefix: str = None
+    rsrc_data: list,
+    title: str,
+    desc: str,
+    summary: str,
+    version: str,
+    prefix: str = None,
+    security: str = None,
 ):
     """Generate an OpenAPI spec based ont he resource data sent and other meta data."""
     components = {"schemas": {}}
@@ -453,16 +481,14 @@ def generate(
         # Extract and set high-level resource component schema
         rschema = rsrc["schema"]
         comp_schema = copy.deepcopy(rschema["items"])
-        if "descriptions" in comp_schema:
-            del comp_schema["descriptions"]
         components["schemas"][rsrc_name] = comp_schema
 
         default_query_params = rsrc.get("default_query_params", [])
         _LOGGER.debug(f"default_query_params: {default_query_params}")
 
         paths = get_paths(
-            rsrc_name,
-            rschema,
+            rsrc["name"],
+            rsrc,
             baseurl,
             paths={},
             keys=[],
@@ -477,6 +503,13 @@ def generate(
     if prefix:
         servers.append({"url": prefix})
 
+    security_name = None
+    if security:
+        security_name = security["name"]
+        del security["name"]
+        components["securitySchemes"] = {}
+        components["securitySchemes"][security_name] = security
+
     tmpl = spec_base.JINJA_ENV.get_template("openapi.jinja2")
     return tmpl.render(
         title=title,
@@ -486,4 +519,5 @@ def generate(
         components=components,
         paths=all_paths,
         servers=servers,
+        security_name=security_name,
     )

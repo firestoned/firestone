@@ -5,11 +5,12 @@ version_in_path: false
 default_query_params:
   - name: limit
     description: Limit the number of responses back
+    in: query
     schema:
       type: integer
   - name: offset
     description: The offset to start returning resources
-    in: params
+    in: query
     schema:
       type: integer
 schema:

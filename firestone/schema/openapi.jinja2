@@ -8,6 +8,10 @@ info:
 servers:
 {{ servers|yaml_pretty }}
 {%- endif -%}
+{%- if security_name %}
+security:
+  - {{ security_name }}: []
+{%- endif %}
 {%- if components %}
 components:
 {{ components|yaml_pretty }}

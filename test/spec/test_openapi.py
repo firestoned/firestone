@@ -262,6 +262,7 @@ class TestOpenAPIGetParams(unittest.TestCase):
             [
                 {
                     "name": "foo",
+                    "description": "Filter by foo name",
                     "in": "query",
                     "required": False,
                     "schema": {"type": "string"},
@@ -316,6 +317,7 @@ class TestOpenAPIGetParams(unittest.TestCase):
             [
                 {
                     "name": "foo",
+                    "description": "Filter by foo name",
                     "in": "query",
                     "required": True,
                     "schema": {"type": "string"},
@@ -361,10 +363,10 @@ class TestOpenAPIAddResourceMethods(unittest.TestCase):
             {
                 "type": "array",
                 "items": {"type": "object", "properties": {"foo": {"type": "string"}}},
-                "methods": ["get"],
             },
             "/",
             paths,
+            methods=["get"],
         )
 
         self.assertIsNotNone(paths)
@@ -460,10 +462,10 @@ class TestOpenAPIAddInstanceMethods(unittest.TestCase):
             {
                 "type": "array",
                 "items": {"type": "object", "properties": {"foo": {"type": "string"}}},
-                "methods": ["get"],
             },
             "/foo/{foo_key}",
             paths,
+            methods=["get"],
         )
 
         self.assertIsNotNone(paths)
@@ -558,6 +560,7 @@ class TestOpenAPIAddInstanceAttrMethods(unittest.TestCase):
             },
             "/foo/{foo_key}",
             paths,
+            methods=["get"],
             components={"schemas": {}},
         )
 
@@ -655,6 +658,7 @@ class TestOpenAPIGetPaths(unittest.TestCase):
             },
             "/foo/{foo_key}",
             mock.ANY,
+            methods=[],
             keys=[{"name": "foo_key", "schema": {"type": "string"}}],
             default_query_params=None,
             components=None,
@@ -729,14 +733,16 @@ class TestOpenAPIGenerate(unittest.TestCase):
                     "name": "foo",
                     "description": "Some foo resource",
                     "version": "1.0",
+                    "descriptions": {
+                        "resource": {
+                            "get": "The get method is fabulous",
+                        },
+                    },
                     "schema": {
                         "type": "array",
                         "key": {
                             "name": "foo_key",
                             "schema": {"type": "string"},
-                        },
-                        "descriptions": {
-                            "get": "The get method is fabulous",
                         },
                         "items": {
                             "type": "object",
