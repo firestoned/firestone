@@ -3,6 +3,7 @@
 Main entry point for a click based CLI.
 """
 import functools
+import json
 import logging
 
 import click
@@ -103,7 +104,7 @@ def {{ rsrc["name"] }}(ctx_obj):
 @click.pass_obj
 @firestone_utils.click_coro
 @api_exc
-async def {{ op["id"] }}(ctx_obj{% for attr in op["attrs"] -%}{{ ", " + attr["name"] }}{% endfor -%}):
+async def {{ op["id"] }}(ctx_obj{% for attr in op["attrs"] -%}{{ ", " + attr["name"].replace("-", "_") }}{% endfor -%}):
     """{{ op["description"] }}"""
     api_obj = ctx_obj["api_obj"]
     params = {
@@ -119,6 +120,11 @@ async def {{ op["id"] }}(ctx_obj{% for attr in op["attrs"] -%}{{ ", " + attr["na
     resp = await api_obj.{{ op["id"] }}(**params)
     {% endif -%}
     _LOGGER.debug(f"resp: {resp}")
+
+    if isinstance(resp, list):
+        print(json.dumps([obj.to_dict() for obj in resp]))
+    else:
+        print(json.dumps(resp.to_dict()))
 
 
 {% endfor -%}
@@ -136,7 +142,7 @@ async def {{ op["id"] }}(ctx_obj{% for attr in op["attrs"] -%}{{ ", " + attr["na
 @click.pass_obj
 @firestone_utils.click_coro
 @api_exc
-async def {{ op["id"] }}(ctx_obj{% for attr in op["attrs"] -%}{{ ", " + attr["name"] }}{% endfor -%}):
+async def {{ op["id"] }}(ctx_obj{% for attr in op["attrs"] -%}{{ ", " + attr["name"].replace("-", "_") }}{% endfor -%}):
     """{{ op["description"] }}"""
     api_obj = ctx_obj["api_obj"]
     params = {
@@ -152,6 +158,11 @@ async def {{ op["id"] }}(ctx_obj{% for attr in op["attrs"] -%}{{ ", " + attr["na
     resp = await api_obj.{{ op["id"] }}(**params)
     {% endif -%}
     _LOGGER.debug(f"resp: {resp}")
+
+    if isinstance(resp, list):
+        print(json.dumps([obj.to_dict() for obj in resp]))
+    else:
+        print(json.dumps(resp.to_dict()) if resp else "None")
 
 
 {% endfor -%}
