@@ -95,6 +95,7 @@ def {{ rsrc["name"] }}(ctx_obj):
     ctx_obj["api_obj"] = {{ rsrc["name"] }}_api.{{ rsrc["name"].capitalize() }}Api(api_client=ctx_obj["api_client"])
 
 
+# pylint: disable=redefined-builtin
 {# high-level resource operations -#}
 {% for op in rsrc["operations"]["resource"] -%}
 @{{ rsrc["name"] }}.command("{{ op["name"] }}")
@@ -109,7 +110,7 @@ async def {{ op["id"] }}(ctx_obj{% for attr in op["attrs"] -%}{{ ", " + attr["na
     api_obj = ctx_obj["api_obj"]
     params = {
         {% for attr in op["attrs"] -%}
-        "{{ attr["name"] }}":  {{ attr["name"] }},
+        "{{ attr["name"] }}":  {{ attr["name"].replace("-", "_") }},
         {% endfor -%}
     }
     {% if op["name"] == "create" %}
@@ -147,7 +148,7 @@ async def {{ op["id"] }}(ctx_obj{% for attr in op["attrs"] -%}{{ ", " + attr["na
     api_obj = ctx_obj["api_obj"]
     params = {
         {% for attr in op["attrs"] -%}
-        "{{ attr["name"] }}":  {{ attr["name"] }},
+        "{{ attr["name"] }}":  {{ attr["name"].replace("-", "_") }},
         {% endfor -%}
     }
     {% if op["name"] == "create" %}

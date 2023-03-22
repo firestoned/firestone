@@ -1,6 +1,7 @@
 CP := $(shell which cp)
-RM := $(shell which RM)
+DIRNAME := $(shell which dirname)
 MKDIR := $(shell which mkdir)
+RM := $(shell which RM)
 
 CLIENT_OUTDIR := $(shell mktemp -d)
 SERVER_CLIENT_OUTDIR := $(shell mktemp -d)
@@ -11,11 +12,17 @@ ADDRESSBOOK_DIR := examples/addressbook
 RESOURCES := ${ADDRESSBOOK_DIR}/addressbook.yaml,${ADDRESSBOOK_DIR}/person.yaml
 OPENAPI_DOC := ${ADDRESSBOOK_DIR}/openapi.yaml
 
+PKG := addressbook
+CLIENT_PKG := addressbook.client
+MAIN_FILE := ${ADDRESSBOOK_DIR}/main.py
+
 .PHONY: gen-openapi openapi-generator
 
 help:
 	@echo "gen-openapi: Generate OpenAPI file from resources."
 	@echo "gen-server: Generate FastAPI server code."
+	@echo "gen-client: Generate Python client code."
+	@echo "gen-cli: Generate CRUD Python (Click-based) CLI."
 
 gen-openapi: ${FIRESTONE}
 	${FIRESTONE} generate \
@@ -55,3 +62,16 @@ gen-client: $(OPENAPI_GEN)
 
 	@echo "Copying client files from ${CLIENT_OUTDIR} to project"
 	${CP} -rv ${CLIENT_OUTDIR}/addressbook/* ${ADDRESSBOOK_DIR}/addressbook
+
+gen-cli: $(FIRESTONE)
+	@echo "Creating directory for ${MAIN_FILE}"
+	${MKDIR} -pv $(shell ${DIRNAME} ${MAIN_FILE})
+
+	${FIRESTONE} generate \
+		--title 'Addressbook CLI' \
+		--description 'This is the CLI for the example Addressbook' \
+		--resources ${RESOURCES} \
+		--version 1.0 \
+		 cli \
+		 --pkg ${PKG} \
+		 --client-pkg ${CLIENT_PKG} > ${MAIN_FILE}
