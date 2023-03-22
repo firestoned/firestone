@@ -41,15 +41,31 @@ def params_to_attrs(params: list, required: list = None, keys: list = None):
     attrs = []
     for param in params:
         _LOGGER.debug(f"param: {param}")
-        param_schema = param.get("schema", {})
-        param_type = param_schema.get("type", "str")
+        param_schema = param.get("schema", param)
+        param_type = param_schema.get("type", "string")
+        cli_type = "str"
 
         # this means that this param/attribute is another object
         if param_type in ["object", "array"]:
-            param_type = "cli.FromJSON()"
+            _LOGGER.info(f"{param['name']} is of type '{param_type}', processing special CLI type.")
+            cli_type = "cli.FromJSON()"
+            items_type = param_schema.get("items", {}).get("type", "string")
+            _LOGGER.debug(f"cli_type: {cli_type}")
+            _LOGGER.debug(f"items_type: {items_type}")
+            if param_type == "array" and items_type != "object":
+                _LOGGER.info(
+                    f"{param['name']} has items of type '{items_type}', setting click option to cli.StrList"
+                )
+                cli_type = "cli.StrList"
+        elif "enum" in param_schema:
+            _LOGGER.info(f"{param['name']} is of type '{param_type}', creating click.Choice()")
+            enums = '","'.join(param_schema["enum"])
+            cli_type = f'click.Choice(["{enums}"])'
         else:
-            param_type = PARAM_TYPE_TO_ATTR_TYPE.get(param_type)
-        # TODO add support for enum
+            _LOGGER.info(
+                f"{param['name']} is of type: {param_type}, looking up type in PARAM_TYPE_TO_ATTR_TYPE"
+            )
+            cli_type = PARAM_TYPE_TO_ATTR_TYPE.get(param_type)
 
         param_name = param["name"]
         required_val = param_name in required
@@ -58,7 +74,7 @@ def params_to_attrs(params: list, required: list = None, keys: list = None):
                 "argument": param_name in keys,
                 "name": param_name,
                 "description": param.get("description"),
-                "type": param_type,
+                "type": cli_type,
                 "required": param.get("required", required_val),
             }
         )
@@ -72,8 +88,12 @@ def get_resource_attrs(schema: dict, check_required: bool = None):
     _LOGGER.debug(f"tmp_attrs: {tmp_attrs}")
 
     required = schema["items"].get("required", []) if check_required else []
+    _LOGGER.debug(f"required: {required}")
 
-    return params_to_attrs(tmp_attrs, required)
+    attrs = params_to_attrs(tmp_attrs, required)
+    _LOGGER.debug(f"attrs: {attrs}")
+
+    return attrs
 
 
 def get_resource_ops(
@@ -123,7 +143,8 @@ def get_resource_ops(
         attrs = params_to_attrs(params)
 
         if op_name == "create":
-            attrs = get_resource_attrs(schema)
+            check_required = True
+            attrs = get_resource_attrs(schema, check_required)
 
         _LOGGER.debug(f"attrs: {attrs}")
 

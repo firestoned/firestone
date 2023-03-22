@@ -56,10 +56,18 @@ example resource provided, an addressbook!
 
 Note: if running within poetry build, simply prepend commands with ``poetry run``
 
+For the remainder of this documentation, we will assume you have installed firestone.
+
 ### Generate an OpenAPI Spec
 
 ```
-firestone generate --title 'Addressbook resource' --description 'A simple addressBook example' --resources examples/addressBook/resource.yaml openapi
+firestone \
+    generate \
+    --title 'Addressbook resource' \
+    --description 'A simple addressBook example' \
+    --resources examples/addressBook/resource.yaml \
+    openapi
+    --security '{"name": "bearer_auth", "scheme": "bearer", "type": "http", "bearerFormat": "JWT"}' \
 ```
 
 Let's quickly dissect this command:
@@ -73,17 +81,18 @@ You can also, add the command line `--ui-server` tot he end, which will launch a
 small webserver and run the Swagger UI to view this specification file.
 
 ```
-poetry run firestone --debug generate --title 'Example person and addressBook API' \
+firestone --debug generate --title 'Example person and addressBook API' \
     --description 'An example API with more than one resource' \
     --resources examples/addressBook.yaml,examples/person.yaml \
     openapi \
+    --security '{"name": "bearer_auth", "scheme": "bearer", "type": "http", "bearerFormat": "JWT"}' \
     --ui-server
 # ...
 * Serving Quart app 'firestone.__main__'
- * Environment: production
- * Please use an ASGI server (e.g. Hypercorn) directly in production
- * Debug mode: False
- * Running on http://127.0.0.1:5000 (CTRL + C to quit)
+* Environment: production
+* Please use an ASGI server (e.g. Hypercorn) directly in production
+* Debug mode: False
+* Running on http://127.0.0.1:5000 (CTRL + C to quit)
 [2022-10-31 02:47:17 -0500] [87590] [INFO] Running on http://127.0.0.1:5000 (CTRL + C to quit)
 # 2022-10-31 02:47:17,120 - [MainThread] hypercorn.error:102 INFO - Running on http://127.0.0.1:5000 (CTRL + C to quit)
 ```
@@ -135,9 +144,6 @@ schema:
     schema:
       description: A unique identifier for an addressbook entry.
       type: string
-  # You can limit the overall HTTP methods for the high level resource endpoint
-  #methods:
-  #  - get
   #responseCodes:
   # - 200
   # - 201
@@ -238,5 +244,48 @@ above, you would get: `/v1.0/addressBook`.
 
 You can provide a list of default query parameters that will be added to all HTTP methods,
 or optionally you can provide a list of the HTTP methods, for which `firestone` will add.
+
+
+### Generate OpenAPI Client
+
+Now, to generate your OpenAPI client, you will need the `openapi-generator` command, and this can be
+used to generate client code in many languages. For more details on this project, see [here](https://openapi-generator.tech/).
+
+This client code can then be used as an SDK or used by our CLI generation, see below.
+
+```
+openapi-generator generate \
+    -i examples/addressbook/openapi.yaml \
+    -g python-nextgen \
+    -o /tmp/addressbook-client \
+    --skip-validate-spec \
+    -c examples/addressbook/openapi-gen-config.json
+```
+
+### Generate OpenAPI Client
+
+Now that you have generated the client code, you can also generate a CRUD, Python Click-based
+CLI around your code. This generator creates a standalone script or as a module to be used
+in your console scripts, as part of your project build.
+
+Here is an example command we use to generate the example Addressbook.
+
+```
+firestone generate \
+    --title 'Addressbook CLI' \
+    --description 'This is the CLI for the example Addressbook' \
+    --resources examples/addressbook/addressbook.yaml,examples/addressbook/person.yaml \
+    --version 1.0 \
+     cli \
+     --pkg addressbook \
+     --client-pkg addressbook.client > examples/addressbook/main.py
+```
+
+Let's quickly dissect this command:
+
+- we are telling firestone to generate an `openapi` spec, given the ``title``,
+  ``description`` and the two given resource files.
+- By default, this will output the specification file to stdout, alternatively
+  you can provide the `-O` option to output to a specific file.
 
 ## Contributing
