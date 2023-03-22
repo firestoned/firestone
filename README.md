@@ -262,7 +262,7 @@ openapi-generator generate \
     -c examples/addressbook/openapi-gen-config.json
 ```
 
-### Generate OpenAPI Client
+### Generate Python CRUD CLI
 
 Now that you have generated the client code, you can also generate a CRUD, Python Click-based
 CLI around your code. This generator creates a standalone script or as a module to be used
