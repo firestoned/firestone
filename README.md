@@ -34,8 +34,11 @@ You can use pip or poetry to install and run ``firestone``. We suggest using pip
 It's a simple as running the following ``pip`` command:
 
 ```
-sudo pip install firestone
+sudo pip install firestoned
 ```
+
+NOTE: yes, `firestone**d**`, not `firestone`! This is because there already is a, albeit emtpy, repo
+on pypi.org with the same name...
 
 ### poetry
 
