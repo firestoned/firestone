@@ -219,7 +219,6 @@ def add_resource_methods(
     :param list keys: the keys for the instance of this resource
     :param dict default_query_params: the paths
     """
-    print(f"methods: {methods}")
     if not descs:
         descs = {}
 

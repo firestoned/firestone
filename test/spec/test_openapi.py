@@ -756,8 +756,6 @@ class TestOpenAPIGenerate(unittest.TestCase):
             "Summary of Foo API",
             "1.0",
         )
-        print(f"spec: {spec}")
-
         self.assertIsNotNone(spec)
 
         self.assertIn("components", spec)
