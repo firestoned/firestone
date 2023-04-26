@@ -128,13 +128,18 @@ async def addressbook_get(ctx_obj, city, limit, offset):
     type=cli.FromJSON(),
     required=False,
 )
-@click.option("--addrtype", help="The address type, e.g. work or home", type=None, required=False)
 @click.option(
-    "--street", help="The street and civic number of this address", type=None, required=False
+    "--addrtype",
+    help="The address type, e.g. work or home",
+    type=click.Choice(["work", "home"]),
+    required=True,
 )
-@click.option("--city", help="The city of this address", type=None, required=False)
-@click.option("--state", help="The state of this address", type=None, required=False)
-@click.option("--country", help="The country of this address", type=None, required=False)
+@click.option(
+    "--street", help="The street and civic number of this address", type=str, required=True
+)
+@click.option("--city", help="The city of this address", type=str, required=True)
+@click.option("--state", help="The state of this address", type=str, required=True)
+@click.option("--country", help="The country of this address", type=str, required=True)
 @click.pass_obj
 @firestone_utils.click_coro
 @api_exc
@@ -212,13 +217,18 @@ async def addressbook_address_key_get(ctx_obj, city, address_key):
     type=cli.FromJSON(),
     required=False,
 )
-@click.option("--addrtype", help="The address type, e.g. work or home", type=None, required=False)
 @click.option(
-    "--street", help="The street and civic number of this address", type=None, required=False
+    "--addrtype",
+    help="The address type, e.g. work or home",
+    type=click.Choice(["work", "home"]),
+    required=False,
 )
-@click.option("--city", help="The city of this address", type=None, required=False)
-@click.option("--state", help="The state of this address", type=None, required=False)
-@click.option("--country", help="The country of this address", type=None, required=False)
+@click.option(
+    "--street", help="The street and civic number of this address", type=str, required=False
+)
+@click.option("--city", help="The city of this address", type=str, required=False)
+@click.option("--state", help="The state of this address", type=str, required=False)
+@click.option("--country", help="The country of this address", type=str, required=False)
 @click.pass_obj
 @firestone_utils.click_coro
 @api_exc
@@ -324,10 +334,10 @@ async def persons_patch(ctx_obj, limit, offset):
 
 
 @persons.command("create")
-@click.option("--first_name", help="The person's first name", type=None, required=False)
-@click.option("--last_name", help="The person's last name", type=None, required=False)
-@click.option("--age", help="The person's age", type=None, required=False)
-@click.option("--hobbies", help="The person's hobbies", type=None, required=False)
+@click.option("--first_name", help="The person's first name", type=str, required=False)
+@click.option("--last_name", help="The person's last name", type=str, required=False)
+@click.option("--age", help="The person's age", type=int, required=False)
+@click.option("--hobbies", help="The person's hobbies", type=cli.StrList, required=False)
 @click.pass_obj
 @firestone_utils.click_coro
 @api_exc
@@ -397,10 +407,10 @@ async def persons_uuid_get(ctx_obj, last_name, uuid):
 
 
 @persons.command("update")
-@click.option("--first_name", help="The person's first name", type=None, required=False)
-@click.option("--last_name", help="The person's last name", type=None, required=False)
-@click.option("--age", help="The person's age", type=None, required=False)
-@click.option("--hobbies", help="The person's hobbies", type=None, required=False)
+@click.option("--first_name", help="The person's first name", type=str, required=False)
+@click.option("--last_name", help="The person's last name", type=str, required=False)
+@click.option("--age", help="The person's age", type=int, required=False)
+@click.option("--hobbies", help="The person's hobbies", type=cli.StrList, required=False)
 @click.pass_obj
 @firestone_utils.click_coro
 @api_exc
@@ -424,10 +434,10 @@ async def persons_uuid_patch(ctx_obj, first_name, last_name, age, hobbies):
 
 
 @persons.command("update")
-@click.option("--first_name", help="The person's first name", type=None, required=False)
-@click.option("--last_name", help="The person's last name", type=None, required=False)
-@click.option("--age", help="The person's age", type=None, required=False)
-@click.option("--hobbies", help="The person's hobbies", type=None, required=False)
+@click.option("--first_name", help="The person's first name", type=str, required=False)
+@click.option("--last_name", help="The person's last name", type=str, required=False)
+@click.option("--age", help="The person's age", type=int, required=False)
+@click.option("--hobbies", help="The person's hobbies", type=cli.StrList, required=False)
 @click.pass_obj
 @firestone_utils.click_coro
 @api_exc

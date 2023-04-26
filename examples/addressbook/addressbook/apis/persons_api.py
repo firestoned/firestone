@@ -52,12 +52,12 @@ async def persons_delete(
     response_model_by_alias=True,
 )
 async def persons_get(
-    last_name: str = Query(None, description=""),
+    last_name: str = Query(None, description="Filter by last name"),
     limit: int = Query(None, description="Limit the number of responses back"),
     offset: int = Query(None, description="The offset to start returning resources"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> List[Persons]:
-    """List all persons in this collection"""
+    """get operation for /persons"""
     ...
 
 
@@ -74,7 +74,7 @@ async def persons_head(
     offset: int = Query(None, description="The offset to start returning resources"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
-    """Determine the existence and size of persons in this collection"""
+    """head operation for /persons"""
     ...
 
 
@@ -91,7 +91,7 @@ async def persons_patch(
     offset: int = Query(None, description="The offset to start returning resources"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> Persons:
-    """Patch one or more persons in this collection"""
+    """patch operation for /persons"""
     ...
 
 
@@ -109,7 +109,7 @@ async def persons_post(
     offset: int = Query(None, description="The offset to start returning resources"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> Persons:
-    """Create a new person in this collection, a new UUID key will be created"""
+    """post operation for /persons"""
     ...
 
 
@@ -139,7 +139,7 @@ async def persons_uuid_age_delete(
 )
 async def persons_uuid_age_get(
     uuid: str = Path(None, description=""),
-    last_name: str = Query(None, description=""),
+    last_name: str = Query(None, description="Filter by last name"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> int:
     """get operation for /persons/{uuid}/age"""
@@ -221,7 +221,7 @@ async def persons_uuid_first_name_delete(
 )
 async def persons_uuid_first_name_get(
     uuid: str = Path(None, description=""),
-    last_name: str = Query(None, description=""),
+    last_name: str = Query(None, description="Filter by last name"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """get operation for /persons/{uuid}/first_name"""
@@ -271,7 +271,7 @@ async def persons_uuid_first_name_put(
 )
 async def persons_uuid_get(
     uuid: str = Path(None, description=""),
-    last_name: str = Query(None, description=""),
+    last_name: str = Query(None, description="Filter by last name"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> Persons:
     """get operation for /persons/{uuid}"""
@@ -320,7 +320,7 @@ async def persons_uuid_hobbies_delete(
 )
 async def persons_uuid_hobbies_get(
     uuid: str = Path(None, description=""),
-    last_name: str = Query(None, description=""),
+    last_name: str = Query(None, description="Filter by last name"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> List[str]:
     """get operation for /persons/{uuid}/hobbies"""
@@ -388,7 +388,7 @@ async def persons_uuid_last_name_delete(
 )
 async def persons_uuid_last_name_get(
     uuid: str = Path(None, description=""),
-    last_name: str = Query(None, description=""),
+    last_name: str = Query(None, description="Filter by last name"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """get operation for /persons/{uuid}/last_name"""

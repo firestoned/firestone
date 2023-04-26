@@ -56,7 +56,7 @@ async def addressbook_address_key_addrtype_delete(
 )
 async def addressbook_address_key_addrtype_get(
     address_key: str = Path(None, description=""),
-    city: str = Query(None, description=""),
+    city: str = Query(None, description="Filter by city name"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """get operation for /addressbook/{address_key}/addrtype"""
@@ -122,7 +122,7 @@ async def addressbook_address_key_city_delete(
 )
 async def addressbook_address_key_city_get(
     address_key: str = Path(None, description=""),
-    city: str = Query(None, description=""),
+    city: str = Query(None, description="Filter by city name"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """get operation for /addressbook/{address_key}/city"""
@@ -188,7 +188,7 @@ async def addressbook_address_key_country_delete(
 )
 async def addressbook_address_key_country_get(
     address_key: str = Path(None, description=""),
-    city: str = Query(None, description=""),
+    city: str = Query(None, description="Filter by city name"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """get operation for /addressbook/{address_key}/country"""
@@ -240,7 +240,7 @@ async def addressbook_address_key_delete(
     address_key: str = Path(None, description=""),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> Addressbook:
-    """delete operation for /addressbook/{address_key}"""
+    """Delete an address from this addressbook."""
     ...
 
 
@@ -254,10 +254,10 @@ async def addressbook_address_key_delete(
 )
 async def addressbook_address_key_get(
     address_key: str = Path(None, description=""),
-    city: str = Query(None, description=""),
+    city: str = Query(None, description="Filter by city name"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> Addressbook:
-    """get operation for /addressbook/{address_key}"""
+    """Get a specific address from this addressbook."""
     ...
 
 
@@ -273,23 +273,7 @@ async def addressbook_address_key_head(
     address_key: str = Path(None, description=""),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
-    """head operation for /addressbook/{address_key}"""
-    ...
-
-
-@router.patch(
-    "/addressbook/{address_key}",
-    responses={
-        200: {"model": Addressbook, "description": "Response for OK"},
-    },
-    tags=["addressbook"],
-    response_model_by_alias=True,
-)
-async def addressbook_address_key_patch(
-    address_key: str = Path(None, description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> Addressbook:
-    """patch operation for /addressbook/{address_key}"""
+    """Determine the existence and size of this address."""
     ...
 
 
@@ -321,7 +305,7 @@ async def addressbook_address_key_person_delete(
 )
 async def addressbook_address_key_person_get(
     address_key: str = Path(None, description=""),
-    last_name: str = Query(None, description=""),
+    last_name: str = Query(None, description="Filter by last name"),
     limit: int = Query(None, description="Limit the number of responses back"),
     offset: int = Query(None, description="The offset to start returning resources"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
@@ -415,7 +399,7 @@ async def addressbook_address_key_person_uuid_age_delete(
 async def addressbook_address_key_person_uuid_age_get(
     address_key: str = Path(None, description=""),
     uuid: str = Path(None, description=""),
-    last_name: str = Query(None, description=""),
+    last_name: str = Query(None, description="Filter by last name"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> int:
     """get operation for /addressbook/{address_key}/person/{uuid}/age"""
@@ -504,7 +488,7 @@ async def addressbook_address_key_person_uuid_first_name_delete(
 async def addressbook_address_key_person_uuid_first_name_get(
     address_key: str = Path(None, description=""),
     uuid: str = Path(None, description=""),
-    last_name: str = Query(None, description=""),
+    last_name: str = Query(None, description="Filter by last name"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """get operation for /addressbook/{address_key}/person/{uuid}/first_name"""
@@ -559,7 +543,7 @@ async def addressbook_address_key_person_uuid_first_name_put(
 async def addressbook_address_key_person_uuid_get(
     address_key: str = Path(None, description=""),
     uuid: str = Path(None, description=""),
-    last_name: str = Query(None, description=""),
+    last_name: str = Query(None, description="Filter by last name"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> Person:
     """get operation for /addressbook/{address_key}/person/{uuid}"""
@@ -611,7 +595,7 @@ async def addressbook_address_key_person_uuid_hobbies_delete(
 async def addressbook_address_key_person_uuid_hobbies_get(
     address_key: str = Path(None, description=""),
     uuid: str = Path(None, description=""),
-    last_name: str = Query(None, description=""),
+    last_name: str = Query(None, description="Filter by last name"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> List[str]:
     """get operation for /addressbook/{address_key}/person/{uuid}/hobbies"""
@@ -683,7 +667,7 @@ async def addressbook_address_key_person_uuid_last_name_delete(
 async def addressbook_address_key_person_uuid_last_name_get(
     address_key: str = Path(None, description=""),
     uuid: str = Path(None, description=""),
-    last_name: str = Query(None, description=""),
+    last_name: str = Query(None, description="Filter by last name"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """get operation for /addressbook/{address_key}/person/{uuid}/last_name"""
@@ -779,7 +763,7 @@ async def addressbook_address_key_put(
     ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> Addressbook:
-    """put operation for /addressbook/{address_key}"""
+    """Update an existing address in this addressbook, with the given address key."""
     ...
 
 
@@ -809,7 +793,7 @@ async def addressbook_address_key_state_delete(
 )
 async def addressbook_address_key_state_get(
     address_key: str = Path(None, description=""),
-    city: str = Query(None, description=""),
+    city: str = Query(None, description="Filter by city name"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """get operation for /addressbook/{address_key}/state"""
@@ -875,7 +859,7 @@ async def addressbook_address_key_street_delete(
 )
 async def addressbook_address_key_street_get(
     address_key: str = Path(None, description=""),
-    city: str = Query(None, description=""),
+    city: str = Query(None, description="Filter by city name"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """get operation for /addressbook/{address_key}/street"""
@@ -915,23 +899,6 @@ async def addressbook_address_key_street_put(
     ...
 
 
-@router.delete(
-    "/addressbook",
-    responses={
-        200: {"model": Addressbook, "description": "Response for OK"},
-    },
-    tags=["addressbook"],
-    response_model_by_alias=True,
-)
-async def addressbook_delete(
-    limit: int = Query(None, description="Limit the number of responses back"),
-    offset: int = Query(None, description="The offset to start returning resources"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> Addressbook:
-    """delete operation for /addressbook"""
-    ...
-
-
 @router.get(
     "/addressbook",
     responses={
@@ -941,46 +908,12 @@ async def addressbook_delete(
     response_model_by_alias=True,
 )
 async def addressbook_get(
-    city: str = Query(None, description=""),
+    city: str = Query(None, description="Filter by city name"),
     limit: int = Query(None, description="Limit the number of responses back"),
     offset: int = Query(None, description="The offset to start returning resources"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> List[Addressbook]:
-    """get operation for /addressbook"""
-    ...
-
-
-@router.head(
-    "/addressbook",
-    responses={
-        200: {"description": "Default HEAD response"},
-    },
-    tags=["addressbook"],
-    response_model_by_alias=True,
-)
-async def addressbook_head(
-    limit: int = Query(None, description="Limit the number of responses back"),
-    offset: int = Query(None, description="The offset to start returning resources"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> None:
-    """head operation for /addressbook"""
-    ...
-
-
-@router.patch(
-    "/addressbook",
-    responses={
-        200: {"model": Addressbook, "description": "Response for OK"},
-    },
-    tags=["addressbook"],
-    response_model_by_alias=True,
-)
-async def addressbook_patch(
-    limit: int = Query(None, description="Limit the number of responses back"),
-    offset: int = Query(None, description="The offset to start returning resources"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> Addressbook:
-    """patch operation for /addressbook"""
+    """List all addresses in this addressbook."""
     ...
 
 
@@ -998,5 +931,5 @@ async def addressbook_post(
     offset: int = Query(None, description="The offset to start returning resources"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> Addressbook:
-    """post operation for /addressbook"""
+    """Create a new address in this addressbook, a new address key will be created."""
     ...

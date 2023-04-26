@@ -5,6 +5,7 @@ Main entry point for a click based CLI.
 import functools
 import json
 import logging
+import os
 
 import click
 from firestone_lib import cli
@@ -16,7 +17,7 @@ from {{ client_pkg }} import exceptions
 {% for rsrc in rsrcs -%}
 from {{ client_pkg }}.api import {{ rsrc["name"] }}_api
 from {{ client_pkg }}.models import {{ rsrc["name"] }} as {{ rsrc["name"] }}_model
-{% endfor -%}
+{% endfor %}
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -49,13 +50,24 @@ def api_exc(func):
     required=True,
     envvar="API_URL",
 )
+@click.option("--trust-proxy", help="Trust the proxy env vars", is_flag=True, default=False)
 @click.option("--threads", help="The number of threads for client side", type=int, default=1)
 @click.pass_context
-def main(ctx, debug, api_key, api_url, threads):
+def main(ctx, debug, api_key, api_url, threads, trust_proxy):
     """{{ title }}
 
     {{ description }}
     """
+	if not trust_proxy:
+		if "http_proxy" in os.environ:
+			del os.environ["http_proxy"]
+		if "https_proxy" in os.environ:
+			del os.environ["https_proxy"]
+		if "HTTP_PROXY" in os.environ:
+			del os.environ["HTTP_PROXY"]
+		if "HTTPS_PROXY" in os.environ:
+			del os.environ["HTTPS_PROXY"]
+
     try:
         cli.init_logging("{{ pkg }}.resources.logging", "cli.conf")
     # pylint: disable=broad-except

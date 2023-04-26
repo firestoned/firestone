@@ -198,7 +198,10 @@ class AddressbookApi(object):
 
     @validate_arguments
     def addressbook_address_key_addrtype_get(
-        self, address_key: StrictStr, city: Optional[StrictStr] = None, **kwargs
+        self,
+        address_key: StrictStr,
+        city: Annotated[Optional[StrictStr], Field(description="Filter by city name")] = None,
+        **kwargs,
     ) -> str:  # noqa: E501
         """addressbook_address_key_addrtype_get  # noqa: E501
 
@@ -211,7 +214,7 @@ class AddressbookApi(object):
 
         :param address_key: (required)
         :type address_key: str
-        :param city:
+        :param city: Filter by city name
         :type city: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -235,7 +238,10 @@ class AddressbookApi(object):
 
     @validate_arguments
     def addressbook_address_key_addrtype_get_with_http_info(
-        self, address_key: StrictStr, city: Optional[StrictStr] = None, **kwargs
+        self,
+        address_key: StrictStr,
+        city: Annotated[Optional[StrictStr], Field(description="Filter by city name")] = None,
+        **kwargs,
     ):  # noqa: E501
         """addressbook_address_key_addrtype_get  # noqa: E501
 
@@ -248,7 +254,7 @@ class AddressbookApi(object):
 
         :param address_key: (required)
         :type address_key: str
-        :param city:
+        :param city: Filter by city name
         :type city: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -822,7 +828,10 @@ class AddressbookApi(object):
 
     @validate_arguments
     def addressbook_address_key_city_get(
-        self, address_key: StrictStr, city: Optional[StrictStr] = None, **kwargs
+        self,
+        address_key: StrictStr,
+        city: Annotated[Optional[StrictStr], Field(description="Filter by city name")] = None,
+        **kwargs,
     ) -> str:  # noqa: E501
         """addressbook_address_key_city_get  # noqa: E501
 
@@ -835,7 +844,7 @@ class AddressbookApi(object):
 
         :param address_key: (required)
         :type address_key: str
-        :param city:
+        :param city: Filter by city name
         :type city: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -859,7 +868,10 @@ class AddressbookApi(object):
 
     @validate_arguments
     def addressbook_address_key_city_get_with_http_info(
-        self, address_key: StrictStr, city: Optional[StrictStr] = None, **kwargs
+        self,
+        address_key: StrictStr,
+        city: Annotated[Optional[StrictStr], Field(description="Filter by city name")] = None,
+        **kwargs,
     ):  # noqa: E501
         """addressbook_address_key_city_get  # noqa: E501
 
@@ -872,7 +884,7 @@ class AddressbookApi(object):
 
         :param address_key: (required)
         :type address_key: str
-        :param city:
+        :param city: Filter by city name
         :type city: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -1446,7 +1458,10 @@ class AddressbookApi(object):
 
     @validate_arguments
     def addressbook_address_key_country_get(
-        self, address_key: StrictStr, city: Optional[StrictStr] = None, **kwargs
+        self,
+        address_key: StrictStr,
+        city: Annotated[Optional[StrictStr], Field(description="Filter by city name")] = None,
+        **kwargs,
     ) -> str:  # noqa: E501
         """addressbook_address_key_country_get  # noqa: E501
 
@@ -1459,7 +1474,7 @@ class AddressbookApi(object):
 
         :param address_key: (required)
         :type address_key: str
-        :param city:
+        :param city: Filter by city name
         :type city: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -1483,7 +1498,10 @@ class AddressbookApi(object):
 
     @validate_arguments
     def addressbook_address_key_country_get_with_http_info(
-        self, address_key: StrictStr, city: Optional[StrictStr] = None, **kwargs
+        self,
+        address_key: StrictStr,
+        city: Annotated[Optional[StrictStr], Field(description="Filter by city name")] = None,
+        **kwargs,
     ):  # noqa: E501
         """addressbook_address_key_country_get  # noqa: E501
 
@@ -1496,7 +1514,7 @@ class AddressbookApi(object):
 
         :param address_key: (required)
         :type address_key: str
-        :param city:
+        :param city: Filter by city name
         :type city: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -1924,7 +1942,7 @@ class AddressbookApi(object):
     ) -> Addressbook:  # noqa: E501
         """addressbook_address_key_delete  # noqa: E501
 
-        delete operation for /addressbook/{address_key}  # noqa: E501
+        Delete an address from this addressbook.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -1959,7 +1977,7 @@ class AddressbookApi(object):
     ):  # noqa: E501
         """addressbook_address_key_delete  # noqa: E501
 
-        delete operation for /addressbook/{address_key}  # noqa: E501
+        Delete an address from this addressbook.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -2070,11 +2088,14 @@ class AddressbookApi(object):
 
     @validate_arguments
     def addressbook_address_key_get(
-        self, address_key: StrictStr, city: Optional[StrictStr] = None, **kwargs
+        self,
+        address_key: StrictStr,
+        city: Annotated[Optional[StrictStr], Field(description="Filter by city name")] = None,
+        **kwargs,
     ) -> Addressbook:  # noqa: E501
         """addressbook_address_key_get  # noqa: E501
 
-        get operation for /addressbook/{address_key}  # noqa: E501
+        Get a specific address from this addressbook.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -2083,7 +2104,7 @@ class AddressbookApi(object):
 
         :param address_key: (required)
         :type address_key: str
-        :param city:
+        :param city: Filter by city name
         :type city: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -2107,11 +2128,14 @@ class AddressbookApi(object):
 
     @validate_arguments
     def addressbook_address_key_get_with_http_info(
-        self, address_key: StrictStr, city: Optional[StrictStr] = None, **kwargs
+        self,
+        address_key: StrictStr,
+        city: Annotated[Optional[StrictStr], Field(description="Filter by city name")] = None,
+        **kwargs,
     ):  # noqa: E501
         """addressbook_address_key_get  # noqa: E501
 
-        get operation for /addressbook/{address_key}  # noqa: E501
+        Get a specific address from this addressbook.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -2120,7 +2144,7 @@ class AddressbookApi(object):
 
         :param address_key: (required)
         :type address_key: str
-        :param city:
+        :param city: Filter by city name
         :type city: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -2228,7 +2252,7 @@ class AddressbookApi(object):
     def addressbook_address_key_head(self, address_key: StrictStr, **kwargs) -> None:  # noqa: E501
         """addressbook_address_key_head  # noqa: E501
 
-        head operation for /addressbook/{address_key}  # noqa: E501
+        Determine the existence and size of this address.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -2261,7 +2285,7 @@ class AddressbookApi(object):
     ):  # noqa: E501
         """addressbook_address_key_head  # noqa: E501
 
-        head operation for /addressbook/{address_key}  # noqa: E501
+        Determine the existence and size of this address.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -2347,156 +2371,6 @@ class AddressbookApi(object):
         return self.api_client.call_api(
             "/addressbook/{address_key}",
             "HEAD",
-            _path_params,
-            _query_params,
-            _header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            response_types_map=_response_types_map,
-            auth_settings=_auth_settings,
-            async_req=_params.get("async_req"),
-            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
-            _preload_content=_params.get("_preload_content", True),
-            _request_timeout=_params.get("_request_timeout"),
-            collection_formats=_collection_formats,
-            _request_auth=_params.get("_request_auth"),
-        )
-
-    @validate_arguments
-    def addressbook_address_key_patch(
-        self, address_key: StrictStr, **kwargs
-    ) -> Addressbook:  # noqa: E501
-        """addressbook_address_key_patch  # noqa: E501
-
-        patch operation for /addressbook/{address_key}  # noqa: E501
-        This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async_req=True
-
-        >>> thread = api.addressbook_address_key_patch(address_key, async_req=True)
-        >>> result = thread.get()
-
-        :param address_key: (required)
-        :type address_key: str
-        :param async_req: Whether to execute the request asynchronously.
-        :type async_req: bool, optional
-        :param _preload_content: if False, the urllib3.HTTPResponse object will
-                                 be returned without reading/decoding response
-                                 data. Default is True.
-        :type _preload_content: bool, optional
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :return: Returns the result object.
-                 If the method is called asynchronously,
-                 returns the request thread.
-        :rtype: Addressbook
-        """
-        kwargs["_return_http_data_only"] = True
-        return self.addressbook_address_key_patch_with_http_info(
-            address_key, **kwargs
-        )  # noqa: E501
-
-    @validate_arguments
-    def addressbook_address_key_patch_with_http_info(
-        self, address_key: StrictStr, **kwargs
-    ):  # noqa: E501
-        """addressbook_address_key_patch  # noqa: E501
-
-        patch operation for /addressbook/{address_key}  # noqa: E501
-        This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async_req=True
-
-        >>> thread = api.addressbook_address_key_patch_with_http_info(address_key, async_req=True)
-        >>> result = thread.get()
-
-        :param address_key: (required)
-        :type address_key: str
-        :param async_req: Whether to execute the request asynchronously.
-        :type async_req: bool, optional
-        :param _return_http_data_only: response data without head status code
-                                       and headers
-        :type _return_http_data_only: bool, optional
-        :param _preload_content: if False, the urllib3.HTTPResponse object will
-                                 be returned without reading/decoding response
-                                 data. Default is True.
-        :type _preload_content: bool, optional
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the authentication
-                              in the spec for a single request.
-        :type _request_auth: dict, optional
-        :type _content_type: string, optional: force content-type for the request
-        :return: Returns the result object.
-                 If the method is called asynchronously,
-                 returns the request thread.
-        :rtype: tuple(Addressbook, status_code(int), headers(HTTPHeaderDict))
-        """
-
-        _params = locals()
-
-        _all_params = ["address_key"]
-        _all_params.extend(
-            [
-                "async_req",
-                "_return_http_data_only",
-                "_preload_content",
-                "_request_timeout",
-                "_request_auth",
-                "_content_type",
-                "_headers",
-            ]
-        )
-
-        # validate the arguments
-        for _key, _val in _params["kwargs"].items():
-            if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'"
-                    " to method addressbook_address_key_patch" % _key
-                )
-            _params[_key] = _val
-        del _params["kwargs"]
-
-        _collection_formats = {}
-
-        # process the path parameters
-        _path_params = {}
-        if _params["address_key"]:
-            _path_params["address_key"] = _params["address_key"]
-
-        # process the query parameters
-        _query_params = []
-
-        # process the header parameters
-        _header_params = dict(_params.get("_headers", {}))
-
-        # process the form parameters
-        _form_params = []
-        _files = {}
-
-        # process the body parameter
-        _body_params = None
-
-        # set the HTTP header `Accept`
-        _header_params["Accept"] = self.api_client.select_header_accept(
-            ["application/json"]
-        )  # noqa: E501
-
-        # authentication setting
-        _auth_settings = ["bearer_auth"]  # noqa: E501
-
-        _response_types_map = {
-            "200": "Addressbook",
-        }
-
-        return self.api_client.call_api(
-            "/addressbook/{address_key}",
-            "PATCH",
             _path_params,
             _query_params,
             _header_params,
@@ -2695,7 +2569,7 @@ class AddressbookApi(object):
     def addressbook_address_key_person_get(
         self,
         address_key: StrictStr,
-        last_name: Optional[StrictStr] = None,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")] = None,
         limit: Annotated[
             Optional[StrictInt], Field(description="Limit the number of responses back")
         ] = None,
@@ -2715,7 +2589,7 @@ class AddressbookApi(object):
 
         :param address_key: (required)
         :type address_key: str
-        :param last_name:
+        :param last_name: Filter by last name
         :type last_name: str
         :param limit: Limit the number of responses back
         :type limit: int
@@ -2745,7 +2619,7 @@ class AddressbookApi(object):
     def addressbook_address_key_person_get_with_http_info(
         self,
         address_key: StrictStr,
-        last_name: Optional[StrictStr] = None,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")] = None,
         limit: Annotated[
             Optional[StrictInt], Field(description="Limit the number of responses back")
         ] = None,
@@ -2765,7 +2639,7 @@ class AddressbookApi(object):
 
         :param address_key: (required)
         :type address_key: str
-        :param last_name:
+        :param last_name: Filter by last name
         :type last_name: str
         :param limit: Limit the number of responses back
         :type limit: int
@@ -3584,7 +3458,7 @@ class AddressbookApi(object):
         self,
         address_key: StrictStr,
         uuid: StrictStr,
-        last_name: Optional[StrictStr] = None,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")] = None,
         **kwargs,
     ) -> int:  # noqa: E501
         """addressbook_address_key_person_uuid_age_get  # noqa: E501
@@ -3600,7 +3474,7 @@ class AddressbookApi(object):
         :type address_key: str
         :param uuid: (required)
         :type uuid: str
-        :param last_name:
+        :param last_name: Filter by last name
         :type last_name: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -3627,7 +3501,7 @@ class AddressbookApi(object):
         self,
         address_key: StrictStr,
         uuid: StrictStr,
-        last_name: Optional[StrictStr] = None,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")] = None,
         **kwargs,
     ):  # noqa: E501
         """addressbook_address_key_person_uuid_age_get  # noqa: E501
@@ -3643,7 +3517,7 @@ class AddressbookApi(object):
         :type address_key: str
         :param uuid: (required)
         :type uuid: str
-        :param last_name:
+        :param last_name: Filter by last name
         :type last_name: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -4402,7 +4276,7 @@ class AddressbookApi(object):
         self,
         address_key: StrictStr,
         uuid: StrictStr,
-        last_name: Optional[StrictStr] = None,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")] = None,
         **kwargs,
     ) -> str:  # noqa: E501
         """addressbook_address_key_person_uuid_first_name_get  # noqa: E501
@@ -4418,7 +4292,7 @@ class AddressbookApi(object):
         :type address_key: str
         :param uuid: (required)
         :type uuid: str
-        :param last_name:
+        :param last_name: Filter by last name
         :type last_name: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -4445,7 +4319,7 @@ class AddressbookApi(object):
         self,
         address_key: StrictStr,
         uuid: StrictStr,
-        last_name: Optional[StrictStr] = None,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")] = None,
         **kwargs,
     ):  # noqa: E501
         """addressbook_address_key_person_uuid_first_name_get  # noqa: E501
@@ -4461,7 +4335,7 @@ class AddressbookApi(object):
         :type address_key: str
         :param uuid: (required)
         :type uuid: str
-        :param last_name:
+        :param last_name: Filter by last name
         :type last_name: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -4910,7 +4784,7 @@ class AddressbookApi(object):
         self,
         address_key: StrictStr,
         uuid: StrictStr,
-        last_name: Optional[StrictStr] = None,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")] = None,
         **kwargs,
     ) -> Person:  # noqa: E501
         """addressbook_address_key_person_uuid_get  # noqa: E501
@@ -4926,7 +4800,7 @@ class AddressbookApi(object):
         :type address_key: str
         :param uuid: (required)
         :type uuid: str
-        :param last_name:
+        :param last_name: Filter by last name
         :type last_name: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -4953,7 +4827,7 @@ class AddressbookApi(object):
         self,
         address_key: StrictStr,
         uuid: StrictStr,
-        last_name: Optional[StrictStr] = None,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")] = None,
         **kwargs,
     ):  # noqa: E501
         """addressbook_address_key_person_uuid_get  # noqa: E501
@@ -4969,7 +4843,7 @@ class AddressbookApi(object):
         :type address_key: str
         :param uuid: (required)
         :type uuid: str
-        :param last_name:
+        :param last_name: Filter by last name
         :type last_name: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -5385,7 +5259,7 @@ class AddressbookApi(object):
         self,
         address_key: StrictStr,
         uuid: StrictStr,
-        last_name: Optional[StrictStr] = None,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")] = None,
         **kwargs,
     ) -> List[str]:  # noqa: E501
         """addressbook_address_key_person_uuid_hobbies_get  # noqa: E501
@@ -5401,7 +5275,7 @@ class AddressbookApi(object):
         :type address_key: str
         :param uuid: (required)
         :type uuid: str
-        :param last_name:
+        :param last_name: Filter by last name
         :type last_name: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -5428,7 +5302,7 @@ class AddressbookApi(object):
         self,
         address_key: StrictStr,
         uuid: StrictStr,
-        last_name: Optional[StrictStr] = None,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")] = None,
         **kwargs,
     ):  # noqa: E501
         """addressbook_address_key_person_uuid_hobbies_get  # noqa: E501
@@ -5444,7 +5318,7 @@ class AddressbookApi(object):
         :type address_key: str
         :param uuid: (required)
         :type uuid: str
-        :param last_name:
+        :param last_name: Filter by last name
         :type last_name: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -6049,7 +5923,7 @@ class AddressbookApi(object):
         self,
         address_key: StrictStr,
         uuid: StrictStr,
-        last_name: Optional[StrictStr] = None,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")] = None,
         **kwargs,
     ) -> str:  # noqa: E501
         """addressbook_address_key_person_uuid_last_name_get  # noqa: E501
@@ -6065,7 +5939,7 @@ class AddressbookApi(object):
         :type address_key: str
         :param uuid: (required)
         :type uuid: str
-        :param last_name:
+        :param last_name: Filter by last name
         :type last_name: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -6092,7 +5966,7 @@ class AddressbookApi(object):
         self,
         address_key: StrictStr,
         uuid: StrictStr,
-        last_name: Optional[StrictStr] = None,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")] = None,
         **kwargs,
     ):  # noqa: E501
         """addressbook_address_key_person_uuid_last_name_get  # noqa: E501
@@ -6108,7 +5982,7 @@ class AddressbookApi(object):
         :type address_key: str
         :param uuid: (required)
         :type uuid: str
-        :param last_name:
+        :param last_name: Filter by last name
         :type last_name: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -6907,7 +6781,7 @@ class AddressbookApi(object):
     ) -> Addressbook:  # noqa: E501
         """addressbook_address_key_put  # noqa: E501
 
-        put operation for /addressbook/{address_key}  # noqa: E501
+        Update an existing address in this addressbook, with the given address key.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -6950,7 +6824,7 @@ class AddressbookApi(object):
     ):  # noqa: E501
         """addressbook_address_key_put  # noqa: E501
 
-        put operation for /addressbook/{address_key}  # noqa: E501
+        Update an existing address in this addressbook, with the given address key.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -7222,7 +7096,10 @@ class AddressbookApi(object):
 
     @validate_arguments
     def addressbook_address_key_state_get(
-        self, address_key: StrictStr, city: Optional[StrictStr] = None, **kwargs
+        self,
+        address_key: StrictStr,
+        city: Annotated[Optional[StrictStr], Field(description="Filter by city name")] = None,
+        **kwargs,
     ) -> str:  # noqa: E501
         """addressbook_address_key_state_get  # noqa: E501
 
@@ -7235,7 +7112,7 @@ class AddressbookApi(object):
 
         :param address_key: (required)
         :type address_key: str
-        :param city:
+        :param city: Filter by city name
         :type city: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -7259,7 +7136,10 @@ class AddressbookApi(object):
 
     @validate_arguments
     def addressbook_address_key_state_get_with_http_info(
-        self, address_key: StrictStr, city: Optional[StrictStr] = None, **kwargs
+        self,
+        address_key: StrictStr,
+        city: Annotated[Optional[StrictStr], Field(description="Filter by city name")] = None,
+        **kwargs,
     ):  # noqa: E501
         """addressbook_address_key_state_get  # noqa: E501
 
@@ -7272,7 +7152,7 @@ class AddressbookApi(object):
 
         :param address_key: (required)
         :type address_key: str
-        :param city:
+        :param city: Filter by city name
         :type city: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -7846,7 +7726,10 @@ class AddressbookApi(object):
 
     @validate_arguments
     def addressbook_address_key_street_get(
-        self, address_key: StrictStr, city: Optional[StrictStr] = None, **kwargs
+        self,
+        address_key: StrictStr,
+        city: Annotated[Optional[StrictStr], Field(description="Filter by city name")] = None,
+        **kwargs,
     ) -> str:  # noqa: E501
         """addressbook_address_key_street_get  # noqa: E501
 
@@ -7859,7 +7742,7 @@ class AddressbookApi(object):
 
         :param address_key: (required)
         :type address_key: str
-        :param city:
+        :param city: Filter by city name
         :type city: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -7883,7 +7766,10 @@ class AddressbookApi(object):
 
     @validate_arguments
     def addressbook_address_key_street_get_with_http_info(
-        self, address_key: StrictStr, city: Optional[StrictStr] = None, **kwargs
+        self,
+        address_key: StrictStr,
+        city: Annotated[Optional[StrictStr], Field(description="Filter by city name")] = None,
+        **kwargs,
     ):  # noqa: E501
         """addressbook_address_key_street_get  # noqa: E501
 
@@ -7896,7 +7782,7 @@ class AddressbookApi(object):
 
         :param address_key: (required)
         :type address_key: str
-        :param city:
+        :param city: Filter by city name
         :type city: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -8319,176 +8205,9 @@ class AddressbookApi(object):
         )
 
     @validate_arguments
-    def addressbook_delete(
-        self,
-        limit: Annotated[
-            Optional[StrictInt], Field(description="Limit the number of responses back")
-        ] = None,
-        offset: Annotated[
-            Optional[StrictInt], Field(description="The offset to start returning resources")
-        ] = None,
-        **kwargs,
-    ) -> Addressbook:  # noqa: E501
-        """addressbook_delete  # noqa: E501
-
-        delete operation for /addressbook  # noqa: E501
-        This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async_req=True
-
-        >>> thread = api.addressbook_delete(limit, offset, async_req=True)
-        >>> result = thread.get()
-
-        :param limit: Limit the number of responses back
-        :type limit: int
-        :param offset: The offset to start returning resources
-        :type offset: int
-        :param async_req: Whether to execute the request asynchronously.
-        :type async_req: bool, optional
-        :param _preload_content: if False, the urllib3.HTTPResponse object will
-                                 be returned without reading/decoding response
-                                 data. Default is True.
-        :type _preload_content: bool, optional
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :return: Returns the result object.
-                 If the method is called asynchronously,
-                 returns the request thread.
-        :rtype: Addressbook
-        """
-        kwargs["_return_http_data_only"] = True
-        return self.addressbook_delete_with_http_info(limit, offset, **kwargs)  # noqa: E501
-
-    @validate_arguments
-    def addressbook_delete_with_http_info(
-        self,
-        limit: Annotated[
-            Optional[StrictInt], Field(description="Limit the number of responses back")
-        ] = None,
-        offset: Annotated[
-            Optional[StrictInt], Field(description="The offset to start returning resources")
-        ] = None,
-        **kwargs,
-    ):  # noqa: E501
-        """addressbook_delete  # noqa: E501
-
-        delete operation for /addressbook  # noqa: E501
-        This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async_req=True
-
-        >>> thread = api.addressbook_delete_with_http_info(limit, offset, async_req=True)
-        >>> result = thread.get()
-
-        :param limit: Limit the number of responses back
-        :type limit: int
-        :param offset: The offset to start returning resources
-        :type offset: int
-        :param async_req: Whether to execute the request asynchronously.
-        :type async_req: bool, optional
-        :param _return_http_data_only: response data without head status code
-                                       and headers
-        :type _return_http_data_only: bool, optional
-        :param _preload_content: if False, the urllib3.HTTPResponse object will
-                                 be returned without reading/decoding response
-                                 data. Default is True.
-        :type _preload_content: bool, optional
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the authentication
-                              in the spec for a single request.
-        :type _request_auth: dict, optional
-        :type _content_type: string, optional: force content-type for the request
-        :return: Returns the result object.
-                 If the method is called asynchronously,
-                 returns the request thread.
-        :rtype: tuple(Addressbook, status_code(int), headers(HTTPHeaderDict))
-        """
-
-        _params = locals()
-
-        _all_params = ["limit", "offset"]
-        _all_params.extend(
-            [
-                "async_req",
-                "_return_http_data_only",
-                "_preload_content",
-                "_request_timeout",
-                "_request_auth",
-                "_content_type",
-                "_headers",
-            ]
-        )
-
-        # validate the arguments
-        for _key, _val in _params["kwargs"].items():
-            if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'" " to method addressbook_delete" % _key
-                )
-            _params[_key] = _val
-        del _params["kwargs"]
-
-        _collection_formats = {}
-
-        # process the path parameters
-        _path_params = {}
-
-        # process the query parameters
-        _query_params = []
-        if _params.get("limit") is not None:  # noqa: E501
-            _query_params.append(("limit", _params["limit"]))
-        if _params.get("offset") is not None:  # noqa: E501
-            _query_params.append(("offset", _params["offset"]))
-
-        # process the header parameters
-        _header_params = dict(_params.get("_headers", {}))
-
-        # process the form parameters
-        _form_params = []
-        _files = {}
-
-        # process the body parameter
-        _body_params = None
-
-        # set the HTTP header `Accept`
-        _header_params["Accept"] = self.api_client.select_header_accept(
-            ["application/json"]
-        )  # noqa: E501
-
-        # authentication setting
-        _auth_settings = ["bearer_auth"]  # noqa: E501
-
-        _response_types_map = {
-            "200": "Addressbook",
-        }
-
-        return self.api_client.call_api(
-            "/addressbook",
-            "DELETE",
-            _path_params,
-            _query_params,
-            _header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            response_types_map=_response_types_map,
-            auth_settings=_auth_settings,
-            async_req=_params.get("async_req"),
-            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
-            _preload_content=_params.get("_preload_content", True),
-            _request_timeout=_params.get("_request_timeout"),
-            collection_formats=_collection_formats,
-            _request_auth=_params.get("_request_auth"),
-        )
-
-    @validate_arguments
     def addressbook_get(
         self,
-        city: Optional[StrictStr] = None,
+        city: Annotated[Optional[StrictStr], Field(description="Filter by city name")] = None,
         limit: Annotated[
             Optional[StrictInt], Field(description="Limit the number of responses back")
         ] = None,
@@ -8499,14 +8218,14 @@ class AddressbookApi(object):
     ) -> List[Addressbook]:  # noqa: E501
         """addressbook_get  # noqa: E501
 
-        get operation for /addressbook  # noqa: E501
+        List all addresses in this addressbook.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
         >>> thread = api.addressbook_get(city, limit, offset, async_req=True)
         >>> result = thread.get()
 
-        :param city:
+        :param city: Filter by city name
         :type city: str
         :param limit: Limit the number of responses back
         :type limit: int
@@ -8533,7 +8252,7 @@ class AddressbookApi(object):
     @validate_arguments
     def addressbook_get_with_http_info(
         self,
-        city: Optional[StrictStr] = None,
+        city: Annotated[Optional[StrictStr], Field(description="Filter by city name")] = None,
         limit: Annotated[
             Optional[StrictInt], Field(description="Limit the number of responses back")
         ] = None,
@@ -8544,14 +8263,14 @@ class AddressbookApi(object):
     ):  # noqa: E501
         """addressbook_get  # noqa: E501
 
-        get operation for /addressbook  # noqa: E501
+        List all addresses in this addressbook.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
         >>> thread = api.addressbook_get_with_http_info(city, limit, offset, async_req=True)
         >>> result = thread.get()
 
-        :param city:
+        :param city: Filter by city name
         :type city: str
         :param limit: Limit the number of responses back
         :type limit: int
@@ -8661,333 +8380,6 @@ class AddressbookApi(object):
         )
 
     @validate_arguments
-    def addressbook_head(
-        self,
-        limit: Annotated[
-            Optional[StrictInt], Field(description="Limit the number of responses back")
-        ] = None,
-        offset: Annotated[
-            Optional[StrictInt], Field(description="The offset to start returning resources")
-        ] = None,
-        **kwargs,
-    ) -> None:  # noqa: E501
-        """addressbook_head  # noqa: E501
-
-        head operation for /addressbook  # noqa: E501
-        This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async_req=True
-
-        >>> thread = api.addressbook_head(limit, offset, async_req=True)
-        >>> result = thread.get()
-
-        :param limit: Limit the number of responses back
-        :type limit: int
-        :param offset: The offset to start returning resources
-        :type offset: int
-        :param async_req: Whether to execute the request asynchronously.
-        :type async_req: bool, optional
-        :param _preload_content: if False, the urllib3.HTTPResponse object will
-                                 be returned without reading/decoding response
-                                 data. Default is True.
-        :type _preload_content: bool, optional
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :return: Returns the result object.
-                 If the method is called asynchronously,
-                 returns the request thread.
-        :rtype: None
-        """
-        kwargs["_return_http_data_only"] = True
-        return self.addressbook_head_with_http_info(limit, offset, **kwargs)  # noqa: E501
-
-    @validate_arguments
-    def addressbook_head_with_http_info(
-        self,
-        limit: Annotated[
-            Optional[StrictInt], Field(description="Limit the number of responses back")
-        ] = None,
-        offset: Annotated[
-            Optional[StrictInt], Field(description="The offset to start returning resources")
-        ] = None,
-        **kwargs,
-    ):  # noqa: E501
-        """addressbook_head  # noqa: E501
-
-        head operation for /addressbook  # noqa: E501
-        This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async_req=True
-
-        >>> thread = api.addressbook_head_with_http_info(limit, offset, async_req=True)
-        >>> result = thread.get()
-
-        :param limit: Limit the number of responses back
-        :type limit: int
-        :param offset: The offset to start returning resources
-        :type offset: int
-        :param async_req: Whether to execute the request asynchronously.
-        :type async_req: bool, optional
-        :param _return_http_data_only: response data without head status code
-                                       and headers
-        :type _return_http_data_only: bool, optional
-        :param _preload_content: if False, the urllib3.HTTPResponse object will
-                                 be returned without reading/decoding response
-                                 data. Default is True.
-        :type _preload_content: bool, optional
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the authentication
-                              in the spec for a single request.
-        :type _request_auth: dict, optional
-        :type _content_type: string, optional: force content-type for the request
-        :return: Returns the result object.
-                 If the method is called asynchronously,
-                 returns the request thread.
-        :rtype: None
-        """
-
-        _params = locals()
-
-        _all_params = ["limit", "offset"]
-        _all_params.extend(
-            [
-                "async_req",
-                "_return_http_data_only",
-                "_preload_content",
-                "_request_timeout",
-                "_request_auth",
-                "_content_type",
-                "_headers",
-            ]
-        )
-
-        # validate the arguments
-        for _key, _val in _params["kwargs"].items():
-            if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'" " to method addressbook_head" % _key
-                )
-            _params[_key] = _val
-        del _params["kwargs"]
-
-        _collection_formats = {}
-
-        # process the path parameters
-        _path_params = {}
-
-        # process the query parameters
-        _query_params = []
-        if _params.get("limit") is not None:  # noqa: E501
-            _query_params.append(("limit", _params["limit"]))
-        if _params.get("offset") is not None:  # noqa: E501
-            _query_params.append(("offset", _params["offset"]))
-
-        # process the header parameters
-        _header_params = dict(_params.get("_headers", {}))
-
-        # process the form parameters
-        _form_params = []
-        _files = {}
-
-        # process the body parameter
-        _body_params = None
-
-        # authentication setting
-        _auth_settings = ["bearer_auth"]  # noqa: E501
-
-        _response_types_map = {}
-
-        return self.api_client.call_api(
-            "/addressbook",
-            "HEAD",
-            _path_params,
-            _query_params,
-            _header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            response_types_map=_response_types_map,
-            auth_settings=_auth_settings,
-            async_req=_params.get("async_req"),
-            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
-            _preload_content=_params.get("_preload_content", True),
-            _request_timeout=_params.get("_request_timeout"),
-            collection_formats=_collection_formats,
-            _request_auth=_params.get("_request_auth"),
-        )
-
-    @validate_arguments
-    def addressbook_patch(
-        self,
-        limit: Annotated[
-            Optional[StrictInt], Field(description="Limit the number of responses back")
-        ] = None,
-        offset: Annotated[
-            Optional[StrictInt], Field(description="The offset to start returning resources")
-        ] = None,
-        **kwargs,
-    ) -> Addressbook:  # noqa: E501
-        """addressbook_patch  # noqa: E501
-
-        patch operation for /addressbook  # noqa: E501
-        This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async_req=True
-
-        >>> thread = api.addressbook_patch(limit, offset, async_req=True)
-        >>> result = thread.get()
-
-        :param limit: Limit the number of responses back
-        :type limit: int
-        :param offset: The offset to start returning resources
-        :type offset: int
-        :param async_req: Whether to execute the request asynchronously.
-        :type async_req: bool, optional
-        :param _preload_content: if False, the urllib3.HTTPResponse object will
-                                 be returned without reading/decoding response
-                                 data. Default is True.
-        :type _preload_content: bool, optional
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :return: Returns the result object.
-                 If the method is called asynchronously,
-                 returns the request thread.
-        :rtype: Addressbook
-        """
-        kwargs["_return_http_data_only"] = True
-        return self.addressbook_patch_with_http_info(limit, offset, **kwargs)  # noqa: E501
-
-    @validate_arguments
-    def addressbook_patch_with_http_info(
-        self,
-        limit: Annotated[
-            Optional[StrictInt], Field(description="Limit the number of responses back")
-        ] = None,
-        offset: Annotated[
-            Optional[StrictInt], Field(description="The offset to start returning resources")
-        ] = None,
-        **kwargs,
-    ):  # noqa: E501
-        """addressbook_patch  # noqa: E501
-
-        patch operation for /addressbook  # noqa: E501
-        This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please pass async_req=True
-
-        >>> thread = api.addressbook_patch_with_http_info(limit, offset, async_req=True)
-        >>> result = thread.get()
-
-        :param limit: Limit the number of responses back
-        :type limit: int
-        :param offset: The offset to start returning resources
-        :type offset: int
-        :param async_req: Whether to execute the request asynchronously.
-        :type async_req: bool, optional
-        :param _return_http_data_only: response data without head status code
-                                       and headers
-        :type _return_http_data_only: bool, optional
-        :param _preload_content: if False, the urllib3.HTTPResponse object will
-                                 be returned without reading/decoding response
-                                 data. Default is True.
-        :type _preload_content: bool, optional
-        :param _request_timeout: timeout setting for this request. If one
-                                 number provided, it will be total request
-                                 timeout. It can also be a pair (tuple) of
-                                 (connection, read) timeouts.
-        :param _request_auth: set to override the auth_settings for an a single
-                              request; this effectively ignores the authentication
-                              in the spec for a single request.
-        :type _request_auth: dict, optional
-        :type _content_type: string, optional: force content-type for the request
-        :return: Returns the result object.
-                 If the method is called asynchronously,
-                 returns the request thread.
-        :rtype: tuple(Addressbook, status_code(int), headers(HTTPHeaderDict))
-        """
-
-        _params = locals()
-
-        _all_params = ["limit", "offset"]
-        _all_params.extend(
-            [
-                "async_req",
-                "_return_http_data_only",
-                "_preload_content",
-                "_request_timeout",
-                "_request_auth",
-                "_content_type",
-                "_headers",
-            ]
-        )
-
-        # validate the arguments
-        for _key, _val in _params["kwargs"].items():
-            if _key not in _all_params:
-                raise ApiTypeError(
-                    "Got an unexpected keyword argument '%s'" " to method addressbook_patch" % _key
-                )
-            _params[_key] = _val
-        del _params["kwargs"]
-
-        _collection_formats = {}
-
-        # process the path parameters
-        _path_params = {}
-
-        # process the query parameters
-        _query_params = []
-        if _params.get("limit") is not None:  # noqa: E501
-            _query_params.append(("limit", _params["limit"]))
-        if _params.get("offset") is not None:  # noqa: E501
-            _query_params.append(("offset", _params["offset"]))
-
-        # process the header parameters
-        _header_params = dict(_params.get("_headers", {}))
-
-        # process the form parameters
-        _form_params = []
-        _files = {}
-
-        # process the body parameter
-        _body_params = None
-
-        # set the HTTP header `Accept`
-        _header_params["Accept"] = self.api_client.select_header_accept(
-            ["application/json"]
-        )  # noqa: E501
-
-        # authentication setting
-        _auth_settings = ["bearer_auth"]  # noqa: E501
-
-        _response_types_map = {
-            "200": "Addressbook",
-        }
-
-        return self.api_client.call_api(
-            "/addressbook",
-            "PATCH",
-            _path_params,
-            _query_params,
-            _header_params,
-            body=_body_params,
-            post_params=_form_params,
-            files=_files,
-            response_types_map=_response_types_map,
-            auth_settings=_auth_settings,
-            async_req=_params.get("async_req"),
-            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
-            _preload_content=_params.get("_preload_content", True),
-            _request_timeout=_params.get("_request_timeout"),
-            collection_formats=_collection_formats,
-            _request_auth=_params.get("_request_auth"),
-        )
-
-    @validate_arguments
     def addressbook_post(
         self,
         addressbook: Annotated[
@@ -9003,7 +8395,7 @@ class AddressbookApi(object):
     ) -> Addressbook:  # noqa: E501
         """addressbook_post  # noqa: E501
 
-        post operation for /addressbook  # noqa: E501
+        Create a new address in this addressbook, a new address key will be created.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -9052,7 +8444,7 @@ class AddressbookApi(object):
     ):  # noqa: E501
         """addressbook_post  # noqa: E501
 
-        post operation for /addressbook  # noqa: E501
+        Create a new address in this addressbook, a new address key will be created.  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
