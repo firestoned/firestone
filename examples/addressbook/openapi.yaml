@@ -57,6 +57,11 @@ components:
           type: string
       type: object
     persons:
+      descriptions:
+        get: Get a specific person from this collection
+        head: Determine the existence and size of this person
+        patch: Patch this person in the collection
+        put: Put a new person in this collection, with the given UUId key
       properties:
         age:
           description: The person's age
@@ -80,10 +85,16 @@ components:
       type: http
 paths:
   /addressbook:
-    delete:
-      description: delete operation for /addressbook
-      operationId: addressbook_delete
+    get:
+      description: List all addresses in this addressbook.
+      operationId: addressbook_get
       parameters:
+      - description: Filter by city name
+        in: query
+        name: city
+        required: false
+        schema:
+          type: string
       - &id001
         description: Limit the number of responses back
         in: query
@@ -101,60 +112,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/addressbook'
-          description: Response for OK
-      tags:
-      - addressbook
-    get:
-      description: get operation for /addressbook
-      operationId: addressbook_get
-      parameters:
-      - in: query
-        name: city
-        required: false
-        schema:
-          type: string
-      - *id001
-      - *id002
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
                 items:
                   $ref: '#/components/schemas/addressbook'
                 type: array
           description: Response for OK
       tags:
       - addressbook
-    head:
-      description: head operation for /addressbook
-      operationId: addressbook_head
-      parameters:
-      - *id001
-      - *id002
-      responses:
-        default:
-          description: Default HEAD response
-      tags:
-      - addressbook
-    patch:
-      description: patch operation for /addressbook
-      operationId: addressbook_patch
-      parameters:
-      - *id001
-      - *id002
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/addressbook'
-          description: Response for OK
-      tags:
-      - addressbook
     post:
-      description: post operation for /addressbook
+      description: Create a new address in this addressbook, a new address key will
+        be created.
       operationId: addressbook_post
       parameters:
       - *id001
@@ -176,7 +142,7 @@ paths:
       - addressbook
   /addressbook/{address_key}:
     delete:
-      description: delete operation for /addressbook/{address_key}
+      description: Delete an address from this addressbook.
       operationId: addressbook_address_key_delete
       parameters:
       - in: path
@@ -194,10 +160,11 @@ paths:
       tags:
       - addressbook
     get:
-      description: get operation for /addressbook/{address_key}
+      description: Get a specific address from this addressbook.
       operationId: addressbook_address_key_get
       parameters:
-      - in: query
+      - description: Filter by city name
+        in: query
         name: city
         required: false
         schema:
@@ -217,7 +184,7 @@ paths:
       tags:
       - addressbook
     head:
-      description: head operation for /addressbook/{address_key}
+      description: Determine the existence and size of this address.
       operationId: addressbook_address_key_head
       parameters:
       - in: path
@@ -230,26 +197,9 @@ paths:
           description: Default HEAD response
       tags:
       - addressbook
-    patch:
-      description: patch operation for /addressbook/{address_key}
-      operationId: addressbook_address_key_patch
-      parameters:
-      - in: path
-        name: address_key
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/addressbook'
-          description: Response for OK
-      tags:
-      - addressbook
     put:
-      description: put operation for /addressbook/{address_key}
+      description: Update an existing address in this addressbook, with the given address
+        key.
       operationId: addressbook_address_key_put
       parameters:
       - in: path
@@ -376,7 +326,8 @@ paths:
       description: get operation for /addressbook/{address_key}/addrtype
       operationId: addressbook_address_key_addrtype_get
       parameters:
-      - in: query
+      - description: Filter by city name
+        in: query
         name: city
         required: false
         schema:
@@ -460,7 +411,8 @@ paths:
       description: get operation for /addressbook/{address_key}/city
       operationId: addressbook_address_key_city_get
       parameters:
-      - in: query
+      - description: Filter by city name
+        in: query
         name: city
         required: false
         schema:
@@ -541,7 +493,8 @@ paths:
       description: get operation for /addressbook/{address_key}/country
       operationId: addressbook_address_key_country_get
       parameters:
-      - in: query
+      - description: Filter by city name
+        in: query
         name: city
         required: false
         schema:
@@ -623,7 +576,8 @@ paths:
       description: get operation for /addressbook/{address_key}/person
       operationId: addressbook_address_key_person_get
       parameters:
-      - in: query
+      - description: Filter by last name
+        in: query
         name: last_name
         required: false
         schema:
@@ -736,7 +690,8 @@ paths:
       description: get operation for /addressbook/{address_key}/person/{uuid}
       operationId: addressbook_address_key_person_uuid_get
       parameters:
-      - in: query
+      - description: Filter by last name
+        in: query
         name: last_name
         required: false
         schema:
@@ -878,7 +833,8 @@ paths:
       description: get operation for /addressbook/{address_key}/person/{uuid}/age
       operationId: addressbook_address_key_person_uuid_age_get
       parameters:
-      - in: query
+      - description: Filter by last name
+        in: query
         name: last_name
         required: false
         schema:
@@ -979,7 +935,8 @@ paths:
       description: get operation for /addressbook/{address_key}/person/{uuid}/first_name
       operationId: addressbook_address_key_person_uuid_first_name_get
       parameters:
-      - in: query
+      - description: Filter by last name
+        in: query
         name: last_name
         required: false
         schema:
@@ -1082,7 +1039,8 @@ paths:
       description: get operation for /addressbook/{address_key}/person/{uuid}/hobbies
       operationId: addressbook_address_key_person_uuid_hobbies_get
       parameters:
-      - in: query
+      - description: Filter by last name
+        in: query
         name: last_name
         required: false
         schema:
@@ -1185,7 +1143,8 @@ paths:
       description: get operation for /addressbook/{address_key}/person/{uuid}/last_name
       operationId: addressbook_address_key_person_uuid_last_name_get
       parameters:
-      - in: query
+      - description: Filter by last name
+        in: query
         name: last_name
         required: false
         schema:
@@ -1281,7 +1240,8 @@ paths:
       description: get operation for /addressbook/{address_key}/state
       operationId: addressbook_address_key_state_get
       parameters:
-      - in: query
+      - description: Filter by city name
+        in: query
         name: city
         required: false
         schema:
@@ -1362,7 +1322,8 @@ paths:
       description: get operation for /addressbook/{address_key}/street
       operationId: addressbook_address_key_street_get
       parameters:
-      - in: query
+      - description: Filter by city name
+        in: query
         name: city
         required: false
         schema:
@@ -1446,10 +1407,11 @@ paths:
       tags:
       - persons
     get:
-      description: List all persons in this collection
+      description: get operation for /persons
       operationId: persons_get
       parameters:
-      - in: query
+      - description: Filter by last name
+        in: query
         name: last_name
         required: false
         schema:
@@ -1468,7 +1430,7 @@ paths:
       tags:
       - persons
     head:
-      description: Determine the existence and size of persons in this collection
+      description: head operation for /persons
       operationId: persons_head
       parameters:
       - *id014
@@ -1479,7 +1441,7 @@ paths:
       tags:
       - persons
     patch:
-      description: Patch one or more persons in this collection
+      description: patch operation for /persons
       operationId: persons_patch
       parameters:
       - *id014
@@ -1494,7 +1456,7 @@ paths:
       tags:
       - persons
     post:
-      description: Create a new person in this collection, a new UUID key will be created
+      description: post operation for /persons
       operationId: persons_post
       parameters:
       - *id014
@@ -1537,7 +1499,8 @@ paths:
       description: get operation for /persons/{uuid}
       operationId: persons_uuid_get
       parameters:
-      - in: query
+      - description: Filter by last name
+        in: query
         name: last_name
         required: false
         schema:
@@ -1659,7 +1622,8 @@ paths:
       description: get operation for /persons/{uuid}/age
       operationId: persons_uuid_age_get
       parameters:
-      - in: query
+      - description: Filter by last name
+        in: query
         name: last_name
         required: false
         schema:
@@ -1740,7 +1704,8 @@ paths:
       description: get operation for /persons/{uuid}/first_name
       operationId: persons_uuid_first_name_get
       parameters:
-      - in: query
+      - description: Filter by last name
+        in: query
         name: last_name
         required: false
         schema:
@@ -1823,7 +1788,8 @@ paths:
       description: get operation for /persons/{uuid}/hobbies
       operationId: persons_uuid_hobbies_get
       parameters:
-      - in: query
+      - description: Filter by last name
+        in: query
         name: last_name
         required: false
         schema:
@@ -1906,7 +1872,8 @@ paths:
       description: get operation for /persons/{uuid}/last_name
       operationId: persons_uuid_last_name_get
       parameters:
-      - in: query
+      - description: Filter by last name
+        in: query
         name: last_name
         required: false
         schema:

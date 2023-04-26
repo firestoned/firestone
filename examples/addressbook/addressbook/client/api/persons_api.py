@@ -212,7 +212,7 @@ class PersonsApi(object):
     @validate_arguments
     def persons_get(
         self,
-        last_name: Optional[StrictStr] = None,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")] = None,
         limit: Annotated[
             Optional[StrictInt], Field(description="Limit the number of responses back")
         ] = None,
@@ -223,14 +223,14 @@ class PersonsApi(object):
     ) -> List[Persons]:  # noqa: E501
         """persons_get  # noqa: E501
 
-        List all persons in this collection  # noqa: E501
+        get operation for /persons  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
         >>> thread = api.persons_get(last_name, limit, offset, async_req=True)
         >>> result = thread.get()
 
-        :param last_name:
+        :param last_name: Filter by last name
         :type last_name: str
         :param limit: Limit the number of responses back
         :type limit: int
@@ -257,7 +257,7 @@ class PersonsApi(object):
     @validate_arguments
     def persons_get_with_http_info(
         self,
-        last_name: Optional[StrictStr] = None,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")] = None,
         limit: Annotated[
             Optional[StrictInt], Field(description="Limit the number of responses back")
         ] = None,
@@ -268,14 +268,14 @@ class PersonsApi(object):
     ):  # noqa: E501
         """persons_get  # noqa: E501
 
-        List all persons in this collection  # noqa: E501
+        get operation for /persons  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
         >>> thread = api.persons_get_with_http_info(last_name, limit, offset, async_req=True)
         >>> result = thread.get()
 
-        :param last_name:
+        :param last_name: Filter by last name
         :type last_name: str
         :param limit: Limit the number of responses back
         :type limit: int
@@ -397,7 +397,7 @@ class PersonsApi(object):
     ) -> None:  # noqa: E501
         """persons_head  # noqa: E501
 
-        Determine the existence and size of persons in this collection  # noqa: E501
+        head operation for /persons  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -439,7 +439,7 @@ class PersonsApi(object):
     ):  # noqa: E501
         """persons_head  # noqa: E501
 
-        Determine the existence and size of persons in this collection  # noqa: E501
+        head operation for /persons  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -557,7 +557,7 @@ class PersonsApi(object):
     ) -> Persons:  # noqa: E501
         """persons_patch  # noqa: E501
 
-        Patch one or more persons in this collection  # noqa: E501
+        patch operation for /persons  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -599,7 +599,7 @@ class PersonsApi(object):
     ):  # noqa: E501
         """persons_patch  # noqa: E501
 
-        Patch one or more persons in this collection  # noqa: E501
+        patch operation for /persons  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -725,7 +725,7 @@ class PersonsApi(object):
     ) -> Persons:  # noqa: E501
         """persons_post  # noqa: E501
 
-        Create a new person in this collection, a new UUID key will be created  # noqa: E501
+        post operation for /persons  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -770,7 +770,7 @@ class PersonsApi(object):
     ):  # noqa: E501
         """persons_post  # noqa: E501
 
-        Create a new person in this collection, a new UUID key will be created  # noqa: E501
+        post operation for /persons  # noqa: E501
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
@@ -1039,7 +1039,10 @@ class PersonsApi(object):
 
     @validate_arguments
     def persons_uuid_age_get(
-        self, uuid: StrictStr, last_name: Optional[StrictStr] = None, **kwargs
+        self,
+        uuid: StrictStr,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")] = None,
+        **kwargs,
     ) -> int:  # noqa: E501
         """persons_uuid_age_get  # noqa: E501
 
@@ -1052,7 +1055,7 @@ class PersonsApi(object):
 
         :param uuid: (required)
         :type uuid: str
-        :param last_name:
+        :param last_name: Filter by last name
         :type last_name: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -1074,7 +1077,10 @@ class PersonsApi(object):
 
     @validate_arguments
     def persons_uuid_age_get_with_http_info(
-        self, uuid: StrictStr, last_name: Optional[StrictStr] = None, **kwargs
+        self,
+        uuid: StrictStr,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")] = None,
+        **kwargs,
     ):  # noqa: E501
         """persons_uuid_age_get  # noqa: E501
 
@@ -1087,7 +1093,7 @@ class PersonsApi(object):
 
         :param uuid: (required)
         :type uuid: str
-        :param last_name:
+        :param last_name: Filter by last name
         :type last_name: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -1791,7 +1797,10 @@ class PersonsApi(object):
 
     @validate_arguments
     def persons_uuid_first_name_get(
-        self, uuid: StrictStr, last_name: Optional[StrictStr] = None, **kwargs
+        self,
+        uuid: StrictStr,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")] = None,
+        **kwargs,
     ) -> str:  # noqa: E501
         """persons_uuid_first_name_get  # noqa: E501
 
@@ -1804,7 +1813,7 @@ class PersonsApi(object):
 
         :param uuid: (required)
         :type uuid: str
-        :param last_name:
+        :param last_name: Filter by last name
         :type last_name: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -1828,7 +1837,10 @@ class PersonsApi(object):
 
     @validate_arguments
     def persons_uuid_first_name_get_with_http_info(
-        self, uuid: StrictStr, last_name: Optional[StrictStr] = None, **kwargs
+        self,
+        uuid: StrictStr,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")] = None,
+        **kwargs,
     ):  # noqa: E501
         """persons_uuid_first_name_get  # noqa: E501
 
@@ -1841,7 +1853,7 @@ class PersonsApi(object):
 
         :param uuid: (required)
         :type uuid: str
-        :param last_name:
+        :param last_name: Filter by last name
         :type last_name: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -2255,7 +2267,10 @@ class PersonsApi(object):
 
     @validate_arguments
     def persons_uuid_get(
-        self, uuid: StrictStr, last_name: Optional[StrictStr] = None, **kwargs
+        self,
+        uuid: StrictStr,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")] = None,
+        **kwargs,
     ) -> Persons:  # noqa: E501
         """persons_uuid_get  # noqa: E501
 
@@ -2268,7 +2283,7 @@ class PersonsApi(object):
 
         :param uuid: (required)
         :type uuid: str
-        :param last_name:
+        :param last_name: Filter by last name
         :type last_name: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -2290,7 +2305,10 @@ class PersonsApi(object):
 
     @validate_arguments
     def persons_uuid_get_with_http_info(
-        self, uuid: StrictStr, last_name: Optional[StrictStr] = None, **kwargs
+        self,
+        uuid: StrictStr,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")] = None,
+        **kwargs,
     ):  # noqa: E501
         """persons_uuid_get  # noqa: E501
 
@@ -2303,7 +2321,7 @@ class PersonsApi(object):
 
         :param uuid: (required)
         :type uuid: str
-        :param last_name:
+        :param last_name: Filter by last name
         :type last_name: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -2688,7 +2706,10 @@ class PersonsApi(object):
 
     @validate_arguments
     def persons_uuid_hobbies_get(
-        self, uuid: StrictStr, last_name: Optional[StrictStr] = None, **kwargs
+        self,
+        uuid: StrictStr,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")] = None,
+        **kwargs,
     ) -> List[str]:  # noqa: E501
         """persons_uuid_hobbies_get  # noqa: E501
 
@@ -2701,7 +2722,7 @@ class PersonsApi(object):
 
         :param uuid: (required)
         :type uuid: str
-        :param last_name:
+        :param last_name: Filter by last name
         :type last_name: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -2723,7 +2744,10 @@ class PersonsApi(object):
 
     @validate_arguments
     def persons_uuid_hobbies_get_with_http_info(
-        self, uuid: StrictStr, last_name: Optional[StrictStr] = None, **kwargs
+        self,
+        uuid: StrictStr,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")] = None,
+        **kwargs,
     ):  # noqa: E501
         """persons_uuid_hobbies_get  # noqa: E501
 
@@ -2736,7 +2760,7 @@ class PersonsApi(object):
 
         :param uuid: (required)
         :type uuid: str
-        :param last_name:
+        :param last_name: Filter by last name
         :type last_name: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -3296,7 +3320,10 @@ class PersonsApi(object):
 
     @validate_arguments
     def persons_uuid_last_name_get(
-        self, uuid: StrictStr, last_name: Optional[StrictStr] = None, **kwargs
+        self,
+        uuid: StrictStr,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")] = None,
+        **kwargs,
     ) -> str:  # noqa: E501
         """persons_uuid_last_name_get  # noqa: E501
 
@@ -3309,7 +3336,7 @@ class PersonsApi(object):
 
         :param uuid: (required)
         :type uuid: str
-        :param last_name:
+        :param last_name: Filter by last name
         :type last_name: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
@@ -3333,7 +3360,10 @@ class PersonsApi(object):
 
     @validate_arguments
     def persons_uuid_last_name_get_with_http_info(
-        self, uuid: StrictStr, last_name: Optional[StrictStr] = None, **kwargs
+        self,
+        uuid: StrictStr,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")] = None,
+        **kwargs,
     ):  # noqa: E501
         """persons_uuid_last_name_get  # noqa: E501
 
@@ -3346,7 +3376,7 @@ class PersonsApi(object):
 
         :param uuid: (required)
         :type uuid: str
-        :param last_name:
+        :param last_name: Filter by last name
         :type last_name: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
