@@ -278,6 +278,74 @@ async def addressbook_address_key_head(
 
 
 @router.delete(
+    "/addressbook/{address_key}/people",
+    responses={
+        200: {"model": List[str], "description": "Response for OK"},
+    },
+    tags=["addressbook"],
+    response_model_by_alias=True,
+)
+async def addressbook_address_key_people_delete(
+    address_key: str = Path(None, description=""),
+    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
+) -> List[str]:
+    """delete operation for /addressbook/{address_key}/people"""
+    ...
+
+
+@router.get(
+    "/addressbook/{address_key}/people",
+    responses={
+        200: {"model": List[str], "description": "Response for OK"},
+    },
+    tags=["addressbook"],
+    response_model_by_alias=True,
+)
+async def addressbook_address_key_people_get(
+    address_key: str = Path(None, description=""),
+    city: str = Query(None, description="Filter by city name"),
+    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
+) -> List[str]:
+    """get operation for /addressbook/{address_key}/people"""
+    ...
+
+
+@router.head(
+    "/addressbook/{address_key}/people",
+    responses={
+        200: {"description": "Default HEAD response"},
+    },
+    tags=["addressbook"],
+    response_model_by_alias=True,
+)
+async def addressbook_address_key_people_head(
+    address_key: str = Path(None, description=""),
+    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
+) -> None:
+    """head operation for /addressbook/{address_key}/people"""
+    ...
+
+
+@router.put(
+    "/addressbook/{address_key}/people",
+    responses={
+        200: {"model": List[str], "description": "Response for OK"},
+    },
+    tags=["addressbook"],
+    response_model_by_alias=True,
+)
+async def addressbook_address_key_people_put(
+    address_key: str = Path(None, description=""),
+    request_body: List[str] = Body(
+        None, description="The request body for /addressbook/{address_key}/people"
+    ),
+    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
+) -> List[str]:
+    """put operation for /addressbook/{address_key}/people"""
+    ...
+
+
+@router.delete(
     "/addressbook/{address_key}/person",
     responses={
         200: {"model": Person, "description": "Response for OK"},

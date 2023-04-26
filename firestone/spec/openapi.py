@@ -400,7 +400,7 @@ def get_paths(
     if not paths:
         paths = {}
 
-    if schema["type"] == "array" and not "key" in schema:
+    if schema["type"] == "array" and schema["items"]["type"] == "object" and not "key" in schema:
         raise spec_base.SchemaMissingAttribute("A 'key' is missing in schema {yaml.dump(schema)}")
 
     key = None

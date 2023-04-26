@@ -58,15 +58,15 @@ def main(ctx, debug, api_key, api_url, threads, trust_proxy):
 
     {{ description }}
     """
-	if not trust_proxy:
-		if "http_proxy" in os.environ:
-			del os.environ["http_proxy"]
-		if "https_proxy" in os.environ:
-			del os.environ["https_proxy"]
-		if "HTTP_PROXY" in os.environ:
-			del os.environ["HTTP_PROXY"]
-		if "HTTPS_PROXY" in os.environ:
-			del os.environ["HTTPS_PROXY"]
+    if not trust_proxy:
+        if "http_proxy" in os.environ:
+            del os.environ["http_proxy"]
+        if "https_proxy" in os.environ:
+            del os.environ["https_proxy"]
+        if "HTTP_PROXY" in os.environ:
+            del os.environ["HTTP_PROXY"]
+        if "HTTPS_PROXY" in os.environ:
+            del os.environ["HTTPS_PROXY"]
 
     try:
         cli.init_logging("{{ pkg }}.resources.logging", "cli.conf")

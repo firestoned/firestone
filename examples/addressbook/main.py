@@ -140,10 +140,13 @@ async def addressbook_get(ctx_obj, city, limit, offset):
 @click.option("--city", help="The city of this address", type=str, required=True)
 @click.option("--state", help="The state of this address", type=str, required=True)
 @click.option("--country", help="The country of this address", type=str, required=True)
+@click.option(
+    "--people", help="A list of people's names living there", type=cli.StrList, required=False
+)
 @click.pass_obj
 @firestone_utils.click_coro
 @api_exc
-async def addressbook_post(ctx_obj, person, addrtype, street, city, state, country):
+async def addressbook_post(ctx_obj, person, addrtype, street, city, state, country, people):
     """Create a new address in this addressbook, a new address key will be created."""
     api_obj = ctx_obj["api_obj"]
     params = {
@@ -153,6 +156,7 @@ async def addressbook_post(ctx_obj, person, addrtype, street, city, state, count
         "city": city,
         "state": state,
         "country": country,
+        "people": people,
     }
 
     req_body = addressbook_model.Addressbook()
@@ -229,10 +233,15 @@ async def addressbook_address_key_get(ctx_obj, city, address_key):
 @click.option("--city", help="The city of this address", type=str, required=False)
 @click.option("--state", help="The state of this address", type=str, required=False)
 @click.option("--country", help="The country of this address", type=str, required=False)
+@click.option(
+    "--people", help="A list of people's names living there", type=cli.StrList, required=False
+)
 @click.pass_obj
 @firestone_utils.click_coro
 @api_exc
-async def addressbook_address_key_put(ctx_obj, person, addrtype, street, city, state, country):
+async def addressbook_address_key_put(
+    ctx_obj, person, addrtype, street, city, state, country, people
+):
     """Update an existing address in this addressbook, with the given address key."""
     api_obj = ctx_obj["api_obj"]
     params = {
@@ -242,6 +251,7 @@ async def addressbook_address_key_put(ctx_obj, person, addrtype, street, city, s
         "city": city,
         "state": state,
         "country": country,
+        "people": people,
     }
 
     resp = await api_obj.addressbook_address_key_put(**params)

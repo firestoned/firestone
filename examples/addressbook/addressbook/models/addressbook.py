@@ -20,6 +20,7 @@ class Addressbook(BaseModel):
         addrtype: The addrtype of this Addressbook.
         city: The city of this Addressbook.
         country: The country of this Addressbook.
+        people: The people of this Addressbook [Optional].
         person: The person of this Addressbook [Optional].
         state: The state of this Addressbook.
         street: The street of this Addressbook.
@@ -28,6 +29,7 @@ class Addressbook(BaseModel):
     addrtype: str = Field(alias="addrtype")
     city: str = Field(alias="city")
     country: str = Field(alias="country")
+    people: Optional[List[str]] = Field(alias="people", default=None)
     person: Optional[Person] = Field(alias="person", default=None)
     state: str = Field(alias="state")
     street: str = Field(alias="street")

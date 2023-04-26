@@ -2388,6 +2388,636 @@ class AddressbookApi(object):
         )
 
     @validate_arguments
+    def addressbook_address_key_people_delete(
+        self, address_key: StrictStr, **kwargs
+    ) -> List[str]:  # noqa: E501
+        """addressbook_address_key_people_delete  # noqa: E501
+
+        delete operation for /addressbook/{address_key}/people  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+
+        >>> thread = api.addressbook_address_key_people_delete(address_key, async_req=True)
+        >>> result = thread.get()
+
+        :param address_key: (required)
+        :type address_key: str
+        :param async_req: Whether to execute the request asynchronously.
+        :type async_req: bool, optional
+        :param _preload_content: if False, the urllib3.HTTPResponse object will
+                                 be returned without reading/decoding response
+                                 data. Default is True.
+        :type _preload_content: bool, optional
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :return: Returns the result object.
+                 If the method is called asynchronously,
+                 returns the request thread.
+        :rtype: List[str]
+        """
+        kwargs["_return_http_data_only"] = True
+        return self.addressbook_address_key_people_delete_with_http_info(
+            address_key, **kwargs
+        )  # noqa: E501
+
+    @validate_arguments
+    def addressbook_address_key_people_delete_with_http_info(
+        self, address_key: StrictStr, **kwargs
+    ):  # noqa: E501
+        """addressbook_address_key_people_delete  # noqa: E501
+
+        delete operation for /addressbook/{address_key}/people  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+
+        >>> thread = api.addressbook_address_key_people_delete_with_http_info(address_key, async_req=True)
+        >>> result = thread.get()
+
+        :param address_key: (required)
+        :type address_key: str
+        :param async_req: Whether to execute the request asynchronously.
+        :type async_req: bool, optional
+        :param _return_http_data_only: response data without head status code
+                                       and headers
+        :type _return_http_data_only: bool, optional
+        :param _preload_content: if False, the urllib3.HTTPResponse object will
+                                 be returned without reading/decoding response
+                                 data. Default is True.
+        :type _preload_content: bool, optional
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the authentication
+                              in the spec for a single request.
+        :type _request_auth: dict, optional
+        :type _content_type: string, optional: force content-type for the request
+        :return: Returns the result object.
+                 If the method is called asynchronously,
+                 returns the request thread.
+        :rtype: tuple(List[str], status_code(int), headers(HTTPHeaderDict))
+        """
+
+        _params = locals()
+
+        _all_params = ["address_key"]
+        _all_params.extend(
+            [
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
+            ]
+        )
+
+        # validate the arguments
+        for _key, _val in _params["kwargs"].items():
+            if _key not in _all_params:
+                raise ApiTypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method addressbook_address_key_people_delete" % _key
+                )
+            _params[_key] = _val
+        del _params["kwargs"]
+
+        _collection_formats = {}
+
+        # process the path parameters
+        _path_params = {}
+        if _params["address_key"]:
+            _path_params["address_key"] = _params["address_key"]
+
+        # process the query parameters
+        _query_params = []
+
+        # process the header parameters
+        _header_params = dict(_params.get("_headers", {}))
+
+        # process the form parameters
+        _form_params = []
+        _files = {}
+
+        # process the body parameter
+        _body_params = None
+
+        # set the HTTP header `Accept`
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
+
+        # authentication setting
+        _auth_settings = ["bearer_auth"]  # noqa: E501
+
+        _response_types_map = {
+            "200": "List[str]",
+        }
+
+        return self.api_client.call_api(
+            "/addressbook/{address_key}/people",
+            "DELETE",
+            _path_params,
+            _query_params,
+            _header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            response_types_map=_response_types_map,
+            auth_settings=_auth_settings,
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
+            collection_formats=_collection_formats,
+            _request_auth=_params.get("_request_auth"),
+        )
+
+    @validate_arguments
+    def addressbook_address_key_people_get(
+        self,
+        address_key: StrictStr,
+        city: Annotated[Optional[StrictStr], Field(description="Filter by city name")] = None,
+        **kwargs,
+    ) -> List[str]:  # noqa: E501
+        """addressbook_address_key_people_get  # noqa: E501
+
+        get operation for /addressbook/{address_key}/people  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+
+        >>> thread = api.addressbook_address_key_people_get(address_key, city, async_req=True)
+        >>> result = thread.get()
+
+        :param address_key: (required)
+        :type address_key: str
+        :param city: Filter by city name
+        :type city: str
+        :param async_req: Whether to execute the request asynchronously.
+        :type async_req: bool, optional
+        :param _preload_content: if False, the urllib3.HTTPResponse object will
+                                 be returned without reading/decoding response
+                                 data. Default is True.
+        :type _preload_content: bool, optional
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :return: Returns the result object.
+                 If the method is called asynchronously,
+                 returns the request thread.
+        :rtype: List[str]
+        """
+        kwargs["_return_http_data_only"] = True
+        return self.addressbook_address_key_people_get_with_http_info(
+            address_key, city, **kwargs
+        )  # noqa: E501
+
+    @validate_arguments
+    def addressbook_address_key_people_get_with_http_info(
+        self,
+        address_key: StrictStr,
+        city: Annotated[Optional[StrictStr], Field(description="Filter by city name")] = None,
+        **kwargs,
+    ):  # noqa: E501
+        """addressbook_address_key_people_get  # noqa: E501
+
+        get operation for /addressbook/{address_key}/people  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+
+        >>> thread = api.addressbook_address_key_people_get_with_http_info(address_key, city, async_req=True)
+        >>> result = thread.get()
+
+        :param address_key: (required)
+        :type address_key: str
+        :param city: Filter by city name
+        :type city: str
+        :param async_req: Whether to execute the request asynchronously.
+        :type async_req: bool, optional
+        :param _return_http_data_only: response data without head status code
+                                       and headers
+        :type _return_http_data_only: bool, optional
+        :param _preload_content: if False, the urllib3.HTTPResponse object will
+                                 be returned without reading/decoding response
+                                 data. Default is True.
+        :type _preload_content: bool, optional
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the authentication
+                              in the spec for a single request.
+        :type _request_auth: dict, optional
+        :type _content_type: string, optional: force content-type for the request
+        :return: Returns the result object.
+                 If the method is called asynchronously,
+                 returns the request thread.
+        :rtype: tuple(List[str], status_code(int), headers(HTTPHeaderDict))
+        """
+
+        _params = locals()
+
+        _all_params = ["address_key", "city"]
+        _all_params.extend(
+            [
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
+            ]
+        )
+
+        # validate the arguments
+        for _key, _val in _params["kwargs"].items():
+            if _key not in _all_params:
+                raise ApiTypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method addressbook_address_key_people_get" % _key
+                )
+            _params[_key] = _val
+        del _params["kwargs"]
+
+        _collection_formats = {}
+
+        # process the path parameters
+        _path_params = {}
+        if _params["address_key"]:
+            _path_params["address_key"] = _params["address_key"]
+
+        # process the query parameters
+        _query_params = []
+        if _params.get("city") is not None:  # noqa: E501
+            _query_params.append(("city", _params["city"]))
+
+        # process the header parameters
+        _header_params = dict(_params.get("_headers", {}))
+
+        # process the form parameters
+        _form_params = []
+        _files = {}
+
+        # process the body parameter
+        _body_params = None
+
+        # set the HTTP header `Accept`
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
+
+        # authentication setting
+        _auth_settings = ["bearer_auth"]  # noqa: E501
+
+        _response_types_map = {
+            "200": "List[str]",
+        }
+
+        return self.api_client.call_api(
+            "/addressbook/{address_key}/people",
+            "GET",
+            _path_params,
+            _query_params,
+            _header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            response_types_map=_response_types_map,
+            auth_settings=_auth_settings,
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
+            collection_formats=_collection_formats,
+            _request_auth=_params.get("_request_auth"),
+        )
+
+    @validate_arguments
+    def addressbook_address_key_people_head(
+        self, address_key: StrictStr, **kwargs
+    ) -> None:  # noqa: E501
+        """addressbook_address_key_people_head  # noqa: E501
+
+        head operation for /addressbook/{address_key}/people  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+
+        >>> thread = api.addressbook_address_key_people_head(address_key, async_req=True)
+        >>> result = thread.get()
+
+        :param address_key: (required)
+        :type address_key: str
+        :param async_req: Whether to execute the request asynchronously.
+        :type async_req: bool, optional
+        :param _preload_content: if False, the urllib3.HTTPResponse object will
+                                 be returned without reading/decoding response
+                                 data. Default is True.
+        :type _preload_content: bool, optional
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :return: Returns the result object.
+                 If the method is called asynchronously,
+                 returns the request thread.
+        :rtype: None
+        """
+        kwargs["_return_http_data_only"] = True
+        return self.addressbook_address_key_people_head_with_http_info(
+            address_key, **kwargs
+        )  # noqa: E501
+
+    @validate_arguments
+    def addressbook_address_key_people_head_with_http_info(
+        self, address_key: StrictStr, **kwargs
+    ):  # noqa: E501
+        """addressbook_address_key_people_head  # noqa: E501
+
+        head operation for /addressbook/{address_key}/people  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+
+        >>> thread = api.addressbook_address_key_people_head_with_http_info(address_key, async_req=True)
+        >>> result = thread.get()
+
+        :param address_key: (required)
+        :type address_key: str
+        :param async_req: Whether to execute the request asynchronously.
+        :type async_req: bool, optional
+        :param _return_http_data_only: response data without head status code
+                                       and headers
+        :type _return_http_data_only: bool, optional
+        :param _preload_content: if False, the urllib3.HTTPResponse object will
+                                 be returned without reading/decoding response
+                                 data. Default is True.
+        :type _preload_content: bool, optional
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the authentication
+                              in the spec for a single request.
+        :type _request_auth: dict, optional
+        :type _content_type: string, optional: force content-type for the request
+        :return: Returns the result object.
+                 If the method is called asynchronously,
+                 returns the request thread.
+        :rtype: None
+        """
+
+        _params = locals()
+
+        _all_params = ["address_key"]
+        _all_params.extend(
+            [
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
+            ]
+        )
+
+        # validate the arguments
+        for _key, _val in _params["kwargs"].items():
+            if _key not in _all_params:
+                raise ApiTypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method addressbook_address_key_people_head" % _key
+                )
+            _params[_key] = _val
+        del _params["kwargs"]
+
+        _collection_formats = {}
+
+        # process the path parameters
+        _path_params = {}
+        if _params["address_key"]:
+            _path_params["address_key"] = _params["address_key"]
+
+        # process the query parameters
+        _query_params = []
+
+        # process the header parameters
+        _header_params = dict(_params.get("_headers", {}))
+
+        # process the form parameters
+        _form_params = []
+        _files = {}
+
+        # process the body parameter
+        _body_params = None
+
+        # authentication setting
+        _auth_settings = ["bearer_auth"]  # noqa: E501
+
+        _response_types_map = {}
+
+        return self.api_client.call_api(
+            "/addressbook/{address_key}/people",
+            "HEAD",
+            _path_params,
+            _query_params,
+            _header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            response_types_map=_response_types_map,
+            auth_settings=_auth_settings,
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
+            collection_formats=_collection_formats,
+            _request_auth=_params.get("_request_auth"),
+        )
+
+    @validate_arguments
+    def addressbook_address_key_people_put(
+        self,
+        address_key: StrictStr,
+        request_body: Annotated[
+            List[StrictStr],
+            Field(..., description="The request body for /addressbook/{address_key}/people"),
+        ],
+        **kwargs,
+    ) -> List[str]:  # noqa: E501
+        """addressbook_address_key_people_put  # noqa: E501
+
+        put operation for /addressbook/{address_key}/people  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+
+        >>> thread = api.addressbook_address_key_people_put(address_key, request_body, async_req=True)
+        >>> result = thread.get()
+
+        :param address_key: (required)
+        :type address_key: str
+        :param request_body: The request body for /addressbook/{address_key}/people (required)
+        :type request_body: List[str]
+        :param async_req: Whether to execute the request asynchronously.
+        :type async_req: bool, optional
+        :param _preload_content: if False, the urllib3.HTTPResponse object will
+                                 be returned without reading/decoding response
+                                 data. Default is True.
+        :type _preload_content: bool, optional
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :return: Returns the result object.
+                 If the method is called asynchronously,
+                 returns the request thread.
+        :rtype: List[str]
+        """
+        kwargs["_return_http_data_only"] = True
+        return self.addressbook_address_key_people_put_with_http_info(
+            address_key, request_body, **kwargs
+        )  # noqa: E501
+
+    @validate_arguments
+    def addressbook_address_key_people_put_with_http_info(
+        self,
+        address_key: StrictStr,
+        request_body: Annotated[
+            List[StrictStr],
+            Field(..., description="The request body for /addressbook/{address_key}/people"),
+        ],
+        **kwargs,
+    ):  # noqa: E501
+        """addressbook_address_key_people_put  # noqa: E501
+
+        put operation for /addressbook/{address_key}/people  # noqa: E501
+        This method makes a synchronous HTTP request by default. To make an
+        asynchronous HTTP request, please pass async_req=True
+
+        >>> thread = api.addressbook_address_key_people_put_with_http_info(address_key, request_body, async_req=True)
+        >>> result = thread.get()
+
+        :param address_key: (required)
+        :type address_key: str
+        :param request_body: The request body for /addressbook/{address_key}/people (required)
+        :type request_body: List[str]
+        :param async_req: Whether to execute the request asynchronously.
+        :type async_req: bool, optional
+        :param _return_http_data_only: response data without head status code
+                                       and headers
+        :type _return_http_data_only: bool, optional
+        :param _preload_content: if False, the urllib3.HTTPResponse object will
+                                 be returned without reading/decoding response
+                                 data. Default is True.
+        :type _preload_content: bool, optional
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the authentication
+                              in the spec for a single request.
+        :type _request_auth: dict, optional
+        :type _content_type: string, optional: force content-type for the request
+        :return: Returns the result object.
+                 If the method is called asynchronously,
+                 returns the request thread.
+        :rtype: tuple(List[str], status_code(int), headers(HTTPHeaderDict))
+        """
+
+        _params = locals()
+
+        _all_params = ["address_key", "request_body"]
+        _all_params.extend(
+            [
+                "async_req",
+                "_return_http_data_only",
+                "_preload_content",
+                "_request_timeout",
+                "_request_auth",
+                "_content_type",
+                "_headers",
+            ]
+        )
+
+        # validate the arguments
+        for _key, _val in _params["kwargs"].items():
+            if _key not in _all_params:
+                raise ApiTypeError(
+                    "Got an unexpected keyword argument '%s'"
+                    " to method addressbook_address_key_people_put" % _key
+                )
+            _params[_key] = _val
+        del _params["kwargs"]
+
+        _collection_formats = {}
+
+        # process the path parameters
+        _path_params = {}
+        if _params["address_key"]:
+            _path_params["address_key"] = _params["address_key"]
+
+        # process the query parameters
+        _query_params = []
+
+        # process the header parameters
+        _header_params = dict(_params.get("_headers", {}))
+
+        # process the form parameters
+        _form_params = []
+        _files = {}
+
+        # process the body parameter
+        _body_params = None
+        if _params["request_body"]:
+            _body_params = _params["request_body"]
+
+        # set the HTTP header `Accept`
+        _header_params["Accept"] = self.api_client.select_header_accept(
+            ["application/json"]
+        )  # noqa: E501
+
+        # set the HTTP header `Content-Type`
+        _content_types_list = _params.get(
+            "_content_type", self.api_client.select_header_content_type(["application/json"])
+        )
+        if _content_types_list:
+            _header_params["Content-Type"] = _content_types_list
+
+        # authentication setting
+        _auth_settings = ["bearer_auth"]  # noqa: E501
+
+        _response_types_map = {
+            "200": "List[str]",
+        }
+
+        return self.api_client.call_api(
+            "/addressbook/{address_key}/people",
+            "PUT",
+            _path_params,
+            _query_params,
+            _header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            response_types_map=_response_types_map,
+            auth_settings=_auth_settings,
+            async_req=_params.get("async_req"),
+            _return_http_data_only=_params.get("_return_http_data_only"),  # noqa: E501
+            _preload_content=_params.get("_preload_content", True),
+            _request_timeout=_params.get("_request_timeout"),
+            collection_formats=_collection_formats,
+            _request_auth=_params.get("_request_auth"),
+        )
+
+    @validate_arguments
     def addressbook_address_key_person_delete(
         self,
         address_key: StrictStr,
