@@ -17,7 +17,7 @@ import re  # noqa: F401
 import json
 
 
-from typing import Any, Optional
+from typing import Any, List, Optional
 from pydantic import BaseModel, Field, StrictStr, validator
 
 
@@ -31,12 +31,15 @@ class AddressbookAddressKeyPutRequestInner(BaseModel):
     addrtype: StrictStr = Field(..., description="The address type, e.g. work or home")
     city: StrictStr = Field(..., description="The city of this address")
     country: StrictStr = Field(..., description="The country of this address")
+    people: Optional[List[StrictStr]] = Field(
+        None, description="A list of people's names living there"
+    )
     person: Optional[Any] = Field(
         None, description="This is a person object that lives at this address."
     )
     state: StrictStr = Field(..., description="The state of this address")
     street: StrictStr = Field(..., description="The street and civic number of this address")
-    __properties = ["addrtype", "city", "country", "person", "state", "street"]
+    __properties = ["addrtype", "city", "country", "people", "person", "state", "street"]
 
     @validator("addrtype")
     def addrtype_validate_enum(cls, v):
@@ -84,6 +87,7 @@ class AddressbookAddressKeyPutRequestInner(BaseModel):
                 "addrtype": obj.get("addrtype"),
                 "city": obj.get("city"),
                 "country": obj.get("country"),
+                "people": obj.get("people"),
                 "person": obj.get("person"),
                 "state": obj.get("state"),
                 "street": obj.get("street"),

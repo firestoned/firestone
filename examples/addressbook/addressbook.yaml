@@ -102,6 +102,11 @@ schema:
       country:
         description: The country of this address
         type: string
+      people:
+        description: A list of people's names living there
+        type: array
+        items:
+          type: string
     required:
       - addrtype
       - street

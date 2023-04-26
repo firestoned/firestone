@@ -19,6 +19,7 @@ class AddressbookAddressKeyPutRequestInner(BaseModel):
         addrtype: The addrtype of this AddressbookAddressKeyPutRequestInner.
         city: The city of this AddressbookAddressKeyPutRequestInner.
         country: The country of this AddressbookAddressKeyPutRequestInner.
+        people: The people of this AddressbookAddressKeyPutRequestInner [Optional].
         person: The person of this AddressbookAddressKeyPutRequestInner [Optional].
         state: The state of this AddressbookAddressKeyPutRequestInner.
         street: The street of this AddressbookAddressKeyPutRequestInner.
@@ -27,6 +28,7 @@ class AddressbookAddressKeyPutRequestInner(BaseModel):
     addrtype: str = Field(alias="addrtype")
     city: str = Field(alias="city")
     country: str = Field(alias="country")
+    people: Optional[List[str]] = Field(alias="people", default=None)
     person: Optional[object] = Field(alias="person", default=None)
     state: str = Field(alias="state")
     street: str = Field(alias="street")
