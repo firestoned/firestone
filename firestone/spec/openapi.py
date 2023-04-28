@@ -9,6 +9,7 @@ import http.client
 import logging
 
 import yaml
+import inflect
 
 from firestone.spec import _base as spec_base
 
@@ -20,6 +21,8 @@ RSRC_INST_HTTP_METHODS = ["delete", "get", "head", "patch", "put"]
 
 # This is a list of all HTTP methods supported on attributes of an instance of a resource
 RSRC_ATTR_HTTP_METHODS = ["delete", "get", "head", "put"]
+
+INFLECT_ENGINE = inflect.engine()
 
 _LOGGER = logging.getLogger(__name__)
 

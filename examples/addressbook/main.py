@@ -5,6 +5,7 @@ Main entry point for a click based CLI.
 import functools
 import json
 import logging
+import os
 
 import click
 from firestone_lib import cli
@@ -17,6 +18,7 @@ from addressbook.client.api import addressbook_api
 from addressbook.client.models import addressbook as addressbook_model
 from addressbook.client.api import persons_api
 from addressbook.client.models import persons as persons_model
+
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -50,13 +52,24 @@ def api_exc(func):
     required=True,
     envvar="API_URL",
 )
+@click.option("--trust-proxy", help="Trust the proxy env vars", is_flag=True, default=False)
 @click.option("--threads", help="The number of threads for client side", type=int, default=1)
 @click.pass_context
-def main(ctx, debug, api_key, api_url, threads):
+def main(ctx, debug, api_key, api_url, threads, trust_proxy):
     """Addressbook CLI
 
     This is the CLI for the example Addressbook
     """
+    if not trust_proxy:
+        if "http_proxy" in os.environ:
+            del os.environ["http_proxy"]
+        if "https_proxy" in os.environ:
+            del os.environ["https_proxy"]
+        if "HTTP_PROXY" in os.environ:
+            del os.environ["HTTP_PROXY"]
+        if "HTTPS_PROXY" in os.environ:
+            del os.environ["HTTPS_PROXY"]
+
     try:
         cli.init_logging("addressbook.resources.logging", "cli.conf")
     # pylint: disable=broad-except
@@ -96,6 +109,56 @@ def addressbook(ctx_obj):
 
 
 # pylint: disable=redefined-builtin
+@addressbook.command("create")
+@click.option(
+    "--addrtype",
+    help="The address type, e.g. work or home",
+    type=click.Choice(["work", "home"]),
+    required=True,
+)
+@click.option("--city", help="The city of this address", type=str, required=True)
+@click.option("--country", help="The country of this address", type=str, required=True)
+@click.option(
+    "--people", help="A list of people's names living there", type=cli.StrList, required=False
+)
+@click.option(
+    "--person",
+    help="This is a person object that lives at this address.",
+    type=cli.FromJSON(),
+    required=False,
+)
+@click.option("--state", help="The state of this address", type=str, required=True)
+@click.option(
+    "--street", help="The street and civic number of this address", type=str, required=True
+)
+@click.pass_obj
+@firestone_utils.click_coro
+@api_exc
+async def addressbook_post(ctx_obj, addrtype, city, country, people, person, state, street):
+    """Create a new address in this addressbook, a new address key will be created."""
+    api_obj = ctx_obj["api_obj"]
+    params = {
+        "addrtype": addrtype,
+        "city": city,
+        "country": country,
+        "people": people,
+        "person": person,
+        "state": state,
+        "street": street,
+    }
+
+    req_body = addressbook_model.Addressbook(**params)
+    resp = await api_obj.addressbook_post(req_body)
+    _LOGGER.debug(f"resp: {resp}")
+
+    if isinstance(resp, list):
+        click.echo(json.dumps([obj.to_dict() for obj in resp]))
+    elif resp:
+        click.echo(json.dumps(resp.to_dict()))
+    else:
+        click.echo("No data returned")
+
+
 @addressbook.command("list")
 @click.option("--city", help="Filter by city name", type=str, required=False)
 @click.option("--limit", help="Limit the number of responses back", type=int, required=False)
@@ -116,58 +179,11 @@ async def addressbook_get(ctx_obj, city, limit, offset):
     _LOGGER.debug(f"resp: {resp}")
 
     if isinstance(resp, list):
-        print(json.dumps([obj.to_dict() for obj in resp]))
+        click.echo(json.dumps([obj.to_dict() for obj in resp]))
+    elif resp:
+        click.echo(json.dumps(resp.to_dict()))
     else:
-        print(json.dumps(resp.to_dict()))
-
-
-@addressbook.command("create")
-@click.option(
-    "--person",
-    help="This is a person object that lives at this address.",
-    type=cli.FromJSON(),
-    required=False,
-)
-@click.option(
-    "--addrtype",
-    help="The address type, e.g. work or home",
-    type=click.Choice(["work", "home"]),
-    required=True,
-)
-@click.option(
-    "--street", help="The street and civic number of this address", type=str, required=True
-)
-@click.option("--city", help="The city of this address", type=str, required=True)
-@click.option("--state", help="The state of this address", type=str, required=True)
-@click.option("--country", help="The country of this address", type=str, required=True)
-@click.option(
-    "--people", help="A list of people's names living there", type=cli.StrList, required=False
-)
-@click.pass_obj
-@firestone_utils.click_coro
-@api_exc
-async def addressbook_post(ctx_obj, person, addrtype, street, city, state, country, people):
-    """Create a new address in this addressbook, a new address key will be created."""
-    api_obj = ctx_obj["api_obj"]
-    params = {
-        "person": person,
-        "addrtype": addrtype,
-        "street": street,
-        "city": city,
-        "state": state,
-        "country": country,
-        "people": people,
-    }
-
-    req_body = addressbook_model.Addressbook()
-    req_body.from_dict(params)
-    resp = await api_obj.addressbook_post(req_body)
-    _LOGGER.debug(f"resp: {resp}")
-
-    if isinstance(resp, list):
-        print(json.dumps([obj.to_dict() for obj in resp]))
-    else:
-        print(json.dumps(resp.to_dict()))
+        click.echo("No data returned")
 
 
 @addressbook.command("delete")
@@ -192,17 +208,17 @@ async def addressbook_address_key_delete(ctx_obj, address_key):
 
 
 @addressbook.command("get")
-@click.option("--city", help="Filter by city name", type=str, required=False)
 @click.argument("address_key", type=str)
+@click.option("--city", help="Filter by city name", type=str, required=False)
 @click.pass_obj
 @firestone_utils.click_coro
 @api_exc
-async def addressbook_address_key_get(ctx_obj, city, address_key):
+async def addressbook_address_key_get(ctx_obj, address_key, city):
     """Get a specific address from this addressbook."""
     api_obj = ctx_obj["api_obj"]
     params = {
-        "city": city,
         "address_key": address_key,
+        "city": city,
     }
 
     resp = await api_obj.addressbook_address_key_get(**params)
@@ -216,42 +232,42 @@ async def addressbook_address_key_get(ctx_obj, city, address_key):
 
 @addressbook.command("update")
 @click.option(
-    "--person",
-    help="This is a person object that lives at this address.",
-    type=cli.FromJSON(),
-    required=False,
-)
-@click.option(
     "--addrtype",
     help="The address type, e.g. work or home",
     type=click.Choice(["work", "home"]),
     required=False,
 )
-@click.option(
-    "--street", help="The street and civic number of this address", type=str, required=False
-)
 @click.option("--city", help="The city of this address", type=str, required=False)
-@click.option("--state", help="The state of this address", type=str, required=False)
 @click.option("--country", help="The country of this address", type=str, required=False)
 @click.option(
     "--people", help="A list of people's names living there", type=cli.StrList, required=False
+)
+@click.option(
+    "--person",
+    help="This is a person object that lives at this address.",
+    type=cli.FromJSON(),
+    required=False,
+)
+@click.option("--state", help="The state of this address", type=str, required=False)
+@click.option(
+    "--street", help="The street and civic number of this address", type=str, required=False
 )
 @click.pass_obj
 @firestone_utils.click_coro
 @api_exc
 async def addressbook_address_key_put(
-    ctx_obj, person, addrtype, street, city, state, country, people
+    ctx_obj, addrtype, city, country, people, person, state, street
 ):
     """Update an existing address in this addressbook, with the given address key."""
     api_obj = ctx_obj["api_obj"]
     params = {
-        "person": person,
         "addrtype": addrtype,
-        "street": street,
         "city": city,
-        "state": state,
         "country": country,
         "people": people,
+        "person": person,
+        "state": state,
+        "street": street,
     }
 
     resp = await api_obj.addressbook_address_key_put(**params)
@@ -272,6 +288,36 @@ def persons(ctx_obj):
 
 
 # pylint: disable=redefined-builtin
+@persons.command("create")
+@click.option("--age", help="The person's age", type=int, required=False)
+@click.option("--first_name", help="The person's first name", type=str, required=False)
+@click.option("--hobbies", help="The person's hobbies", type=cli.StrList, required=False)
+@click.option("--last_name", help="The person's last name", type=str, required=False)
+@click.pass_obj
+@firestone_utils.click_coro
+@api_exc
+async def persons_post(ctx_obj, age, first_name, hobbies, last_name):
+    """Create operation for persons"""
+    api_obj = ctx_obj["api_obj"]
+    params = {
+        "age": age,
+        "first_name": first_name,
+        "hobbies": hobbies,
+        "last_name": last_name,
+    }
+
+    req_body = persons_model.Persons(**params)
+    resp = await api_obj.persons_post(req_body)
+    _LOGGER.debug(f"resp: {resp}")
+
+    if isinstance(resp, list):
+        click.echo(json.dumps([obj.to_dict() for obj in resp]))
+    elif resp:
+        click.echo(json.dumps(resp.to_dict()))
+    else:
+        click.echo("No data returned")
+
+
 @persons.command("delete")
 @click.option("--limit", help="Limit the number of responses back", type=int, required=False)
 @click.option("--offset", help="The offset to start returning resources", type=int, required=False)
@@ -290,9 +336,11 @@ async def persons_delete(ctx_obj, limit, offset):
     _LOGGER.debug(f"resp: {resp}")
 
     if isinstance(resp, list):
-        print(json.dumps([obj.to_dict() for obj in resp]))
+        click.echo(json.dumps([obj.to_dict() for obj in resp]))
+    elif resp:
+        click.echo(json.dumps(resp.to_dict()))
     else:
-        print(json.dumps(resp.to_dict()))
+        click.echo("No data returned")
 
 
 @persons.command("list")
@@ -315,9 +363,11 @@ async def persons_get(ctx_obj, last_name, limit, offset):
     _LOGGER.debug(f"resp: {resp}")
 
     if isinstance(resp, list):
-        print(json.dumps([obj.to_dict() for obj in resp]))
+        click.echo(json.dumps([obj.to_dict() for obj in resp]))
+    elif resp:
+        click.echo(json.dumps(resp.to_dict()))
     else:
-        print(json.dumps(resp.to_dict()))
+        click.echo("No data returned")
 
 
 @persons.command("update")
@@ -338,38 +388,11 @@ async def persons_patch(ctx_obj, limit, offset):
     _LOGGER.debug(f"resp: {resp}")
 
     if isinstance(resp, list):
-        print(json.dumps([obj.to_dict() for obj in resp]))
+        click.echo(json.dumps([obj.to_dict() for obj in resp]))
+    elif resp:
+        click.echo(json.dumps(resp.to_dict()))
     else:
-        print(json.dumps(resp.to_dict()))
-
-
-@persons.command("create")
-@click.option("--first_name", help="The person's first name", type=str, required=False)
-@click.option("--last_name", help="The person's last name", type=str, required=False)
-@click.option("--age", help="The person's age", type=int, required=False)
-@click.option("--hobbies", help="The person's hobbies", type=cli.StrList, required=False)
-@click.pass_obj
-@firestone_utils.click_coro
-@api_exc
-async def persons_post(ctx_obj, first_name, last_name, age, hobbies):
-    """Create operation for persons"""
-    api_obj = ctx_obj["api_obj"]
-    params = {
-        "first_name": first_name,
-        "last_name": last_name,
-        "age": age,
-        "hobbies": hobbies,
-    }
-
-    req_body = persons_model.Persons()
-    req_body.from_dict(params)
-    resp = await api_obj.persons_post(req_body)
-    _LOGGER.debug(f"resp: {resp}")
-
-    if isinstance(resp, list):
-        print(json.dumps([obj.to_dict() for obj in resp]))
-    else:
-        print(json.dumps(resp.to_dict()))
+        click.echo("No data returned")
 
 
 @persons.command("delete")
@@ -417,21 +440,21 @@ async def persons_uuid_get(ctx_obj, last_name, uuid):
 
 
 @persons.command("update")
-@click.option("--first_name", help="The person's first name", type=str, required=False)
-@click.option("--last_name", help="The person's last name", type=str, required=False)
 @click.option("--age", help="The person's age", type=int, required=False)
+@click.option("--first_name", help="The person's first name", type=str, required=False)
 @click.option("--hobbies", help="The person's hobbies", type=cli.StrList, required=False)
+@click.option("--last_name", help="The person's last name", type=str, required=False)
 @click.pass_obj
 @firestone_utils.click_coro
 @api_exc
-async def persons_uuid_patch(ctx_obj, first_name, last_name, age, hobbies):
+async def persons_uuid_patch(ctx_obj, age, first_name, hobbies, last_name):
     """Update operation for persons"""
     api_obj = ctx_obj["api_obj"]
     params = {
-        "first_name": first_name,
-        "last_name": last_name,
         "age": age,
+        "first_name": first_name,
         "hobbies": hobbies,
+        "last_name": last_name,
     }
 
     resp = await api_obj.persons_uuid_patch(**params)
@@ -444,21 +467,21 @@ async def persons_uuid_patch(ctx_obj, first_name, last_name, age, hobbies):
 
 
 @persons.command("update")
-@click.option("--first_name", help="The person's first name", type=str, required=False)
-@click.option("--last_name", help="The person's last name", type=str, required=False)
 @click.option("--age", help="The person's age", type=int, required=False)
+@click.option("--first_name", help="The person's first name", type=str, required=False)
 @click.option("--hobbies", help="The person's hobbies", type=cli.StrList, required=False)
+@click.option("--last_name", help="The person's last name", type=str, required=False)
 @click.pass_obj
 @firestone_utils.click_coro
 @api_exc
-async def persons_uuid_put(ctx_obj, first_name, last_name, age, hobbies):
+async def persons_uuid_put(ctx_obj, age, first_name, hobbies, last_name):
     """Update operation for persons"""
     api_obj = ctx_obj["api_obj"]
     params = {
-        "first_name": first_name,
-        "last_name": last_name,
         "age": age,
+        "first_name": first_name,
         "hobbies": hobbies,
+        "last_name": last_name,
     }
 
     resp = await api_obj.persons_uuid_put(**params)
