@@ -81,7 +81,7 @@ def main(ctx, debug, api_key, api_url, threads, trust_proxy):
     if debug:
         _LOGGER.setLevel(logging.DEBUG)
         logging.getLogger().setLevel(logging.DEBUG)
-        logging.getLogger("addressbook").setLevel(logging.DEBUG)
+        logging.getLogger("{{ pkg }}").setLevel(logging.DEBUG)
         logging.getLogger("aiohttp").setLevel(logging.DEBUG)
         logging.getLogger("urllib3").setLevel(logging.DEBUG)
         logging.getLogger("httplib").setLevel(logging.DEBUG)
@@ -98,7 +98,7 @@ def main(ctx, debug, api_key, api_url, threads, trust_proxy):
     _LOGGER.debug(f"ctx.obj: {ctx.obj}")
 
 
-{% for rsrc in rsrcs -%}
+{% for rsrc in rsrcs|sort(attribute='name') -%}
 @main.group()
 @click.pass_obj
 def {{ rsrc["name"] }}(ctx_obj):
@@ -109,25 +109,24 @@ def {{ rsrc["name"] }}(ctx_obj):
 
 # pylint: disable=redefined-builtin
 {# high-level resource operations -#}
-{% for op in rsrc["operations"]["resource"] -%}
+{% for op in rsrc["operations"]["resource"]|sort(attribute='name') -%}
 @{{ rsrc["name"] }}.command("{{ op["name"] }}")
-{% for attr in op["attrs"] -%}
+{% for attr in op["attrs"]|sort(attribute='name') -%}
 @click.option("--{{ attr["name"] }}", help="{{ attr["description"] }}", type={{ attr["type"] }}, required={{ attr["required"] }})
 {% endfor -%}
 @click.pass_obj
 @firestone_utils.click_coro
 @api_exc
-async def {{ op["id"] }}(ctx_obj{% for attr in op["attrs"] -%}{{ ", " + attr["name"].replace("-", "_") }}{% endfor -%}):
+async def {{ op["id"] }}(ctx_obj{% for attr in op["attrs"]|sort(attribute='name') -%}{{ ", " + attr["name"].replace("-", "_") }}{% endfor -%}):
     """{{ op["description"] }}"""
     api_obj = ctx_obj["api_obj"]
     params = {
-        {% for attr in op["attrs"] -%}
+        {% for attr in op["attrs"]|sort(attribute='name') -%}
         "{{ attr["name"] }}":  {{ attr["name"].replace("-", "_") }},
         {% endfor -%}
     }
     {% if op["name"] == "create" %}
-    req_body = {{ rsrc["name"] }}_model.{{ rsrc["name"].capitalize() }}()
-    req_body.from_dict(params)
+    req_body = {{ rsrc["name"] }}_model.{{ rsrc["name"].capitalize() }}(**params)
     resp = await api_obj.{{ op["id"] }}(req_body)
     {% else %}
     resp = await api_obj.{{ op["id"] }}(**params)
@@ -135,17 +134,18 @@ async def {{ op["id"] }}(ctx_obj{% for attr in op["attrs"] -%}{{ ", " + attr["na
     _LOGGER.debug(f"resp: {resp}")
 
     if isinstance(resp, list):
-        print(json.dumps([obj.to_dict() for obj in resp]))
+        click.echo(json.dumps([obj.to_dict() for obj in resp]))
+    elif resp:
+        click.echo(json.dumps(resp.to_dict()))
     else:
-        print(json.dumps(resp.to_dict()))
-
+        click.echo("No data returned")
 
 {% endfor -%}
 
 {# high-level resource instance operations -#}
-{% for op in rsrc["operations"]["instance"] -%}
+{% for op in rsrc["operations"]["instance"]|sort(attribute='name') -%}
 @{{ rsrc["name"] }}.command("{{ op["name"] }}")
-{% for attr in op["attrs"] -%}
+{% for attr in op["attrs"]|sort(attribute='name') -%}
 {% if attr.get("argument") -%}
 @click.argument("{{ attr["name"] }}", type={{ attr["type"] }})
 {% else -%}
@@ -155,11 +155,11 @@ async def {{ op["id"] }}(ctx_obj{% for attr in op["attrs"] -%}{{ ", " + attr["na
 @click.pass_obj
 @firestone_utils.click_coro
 @api_exc
-async def {{ op["id"] }}(ctx_obj{% for attr in op["attrs"] -%}{{ ", " + attr["name"].replace("-", "_") }}{% endfor -%}):
+async def {{ op["id"] }}(ctx_obj{% for attr in op["attrs"]|sort(attribute='name') -%}{{ ", " + attr["name"].replace("-", "_") }}{% endfor -%}):
     """{{ op["description"] }}"""
     api_obj = ctx_obj["api_obj"]
     params = {
-        {% for attr in op["attrs"] -%}
+        {% for attr in op["attrs"]|sort(attribute='name') -%}
         "{{ attr["name"] }}":  {{ attr["name"].replace("-", "_") }},
         {% endfor -%}
     }
