@@ -1,6 +1,6 @@
 [![Last PR Build 🐍](https://github.com/firestoned/firestone/actions/workflows/pr.yml/badge.svg)](https://github.com/firestoned/firestone/actions/workflows/pr.yml)
 <!-- Pytest Coverage Comment:Begin -->
-<a href="https://github.com/firestoned/firestone/blob/main/README.md"><img alt="Coverage" src="https://img.shields.io/badge/Coverage-40%25-orange.svg" /></a>
+<a href="https://github.com/firestoned/firestone/blob/main/README.md"><img alt="Coverage" src="https://img.shields.io/badge/Coverage-39%25-red.svg" /></a>
 <!-- Pytest Coverage Comment:End -->
 
 # Firestone
