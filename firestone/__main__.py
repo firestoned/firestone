@@ -95,12 +95,20 @@ def generate(ctx, description, resources, summary, title, version):
 )
 @click.option(
     "--security",
-    help="Add security scheme to schema; examnple: "
-    '{"name": "bearer_auth", "scheme": "bearer", "type": "http", "bearerFormat": "JWT"}',
+    help=(
+        "Add security scheme to schema; e.g.: "
+        '{"name": "bearer_auth", "scheme": "bearer", "type": "http", "bearerFormat": "JWT"}'
+    ),
     type=firestone_cli.StrDict,
 )
+@click.option(
+    "--version",
+    help="Set the OpenAPI spec version",
+    show_default=True,
+    default=firestone_spec.openapi.DEFAULT_VERSION,
+)
 @click.pass_obj
-def openapi(rsrc_data, output, ui_server, prefix, security):
+def openapi(rsrc_data, output, ui_server, prefix, security, version):
     """Generate an OpenAPI specification for the given resource data."""
 
     openapi_spec = firestone_spec.openapi.generate(
@@ -111,6 +119,7 @@ def openapi(rsrc_data, output, ui_server, prefix, security):
         rsrc_data["version"],
         prefix=prefix,
         security=security,
+        openapi_version=version,
     )
     print(openapi_spec, file=output)
 

@@ -1,4 +1,4 @@
-openapi: 3.0.0
+openapi: "3.0.0"
 info:
   title: Example person and addressbook API
   description: Example person and addressbook API
@@ -8,6 +8,28 @@ security:
   - bearer_auth: []
 components:
   schemas:
+    CreateAddressbook:
+      allOf:
+      - $ref: '#/components/schemas/addressbook'
+      - required:
+        - addrtype
+        - street
+        - city
+        - state
+        - country
+        type: object
+    CreatePerson:
+      allOf:
+      - $ref: '#/components/schemas/person'
+      - type: object
+    UpdateAddressbook:
+      allOf:
+      - $ref: '#/components/schemas/addressbook'
+      - type: object
+    UpdatePerson:
+      allOf:
+      - $ref: '#/components/schemas/person'
+      - type: object
     addressbook:
       properties:
         addrtype:
@@ -15,8 +37,6 @@ components:
           enum:
           - work
           - home
-          methods:
-          - get
           type: string
         city:
           description: The city of this address
@@ -37,36 +57,8 @@ components:
         street:
           description: The street and civic number of this address
           type: string
-      required:
-      - addrtype
-      - street
-      - city
-      - state
-      - country
       type: object
     person:
-      properties:
-        age:
-          description: The person's age
-          type: integer
-        first_name:
-          description: The person's first name
-          type: string
-        hobbies:
-          description: The person's hobbies
-          items:
-            type: string
-          type: array
-        last_name:
-          description: The person's last name
-          type: string
-      type: object
-    persons:
-      descriptions:
-        get: Get a specific person from this collection
-        head: Determine the existence and size of this person
-        patch: Patch this person in the collection
-        put: Put a new person in this collection, with the given UUId key
       properties:
         age:
           description: The person's age
@@ -134,7 +126,7 @@ paths:
         content:
           application/json:
             schema: &id003
-              $ref: '#/components/schemas/addressbook'
+              $ref: '#/components/schemas/CreateAddressbook'
         description: The request body for /addressbook
         required: true
       responses:
@@ -216,86 +208,7 @@ paths:
         content:
           application/json:
             schema:
-              items:
-                properties:
-                  addrtype:
-                    description: The address type, e.g. work or home
-                    enum:
-                    - work
-                    - home
-                    methods:
-                    - get
-                    type: string
-                  city:
-                    description: The city of this address
-                    type: string
-                  country:
-                    description: The country of this address
-                    type: string
-                  people:
-                    description: A list of people's names living there
-                    items:
-                      type: string
-                    type: array
-                  person:
-                    description: This is a person object that lives at this address.
-                    schema:
-                      descriptions:
-                        get: List all persons in this collection
-                        head: Determine the existence and size of persons in this collection
-                        patch: Patch one or more persons in this collection
-                        post: Create a new person in this collection, a new UUID key
-                          will be created
-                      items:
-                        descriptions:
-                          get: Get a specific person from this collection
-                          head: Determine the existence and size of this person
-                          patch: Patch this person in the collection
-                          put: Put a new person in this collection, with the given UUId
-                            key
-                        properties:
-                          age:
-                            description: The person's age
-                            type: integer
-                          first_name:
-                            description: The person's first name
-                            type: string
-                          hobbies:
-                            description: The person's hobbies
-                            items:
-                              type: string
-                            type: array
-                          last_name:
-                            description: The person's last name
-                            type: string
-                        type: object
-                      key:
-                        description: A UUID associated to this person
-                        name: uuid
-                        schema:
-                          type: string
-                      query_params:
-                      - description: Filter by last name
-                        methods:
-                        - get
-                        name: last_name
-                        schema:
-                          type: string
-                      type: array
-                  state:
-                    description: The state of this address
-                    type: string
-                  street:
-                    description: The street and civic number of this address
-                    type: string
-                required:
-                - addrtype
-                - street
-                - city
-                - state
-                - country
-                type: object
-              type: array
+              $ref: '#/components/schemas/UpdateAddressbook'
         description: The request body for /addressbook/{address_key}
         required: true
       responses:
@@ -303,7 +216,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/addressbook'
+                $ref: '#/components/schemas/UpdateAddressbook'
           description: Response for OK
       tags:
       - addressbook
@@ -326,8 +239,6 @@ paths:
                 enum:
                 - work
                 - home
-                methods:
-                - get
                 type: string
           description: Response for OK
       tags:
@@ -382,11 +293,7 @@ paths:
         content:
           application/json:
             schema:
-              description: The address type, e.g. work or home
-              enum:
-              - work
-              - home
-              type: string
+              $ref: '#/components/schemas/addressbook'
         description: The request body for /addressbook/{address_key}/addrtype
         required: true
       responses:
@@ -467,8 +374,7 @@ paths:
         content:
           application/json:
             schema:
-              description: The city of this address
-              type: string
+              $ref: '#/components/schemas/addressbook'
         description: The request body for /addressbook/{address_key}/city
         required: true
       responses:
@@ -549,8 +455,7 @@ paths:
         content:
           application/json:
             schema:
-              description: The country of this address
-              type: string
+              $ref: '#/components/schemas/addressbook'
         description: The request body for /addressbook/{address_key}/country
         required: true
       responses:
@@ -633,10 +538,7 @@ paths:
         content:
           application/json:
             schema:
-              description: A list of people's names living there
-              items:
-                type: string
-              type: array
+              $ref: '#/components/schemas/addressbook'
         description: The request body for /addressbook/{address_key}/people
         required: true
       responses:
@@ -747,7 +649,7 @@ paths:
         content:
           application/json:
             schema: &id008
-              $ref: '#/components/schemas/person'
+              $ref: '#/components/schemas/CreatePerson'
         description: The request body for /addressbook/{address_key}/person
         required: true
       responses:
@@ -871,24 +773,7 @@ paths:
         content:
           application/json:
             schema:
-              items:
-                properties:
-                  age:
-                    description: The person's age
-                    type: integer
-                  first_name:
-                    description: The person's first name
-                    type: string
-                  hobbies:
-                    description: The person's hobbies
-                    items:
-                      type: string
-                    type: array
-                  last_name:
-                    description: The person's last name
-                    type: string
-                type: object
-              type: array
+              $ref: '#/components/schemas/UpdatePerson'
         description: The request body for /addressbook/{address_key}/person/{uuid}
         required: true
       responses:
@@ -896,7 +781,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/person'
+                $ref: '#/components/schemas/UpdatePerson'
           description: Response for OK
       tags:
       - addressbook
@@ -990,8 +875,7 @@ paths:
         content:
           application/json:
             schema:
-              description: The person's age
-              type: integer
+              $ref: '#/components/schemas/person'
         description: The request body for /addressbook/{address_key}/person/{uuid}/age
         required: true
       responses:
@@ -1092,8 +976,7 @@ paths:
         content:
           application/json:
             schema:
-              description: The person's first name
-              type: string
+              $ref: '#/components/schemas/person'
         description: The request body for /addressbook/{address_key}/person/{uuid}/first_name
         required: true
       responses:
@@ -1196,10 +1079,7 @@ paths:
         content:
           application/json:
             schema:
-              description: The person's hobbies
-              items:
-                type: string
-              type: array
+              $ref: '#/components/schemas/person'
         description: The request body for /addressbook/{address_key}/person/{uuid}/hobbies
         required: true
       responses:
@@ -1300,8 +1180,7 @@ paths:
         content:
           application/json:
             schema:
-              description: The person's last name
-              type: string
+              $ref: '#/components/schemas/person'
         description: The request body for /addressbook/{address_key}/person/{uuid}/last_name
         required: true
       responses:
@@ -1382,8 +1261,7 @@ paths:
         content:
           application/json:
             schema:
-              description: The state of this address
-              type: string
+              $ref: '#/components/schemas/addressbook'
         description: The request body for /addressbook/{address_key}/state
         required: true
       responses:
@@ -1464,8 +1342,7 @@ paths:
         content:
           application/json:
             schema:
-              description: The street and civic number of this address
-              type: string
+              $ref: '#/components/schemas/addressbook'
         description: The request body for /addressbook/{address_key}/street
         required: true
       responses:
@@ -1477,10 +1354,16 @@ paths:
       tags:
       - addressbook
   /persons:
-    delete:
-      description: delete operation for /persons
-      operationId: persons_delete
+    get:
+      description: List all persons in this collection
+      operationId: persons_get
       parameters:
+      - description: Filter by last name
+        in: query
+        name: last_name
+        required: false
+        schema:
+          type: string
       - &id015
         description: Limit the number of responses back
         in: query
@@ -1498,61 +1381,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/persons'
-          description: Response for OK
-      tags:
-      - persons
-    get:
-      description: get operation for /persons
-      operationId: persons_get
-      parameters:
-      - description: Filter by last name
-        in: query
-        name: last_name
-        required: false
-        schema:
-          type: string
-      - *id015
-      - *id016
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
                 items:
-                  $ref: '#/components/schemas/persons'
+                  $ref: '#/components/schemas/person'
                 type: array
           description: Response for OK
       tags:
       - persons
-    head:
-      description: head operation for /persons
-      operationId: persons_head
-      parameters:
-      - *id015
-      - *id016
-      responses:
-        default:
-          description: Default HEAD response
-      tags:
-      - persons
-    patch:
-      description: patch operation for /persons
-      operationId: persons_patch
-      parameters:
-      - *id015
-      - *id016
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/persons'
-          description: Response for OK
-      tags:
-      - persons
     post:
-      description: post operation for /persons
+      description: Create a new person in this collection, a new UUID key will be created
       operationId: persons_post
       parameters:
       - *id015
@@ -1561,7 +1397,7 @@ paths:
         content:
           application/json:
             schema: &id017
-              $ref: '#/components/schemas/persons'
+              $ref: '#/components/schemas/CreatePerson'
         description: The request body for /persons
         required: true
       responses:
@@ -1587,12 +1423,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/persons'
+                $ref: '#/components/schemas/person'
           description: Response for OK
       tags:
       - persons
     get:
-      description: get operation for /persons/{uuid}
+      description: Get a specific person from this collection
       operationId: persons_uuid_get
       parameters:
       - description: Filter by last name
@@ -1611,12 +1447,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/persons'
+                $ref: '#/components/schemas/person'
           description: Response for OK
       tags:
       - persons
     head:
-      description: head operation for /persons/{uuid}
+      description: Determine the existence and size of this person
       operationId: persons_uuid_head
       parameters:
       - in: path
@@ -1629,26 +1465,8 @@ paths:
           description: Default HEAD response
       tags:
       - persons
-    patch:
-      description: patch operation for /persons/{uuid}
-      operationId: persons_uuid_patch
-      parameters:
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/persons'
-          description: Response for OK
-      tags:
-      - persons
     put:
-      description: put operation for /persons/{uuid}
+      description: Put a new person in this collection, with the given UUId key
       operationId: persons_uuid_put
       parameters:
       - in: path
@@ -1660,29 +1478,7 @@ paths:
         content:
           application/json:
             schema:
-              items:
-                descriptions:
-                  get: Get a specific person from this collection
-                  head: Determine the existence and size of this person
-                  patch: Patch this person in the collection
-                  put: Put a new person in this collection, with the given UUId key
-                properties:
-                  age:
-                    description: The person's age
-                    type: integer
-                  first_name:
-                    description: The person's first name
-                    type: string
-                  hobbies:
-                    description: The person's hobbies
-                    items:
-                      type: string
-                    type: array
-                  last_name:
-                    description: The person's last name
-                    type: string
-                type: object
-              type: array
+              $ref: '#/components/schemas/UpdatePerson'
         description: The request body for /persons/{uuid}
         required: true
       responses:
@@ -1690,7 +1486,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/persons'
+                $ref: '#/components/schemas/UpdatePerson'
           description: Response for OK
       tags:
       - persons
@@ -1764,8 +1560,7 @@ paths:
         content:
           application/json:
             schema:
-              description: The person's age
-              type: integer
+              $ref: '#/components/schemas/person'
         description: The request body for /persons/{uuid}/age
         required: true
       responses:
@@ -1846,8 +1641,7 @@ paths:
         content:
           application/json:
             schema:
-              description: The person's first name
-              type: string
+              $ref: '#/components/schemas/person'
         description: The request body for /persons/{uuid}/first_name
         required: true
       responses:
@@ -1930,10 +1724,7 @@ paths:
         content:
           application/json:
             schema:
-              description: The person's hobbies
-              items:
-                type: string
-              type: array
+              $ref: '#/components/schemas/person'
         description: The request body for /persons/{uuid}/hobbies
         required: true
       responses:
@@ -2014,8 +1805,7 @@ paths:
         content:
           application/json:
             schema:
-              description: The person's last name
-              type: string
+              $ref: '#/components/schemas/person'
         description: The request body for /persons/{uuid}/last_name
         required: true
       responses:

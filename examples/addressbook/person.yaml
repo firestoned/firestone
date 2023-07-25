@@ -13,6 +13,31 @@ default_query_params:
     in: query
     schema:
       type: integer
+methods:
+  resource:
+    - get
+    - post
+  instance:
+    - delete
+    - get
+    - head
+    - put
+  instance_attrs:
+    - delete
+    - get
+    - head
+    - put
+descriptions:
+  resource:
+    get: List all persons in this collection
+    head: Determine the existence and size of persons in this collection
+    patch: Patch one or more persons in this collection
+    post: Create a new person in this collection, a new UUID key will be created
+  instance:
+    get: Get a specific person from this collection
+    head: Determine the existence and size of this person
+    patch: Patch this person in the collection
+    put: Put a new person in this collection, with the given UUId key
 schema:
   type: array
   key:
@@ -27,17 +52,7 @@ schema:
         type: string
       methods:
         - get
-  descriptions:
-    get: List all persons in this collection
-    head: Determine the existence and size of persons in this collection
-    patch: Patch one or more persons in this collection
-    post: Create a new person in this collection, a new UUID key will be created
   items:
-    descriptions:
-      get: Get a specific person from this collection
-      head: Determine the existence and size of this person
-      patch: Patch this person in the collection
-      put: Put a new person in this collection, with the given UUId key
     type: object
     properties:
       first_name:

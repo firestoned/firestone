@@ -14,10 +14,16 @@ from firestone_lib import utils as firestone_utils
 from addressbook.client import api_client
 from addressbook.client import configuration
 from addressbook.client import exceptions
+
 from addressbook.client.api import addressbook_api
 from addressbook.client.models import addressbook as addressbook_model
+from addressbook.client.models import create_addressbook as create_addressbook_model
+from addressbook.client.models import update_addressbook as update_addressbook_model
+
 from addressbook.client.api import persons_api
-from addressbook.client.models import persons as persons_model
+from addressbook.client.models import person as person_model
+from addressbook.client.models import create_person as create_person_model
+from addressbook.client.models import update_person as update_person_model
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -48,27 +54,45 @@ def api_exc(func):
 )
 @click.option(
     "--api-url",
-    help="The URL to the API",
-    required=True,
+    help="The API url, e.g. https://localhost",
     envvar="API_URL",
+)
+@click.option(
+    "--client-cert",
+    help="Path to the client cert for mutual TLS",
+    envvar="CLIENT_CERT",
+)
+@click.option(
+    "--client-key",
+    help="Path to the client key for mutual TLS",
+    envvar="CLIENT_KEY",
 )
 @click.option("--trust-proxy", help="Trust the proxy env vars", is_flag=True, default=False)
 @click.option("--threads", help="The number of threads for client side", type=int, default=1)
 @click.pass_context
-def main(ctx, debug, api_key, api_url, threads, trust_proxy):
+def main(ctx, debug, api_key, api_url, client_cert, client_key, threads, trust_proxy):
     """Addressbook CLI
 
     This is the CLI for the example Addressbook
     """
     if not trust_proxy:
+        # Convert to loop
         if "http_proxy" in os.environ:
             del os.environ["http_proxy"]
         if "https_proxy" in os.environ:
+            del os.environ["all_https_proxy"]
+        if "all_http_proxy" in os.environ:
+            del os.environ["all_http_proxy"]
+        if "all_https_proxy" in os.environ:
             del os.environ["https_proxy"]
         if "HTTP_PROXY" in os.environ:
             del os.environ["HTTP_PROXY"]
         if "HTTPS_PROXY" in os.environ:
             del os.environ["HTTPS_PROXY"]
+        if "ALL_HTTP_PROXY" in os.environ:
+            del os.environ["ALL_HTTP_PROXY"]
+        if "ALL_HTTPS_PROXY" in os.environ:
+            del os.environ["ALL_HTTPS_PROXY"]
 
     try:
         cli.init_logging("addressbook.resources.logging", "cli.conf")
@@ -92,6 +116,10 @@ def main(ctx, debug, api_key, api_url, threads, trust_proxy):
     config.debug = debug
     if api_key:
         config.access_token = api_key
+    if client_cert:
+        config.cert_file = client_cert
+    if client_key:
+        config.key_file = client_key
     aclient = api_client.ApiClient(configuration=config, pool_threads=threads)
 
     ctx.obj = {
@@ -147,7 +175,7 @@ async def addressbook_post(ctx_obj, addrtype, city, country, people, person, sta
         "street": street,
     }
 
-    req_body = addressbook_model.Addressbook(**params)
+    req_body = create_addressbook_model.CreateAddressbook(**params)
     resp = await api_obj.addressbook_post(req_body)
     _LOGGER.debug(f"resp: {resp}")
 
@@ -297,7 +325,7 @@ def persons(ctx_obj):
 @firestone_utils.click_coro
 @api_exc
 async def persons_post(ctx_obj, age, first_name, hobbies, last_name):
-    """Create operation for persons"""
+    """Create a new person in this collection, a new UUID key will be created"""
     api_obj = ctx_obj["api_obj"]
     params = {
         "age": age,
@@ -306,33 +334,8 @@ async def persons_post(ctx_obj, age, first_name, hobbies, last_name):
         "last_name": last_name,
     }
 
-    req_body = persons_model.Persons(**params)
+    req_body = create_person_model.CreatePerson(**params)
     resp = await api_obj.persons_post(req_body)
-    _LOGGER.debug(f"resp: {resp}")
-
-    if isinstance(resp, list):
-        click.echo(json.dumps([obj.to_dict() for obj in resp]))
-    elif resp:
-        click.echo(json.dumps(resp.to_dict()))
-    else:
-        click.echo("No data returned")
-
-
-@persons.command("delete")
-@click.option("--limit", help="Limit the number of responses back", type=int, required=False)
-@click.option("--offset", help="The offset to start returning resources", type=int, required=False)
-@click.pass_obj
-@firestone_utils.click_coro
-@api_exc
-async def persons_delete(ctx_obj, limit, offset):
-    """Delete operation for persons"""
-    api_obj = ctx_obj["api_obj"]
-    params = {
-        "limit": limit,
-        "offset": offset,
-    }
-
-    resp = await api_obj.persons_delete(**params)
     _LOGGER.debug(f"resp: {resp}")
 
     if isinstance(resp, list):
@@ -351,7 +354,7 @@ async def persons_delete(ctx_obj, limit, offset):
 @firestone_utils.click_coro
 @api_exc
 async def persons_get(ctx_obj, last_name, limit, offset):
-    """List operation for persons"""
+    """List all persons in this collection"""
     api_obj = ctx_obj["api_obj"]
     params = {
         "last_name": last_name,
@@ -360,31 +363,6 @@ async def persons_get(ctx_obj, last_name, limit, offset):
     }
 
     resp = await api_obj.persons_get(**params)
-    _LOGGER.debug(f"resp: {resp}")
-
-    if isinstance(resp, list):
-        click.echo(json.dumps([obj.to_dict() for obj in resp]))
-    elif resp:
-        click.echo(json.dumps(resp.to_dict()))
-    else:
-        click.echo("No data returned")
-
-
-@persons.command("update")
-@click.option("--limit", help="Limit the number of responses back", type=int, required=False)
-@click.option("--offset", help="The offset to start returning resources", type=int, required=False)
-@click.pass_obj
-@firestone_utils.click_coro
-@api_exc
-async def persons_patch(ctx_obj, limit, offset):
-    """Update operation for persons"""
-    api_obj = ctx_obj["api_obj"]
-    params = {
-        "limit": limit,
-        "offset": offset,
-    }
-
-    resp = await api_obj.persons_patch(**params)
     _LOGGER.debug(f"resp: {resp}")
 
     if isinstance(resp, list):
@@ -423,7 +401,7 @@ async def persons_uuid_delete(ctx_obj, uuid):
 @firestone_utils.click_coro
 @api_exc
 async def persons_uuid_get(ctx_obj, last_name, uuid):
-    """Get operation for persons"""
+    """Get a specific person from this collection"""
     api_obj = ctx_obj["api_obj"]
     params = {
         "last_name": last_name,
@@ -447,35 +425,8 @@ async def persons_uuid_get(ctx_obj, last_name, uuid):
 @click.pass_obj
 @firestone_utils.click_coro
 @api_exc
-async def persons_uuid_patch(ctx_obj, age, first_name, hobbies, last_name):
-    """Update operation for persons"""
-    api_obj = ctx_obj["api_obj"]
-    params = {
-        "age": age,
-        "first_name": first_name,
-        "hobbies": hobbies,
-        "last_name": last_name,
-    }
-
-    resp = await api_obj.persons_uuid_patch(**params)
-    _LOGGER.debug(f"resp: {resp}")
-
-    if isinstance(resp, list):
-        print(json.dumps([obj.to_dict() for obj in resp]))
-    else:
-        print(json.dumps(resp.to_dict()) if resp else "None")
-
-
-@persons.command("update")
-@click.option("--age", help="The person's age", type=int, required=False)
-@click.option("--first_name", help="The person's first name", type=str, required=False)
-@click.option("--hobbies", help="The person's hobbies", type=cli.StrList, required=False)
-@click.option("--last_name", help="The person's last name", type=str, required=False)
-@click.pass_obj
-@firestone_utils.click_coro
-@api_exc
 async def persons_uuid_put(ctx_obj, age, first_name, hobbies, last_name):
-    """Update operation for persons"""
+    """Put a new person in this collection, with the given UUId key"""
     api_obj = ctx_obj["api_obj"]
     params = {
         "age": age,

@@ -8,10 +8,9 @@ import copy
 import http.client
 import logging
 
-import yaml
-import inflect
-
 from firestone.spec import _base as spec_base
+
+DEFAULT_VERSION = "3.0.0"
 
 # This is a list of all HTTP methods supported on high-level resource base
 RSRC_HTTP_METHODS = ["delete", "get", "head", "patch", "post"]
@@ -21,8 +20,6 @@ RSRC_INST_HTTP_METHODS = ["delete", "get", "head", "patch", "put"]
 
 # This is a list of all HTTP methods supported on attributes of an instance of a resource
 RSRC_ATTR_HTTP_METHODS = ["delete", "get", "head", "put"]
-
-INFLECT_ENGINE = inflect.engine()
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -79,6 +76,16 @@ def get_responses(
     return responses
 
 
+def _get_comp_name(rsrc_name: str, method: str):
+    comp_name = rsrc_name if not rsrc_name.endswith("s") else rsrc_name[:-1]
+    if method == "post":
+        comp_name = f"Create{comp_name.capitalize()}"
+    if method == "put":
+        comp_name = f"Update{comp_name.capitalize()}"
+
+    return comp_name
+
+
 def get_method_op(
     path: str,
     method: str,
@@ -88,7 +95,7 @@ def get_method_op(
     attr_name: str = None,
     is_list: bool = None,
 ):
-    """Get the specified method seciton for the paths."""
+    """Get the specified method section for the paths."""
     if not desc:
         desc = f"{method} operation for {path}"
     content_type = spec_base.DEFAULT_CONTENT_TYPE
@@ -123,11 +130,12 @@ def get_method_op(
             request_schema = opr["responses"][http.client.CREATED]["content"][content_type][
                 "schema"
             ]
-
-        if "descriptions" in request_schema:
-            del request_schema["descriptions"]
     elif method == "put":
+        _LOGGER.debug(f"Getting {method} operation")
         request_schema = copy.deepcopy(schema)
+        if comp_name:
+            request_schema = {"$ref": f"#/components/schemas/{comp_name}"}
+    _LOGGER.debug(f"request_schema: {request_schema}")
 
     if request_schema:
         if "descriptions" in request_schema:
@@ -231,15 +239,19 @@ def add_resource_methods(
         if methods and method not in methods:
             _LOGGER.info(
                 f"Skipping the definition of {method} in resource generation, "
-                "as it is not in the defined methods requested"
+                "as it is not defined in methods.resource requested"
             )
             continue
+
+        comp_name = _get_comp_name(rsrc_name, method)
+        _LOGGER.debug(f"comp_name: {comp_name}")
+
         paths[baseurl][method] = get_method_op(
             baseurl,
             method,
             schema,
             desc=descs.get(method),
-            comp_name=rsrc_name,
+            comp_name=comp_name,
             is_list=(method == "get"),
         )
         paths[baseurl][method]["tags"] = [orig_rsrc_name or rsrc_name]
@@ -277,18 +289,23 @@ def add_instance_methods(
 
     paths[baseurl] = {}
     for method in RSRC_INST_HTTP_METHODS:
+        _LOGGER.debug(f"baseurl: {baseurl}")
         if methods and method not in methods:
             _LOGGER.info(
                 f"Skipping the definition of {method} in resource instance generation, "
-                "as it is not in the defined methods requested"
+                "as it is not defined in methods.instance requested"
             )
             continue
+
+        comp_name = _get_comp_name(rsrc_name, method)
+        _LOGGER.debug(f"comp_name: {comp_name}")
+
         paths[baseurl][method] = get_method_op(
             baseurl,
             method,
             schema,
             desc=descs.get(method),
-            comp_name=rsrc_name,
+            comp_name=comp_name,
         )
 
         # Add parameters
@@ -301,12 +318,13 @@ def add_instance_methods(
         _LOGGER.debug(f"paths[baseurl][{method}]: {paths[baseurl][method]}")
 
 
+# pylint: disable=too-many-locals
 def add_instance_attr_methods(
     rsrc_name: str,
     schema: dict,
     baseurl: str,
     paths: dict,
-    methods: list = None,
+    methods: dict = None,
     keys: list = None,
     default_query_params: dict = None,
     components: dict = None,
@@ -321,6 +339,7 @@ def add_instance_attr_methods(
     :param dict paths: the paths
     :param dict default_query_params: the paths
     """
+    inst_methods = methods.get("instance_attrs", [])
     for prop in schema["items"]["properties"]:
         path = "/".join([baseurl, prop])
         _LOGGER.debug(f"path: {path}")
@@ -331,14 +350,16 @@ def add_instance_attr_methods(
 
         paths[path] = {}
         for method in RSRC_ATTR_HTTP_METHODS:
-            if methods and method not in methods:
+            if inst_methods and method not in inst_methods:
                 _LOGGER.info(
                     f"Skipping the definition of {method} in resource instance attribute generation, "
                     "as it is not in the defined methods requested"
                 )
                 continue
+
+            comp_name = rsrc_name if not rsrc_name.endswith("s") else rsrc_name[:-1]
             inst_attr_op = get_method_op(
-                path, method, prop_schema, comp_name=rsrc_name, attr_name=prop
+                path, method, prop_schema, comp_name=comp_name, attr_name=prop
             )
             _LOGGER.debug(f"inst_attr_op: {inst_attr_op}")
 
@@ -355,14 +376,15 @@ def add_instance_attr_methods(
 
             # Recursively get paths for this property
             _LOGGER.debug(f"prop: {prop}")
-            _LOGGER.debug(f"components: {yaml.dump(components['schemas'])}")
             if "schema" in prop_schema:
                 if "descriptions" in prop_schema["schema"]:
                     del prop_schema["schema"]["descriptions"]
                 if "descriptions" in prop_schema["schema"]["items"]:
                     del prop_schema["schema"]["items"]["descriptions"]
 
+                components = add_rsrc_components(components, prop, methods, prop_schema["schema"])
                 components["schemas"][prop] = prop_schema["schema"]["items"]
+
                 if (
                     rsrc_name in components["schemas"]
                     and prop in components["schemas"][rsrc_name]["properties"]
@@ -449,7 +471,7 @@ def get_paths(
         schema,
         instance_baseurl,
         paths,
-        methods=methods.get("instance_attrs", []),
+        methods=methods,
         keys=keys,
         default_query_params=default_query_params,
         components=components,
@@ -457,6 +479,54 @@ def get_paths(
     )
 
     return paths
+
+
+def add_rsrc_components(components: dict, rsrc_name: str, methods: dict, schema: dict):
+    """Get the components for this resource."""
+    comp_name = rsrc_name if not rsrc_name.endswith("s") else rsrc_name[:-1]
+
+    # Reosurce level component, without required
+    comp_schema = copy.deepcopy(schema["items"])
+    if "descriptions" in comp_schema:
+        del comp_schema["descriptions"]
+
+    components["schemas"][comp_name] = comp_schema
+
+    required = schema["items"].get("required", [])
+    if required:
+        del components["schemas"][comp_name]["required"]
+
+    rscr_methods = methods.get("resource", [])
+    rscr_inst_methods = methods.get("instance", [])
+    _LOGGER.debug(f"rscr_methods: {rscr_methods}")
+    _LOGGER.debug(f"rscr_inst_methods: {rscr_inst_methods}")
+
+    # Create resource model
+    if "post" in rscr_methods or "post" in rscr_inst_methods:
+        create_key = f"Create{comp_name.capitalize()}"
+        _LOGGER.info(f"Adding {create_key} to components")
+        components["schemas"][create_key] = {
+            "allOf": [
+                {"$ref": f"#/components/schemas/{comp_name}"},
+                {"type": "object"},
+            ]
+        }
+
+        if required:
+            components["schemas"][create_key]["allOf"][1]["required"] = required
+
+    # Update resource model
+    if "put" in rscr_methods or "put" in rscr_inst_methods:
+        update_key = f"Update{comp_name.capitalize()}"
+        _LOGGER.info(f"Adding {update_key} to components")
+        components["schemas"][update_key] = {
+            "allOf": [
+                {"$ref": f"#/components/schemas/{comp_name}"},
+                {"type": "object"},
+            ]
+        }
+
+    return components
 
 
 # pylint: disable=too-many-locals
@@ -468,6 +538,7 @@ def generate(
     version: str,
     prefix: str = None,
     security: str = None,
+    openapi_version: str = None,
 ):
     """Generate an OpenAPI spec based ont he resource data sent and other meta data."""
     components = {"schemas": {}}
@@ -481,9 +552,9 @@ def generate(
         _LOGGER.debug(f"baseurl: {baseurl}")
 
         # Extract and set high-level resource component schema
-        rschema = rsrc["schema"]
-        comp_schema = copy.deepcopy(rschema["items"])
-        components["schemas"][rsrc_name] = comp_schema
+        methods = rsrc.get("methods", {})
+        components = add_rsrc_components(components, rsrc_name, methods, rsrc["schema"])
+        _LOGGER.debug(f"components: {components['schemas']}")
 
         default_query_params = rsrc.get("default_query_params", [])
         _LOGGER.debug(f"default_query_params: {default_query_params}")
@@ -522,4 +593,5 @@ def generate(
         paths=all_paths,
         servers=servers,
         security_name=security_name,
+        openapi_version=openapi_version,
     )
