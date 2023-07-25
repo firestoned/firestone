@@ -80,7 +80,7 @@ def main(ctx, debug, api_key, api_url, client_cert, client_key, threads, trust_p
         if "http_proxy" in os.environ:
             del os.environ["http_proxy"]
         if "https_proxy" in os.environ:
-            del os.environ["all_https_proxy"]
+            del os.environ["https_proxy"]
         if "all_http_proxy" in os.environ:
             del os.environ["all_http_proxy"]
         if "all_https_proxy" in os.environ:
@@ -259,6 +259,7 @@ async def addressbook_address_key_get(ctx_obj, address_key, city):
 
 
 @addressbook.command("update")
+@click.argument("address_key", type=str)
 @click.option(
     "--addrtype",
     help="The address type, e.g. work or home",
@@ -284,11 +285,12 @@ async def addressbook_address_key_get(ctx_obj, address_key, city):
 @firestone_utils.click_coro
 @api_exc
 async def addressbook_address_key_put(
-    ctx_obj, addrtype, city, country, people, person, state, street
+    ctx_obj, address_key, addrtype, city, country, people, person, state, street
 ):
     """Update an existing address in this addressbook, with the given address key."""
     api_obj = ctx_obj["api_obj"]
     params = {
+        "address_key": address_key,
         "addrtype": addrtype,
         "city": city,
         "country": country,
@@ -298,7 +300,8 @@ async def addressbook_address_key_put(
         "street": street,
     }
 
-    resp = await api_obj.addressbook_address_key_put(**params)
+    req_body = update_addressbook_model.UpdateAddressbook(**params)
+    resp = await api_obj.addressbook_address_key_put(address_key, req_body)
     _LOGGER.debug(f"resp: {resp}")
 
     if isinstance(resp, list):
@@ -395,7 +398,7 @@ async def persons_uuid_delete(ctx_obj, uuid):
 
 
 @persons.command("get")
-@click.option("--last_name", help="Filter by last name", type=str, required=False)
+@click.option("--last-name", help="Filter by last name", type=str, required=False)
 @click.argument("uuid", type=str)
 @click.pass_obj
 @firestone_utils.click_coro
@@ -419,13 +422,14 @@ async def persons_uuid_get(ctx_obj, last_name, uuid):
 
 @persons.command("update")
 @click.option("--age", help="The person's age", type=int, required=False)
-@click.option("--first_name", help="The person's first name", type=str, required=False)
+@click.option("--first-name", help="The person's first name", type=str, required=False)
 @click.option("--hobbies", help="The person's hobbies", type=cli.StrList, required=False)
-@click.option("--last_name", help="The person's last name", type=str, required=False)
+@click.option("--last-name", help="The person's last name", type=str, required=False)
+@click.argument("uuid", type=str)
 @click.pass_obj
 @firestone_utils.click_coro
 @api_exc
-async def persons_uuid_put(ctx_obj, age, first_name, hobbies, last_name):
+async def persons_uuid_put(ctx_obj, age, first_name, hobbies, last_name, uuid):
     """Put a new person in this collection, with the given UUId key"""
     api_obj = ctx_obj["api_obj"]
     params = {
@@ -433,9 +437,11 @@ async def persons_uuid_put(ctx_obj, age, first_name, hobbies, last_name):
         "first_name": first_name,
         "hobbies": hobbies,
         "last_name": last_name,
+        "uuid": uuid,
     }
 
-    resp = await api_obj.persons_uuid_put(**params)
+    req_body = update_person_model.UpdatePerson(**params)
+    resp = await api_obj.persons_uuid_put(uuid, req_body)
     _LOGGER.debug(f"resp: {resp}")
 
     if isinstance(resp, list):
