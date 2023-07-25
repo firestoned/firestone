@@ -145,12 +145,8 @@ def get_method_op(
     elif method == "put":
         _LOGGER.debug(f"Getting {method} operation")
         request_schema = copy.deepcopy(schema)
-        if comp_name:
+        if "items" in request_schema and comp_name:
             request_schema = {"$ref": f"#/components/schemas/{comp_name}"}
-            if attr_name:
-                request_schema = {
-                    "$ref": f"#/components/schemas/{comp_name}/properties/{attr_name}"
-                }
     _LOGGER.debug(f"request_schema: {request_schema}")
 
     if request_schema:

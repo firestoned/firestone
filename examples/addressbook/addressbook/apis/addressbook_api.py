@@ -87,9 +87,7 @@ async def addressbook_address_key_addrtype_head(
 )
 async def addressbook_address_key_addrtype_put(
     address_key: str = Path(None, description=""),
-    addressbook: Addressbook = Body(
-        None, description="The request body for /addressbook/{address_key}/addrtype"
-    ),
+    body: str = Body(None, description="The request body for /addressbook/{address_key}/addrtype"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /addressbook/{address_key}/addrtype"""
@@ -155,9 +153,7 @@ async def addressbook_address_key_city_head(
 )
 async def addressbook_address_key_city_put(
     address_key: str = Path(None, description=""),
-    addressbook: Addressbook = Body(
-        None, description="The request body for /addressbook/{address_key}/city"
-    ),
+    body: str = Body(None, description="The request body for /addressbook/{address_key}/city"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /addressbook/{address_key}/city"""
@@ -223,9 +219,7 @@ async def addressbook_address_key_country_head(
 )
 async def addressbook_address_key_country_put(
     address_key: str = Path(None, description=""),
-    addressbook: Addressbook = Body(
-        None, description="The request body for /addressbook/{address_key}/country"
-    ),
+    body: str = Body(None, description="The request body for /addressbook/{address_key}/country"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /addressbook/{address_key}/country"""
@@ -506,7 +500,7 @@ async def addressbook_address_key_person_uuid_age_head(
 async def addressbook_address_key_person_uuid_age_put(
     address_key: str = Path(None, description=""),
     uuid: str = Path(None, description=""),
-    person: Person = Body(
+    body: int = Body(
         None, description="The request body for /addressbook/{address_key}/person/{uuid}/age"
     ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
@@ -595,7 +589,7 @@ async def addressbook_address_key_person_uuid_first_name_head(
 async def addressbook_address_key_person_uuid_first_name_put(
     address_key: str = Path(None, description=""),
     uuid: str = Path(None, description=""),
-    person: Person = Body(
+    body: str = Body(
         None, description="The request body for /addressbook/{address_key}/person/{uuid}/first_name"
     ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
@@ -774,7 +768,7 @@ async def addressbook_address_key_person_uuid_last_name_head(
 async def addressbook_address_key_person_uuid_last_name_put(
     address_key: str = Path(None, description=""),
     uuid: str = Path(None, description=""),
-    person: Person = Body(
+    body: str = Body(
         None, description="The request body for /addressbook/{address_key}/person/{uuid}/last_name"
     ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
@@ -898,9 +892,7 @@ async def addressbook_address_key_state_head(
 )
 async def addressbook_address_key_state_put(
     address_key: str = Path(None, description=""),
-    addressbook: Addressbook = Body(
-        None, description="The request body for /addressbook/{address_key}/state"
-    ),
+    body: str = Body(None, description="The request body for /addressbook/{address_key}/state"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /addressbook/{address_key}/state"""
@@ -966,9 +958,7 @@ async def addressbook_address_key_street_head(
 )
 async def addressbook_address_key_street_put(
     address_key: str = Path(None, description=""),
-    addressbook: Addressbook = Body(
-        None, description="The request body for /addressbook/{address_key}/street"
-    ),
+    body: str = Body(None, description="The request body for /addressbook/{address_key}/street"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /addressbook/{address_key}/street"""

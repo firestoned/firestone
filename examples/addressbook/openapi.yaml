@@ -293,7 +293,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/addressbook'
+              description: The address type, e.g. work or home
+              enum:
+              - work
+              - home
+              type: string
         description: The request body for /addressbook/{address_key}/addrtype
         required: true
       responses:
@@ -374,7 +378,8 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/addressbook'
+              description: The city of this address
+              type: string
         description: The request body for /addressbook/{address_key}/city
         required: true
       responses:
@@ -455,7 +460,8 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/addressbook'
+              description: The country of this address
+              type: string
         description: The request body for /addressbook/{address_key}/country
         required: true
       responses:
@@ -875,7 +881,8 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/person'
+              description: The person's age
+              type: integer
         description: The request body for /addressbook/{address_key}/person/{uuid}/age
         required: true
       responses:
@@ -976,7 +983,8 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/person'
+              description: The person's first name
+              type: string
         description: The request body for /addressbook/{address_key}/person/{uuid}/first_name
         required: true
       responses:
@@ -1180,7 +1188,8 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/person'
+              description: The person's last name
+              type: string
         description: The request body for /addressbook/{address_key}/person/{uuid}/last_name
         required: true
       responses:
@@ -1261,7 +1270,8 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/addressbook'
+              description: The state of this address
+              type: string
         description: The request body for /addressbook/{address_key}/state
         required: true
       responses:
@@ -1342,7 +1352,8 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/addressbook'
+              description: The street and civic number of this address
+              type: string
         description: The request body for /addressbook/{address_key}/street
         required: true
       responses:
@@ -1560,7 +1571,8 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/person'
+              description: The person's age
+              type: integer
         description: The request body for /persons/{uuid}/age
         required: true
       responses:
@@ -1641,7 +1653,8 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/person'
+              description: The person's first name
+              type: string
         description: The request body for /persons/{uuid}/first_name
         required: true
       responses:
@@ -1805,7 +1818,8 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/person'
+              description: The person's last name
+              type: string
         description: The request body for /persons/{uuid}/last_name
         required: true
       responses:

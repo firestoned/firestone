@@ -120,7 +120,7 @@ async def persons_uuid_age_head(
 )
 async def persons_uuid_age_put(
     uuid: str = Path(None, description=""),
-    person: Person = Body(None, description="The request body for /persons/{uuid}/age"),
+    body: int = Body(None, description="The request body for /persons/{uuid}/age"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> int:
     """put operation for /persons/{uuid}/age"""
@@ -202,7 +202,7 @@ async def persons_uuid_first_name_head(
 )
 async def persons_uuid_first_name_put(
     uuid: str = Path(None, description=""),
-    person: Person = Body(None, description="The request body for /persons/{uuid}/first_name"),
+    body: str = Body(None, description="The request body for /persons/{uuid}/first_name"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /persons/{uuid}/first_name"""
@@ -367,7 +367,7 @@ async def persons_uuid_last_name_head(
 )
 async def persons_uuid_last_name_put(
     uuid: str = Path(None, description=""),
-    person: Person = Body(None, description="The request body for /persons/{uuid}/last_name"),
+    body: str = Body(None, description="The request body for /persons/{uuid}/last_name"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /persons/{uuid}/last_name"""
