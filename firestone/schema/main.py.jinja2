@@ -15,8 +15,11 @@ from {{ client_pkg }} import api_client
 from {{ client_pkg }} import configuration
 from {{ client_pkg }} import exceptions
 {% for rsrc in rsrcs -%}
+{% set comp_name = rsrc["name"] if not rsrc["name"].endswith("s") else rsrc["name"][:-1] %}
 from {{ client_pkg }}.api import {{ rsrc["name"] }}_api
-from {{ client_pkg }}.models import {{ rsrc["name"] }} as {{ rsrc["name"] }}_model
+from {{ client_pkg }}.models import {{ comp_name }} as {{ comp_name }}_model
+from {{ client_pkg }}.models import create_{{ comp_name }} as create_{{ comp_name }}_model
+from {{ client_pkg }}.models import update_{{ comp_name }} as update_{{ comp_name }}_model
 {% endfor %}
 
 _LOGGER = logging.getLogger(__name__)
@@ -46,27 +49,45 @@ def api_exc(func):
 )
 @click.option(
     "--api-url",
-    help="The URL to the API",
-    required=True,
+    help="The API url, e.g. https://localhost",
     envvar="API_URL",
+)
+@click.option(
+    "--client-cert",
+    help="Path to the client cert for mutual TLS",
+    envvar="CLIENT_CERT",
+)
+@click.option(
+    "--client-key",
+    help="Path to the client key for mutual TLS",
+    envvar="CLIENT_KEY",
 )
 @click.option("--trust-proxy", help="Trust the proxy env vars", is_flag=True, default=False)
 @click.option("--threads", help="The number of threads for client side", type=int, default=1)
 @click.pass_context
-def main(ctx, debug, api_key, api_url, threads, trust_proxy):
+def main(ctx, debug, api_key, api_url, client_cert, client_key, threads, trust_proxy):
     """{{ title }}
 
     {{ description }}
     """
     if not trust_proxy:
+        # Convert to loop
         if "http_proxy" in os.environ:
             del os.environ["http_proxy"]
         if "https_proxy" in os.environ:
+            del os.environ["all_https_proxy"]
+        if "all_http_proxy" in os.environ:
+            del os.environ["all_http_proxy"]
+        if "all_https_proxy" in os.environ:
             del os.environ["https_proxy"]
         if "HTTP_PROXY" in os.environ:
             del os.environ["HTTP_PROXY"]
         if "HTTPS_PROXY" in os.environ:
             del os.environ["HTTPS_PROXY"]
+        if "ALL_HTTP_PROXY" in os.environ:
+            del os.environ["ALL_HTTP_PROXY"]
+        if "ALL_HTTPS_PROXY" in os.environ:
+            del os.environ["ALL_HTTPS_PROXY"]
 
     try:
         cli.init_logging("{{ pkg }}.resources.logging", "cli.conf")
@@ -90,6 +111,10 @@ def main(ctx, debug, api_key, api_url, threads, trust_proxy):
     config.debug = debug
     if api_key:
         config.access_token = api_key
+    if client_cert:
+        config.cert_file = client_cert
+    if client_key:
+        config.key_file = client_key
     aclient = api_client.ApiClient(configuration=config, pool_threads=threads)
 
     ctx.obj = {
@@ -125,8 +150,12 @@ async def {{ op["id"] }}(ctx_obj{% for attr in op["attrs"]|sort(attribute='name'
         "{{ attr["name"] }}":  {{ attr["name"].replace("-", "_") }},
         {% endfor -%}
     }
+    {% set comp_name = rsrc["name"] if not rsrc["name"].endswith("s") else rsrc["name"][:-1] %}
     {% if op["name"] == "create" %}
-    req_body = {{ rsrc["name"] }}_model.{{ rsrc["name"].capitalize() }}(**params)
+    req_body = create_{{ comp_name }}_model.Create{{ comp_name.capitalize() }}(**params)
+    resp = await api_obj.{{ op["id"] }}(req_body)
+    {% elif op["name"] == "update" %}
+    req_body = update_{{ comp_name }}_model.Update{{ comp_name.capitalize() }}(**params)
     resp = await api_obj.{{ op["id"] }}(req_body)
     {% else %}
     resp = await api_obj.{{ op["id"] }}(**params)

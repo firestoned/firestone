@@ -23,9 +23,9 @@ from pydantic import BaseModel, Field, StrictStr, conlist, validator
 from addressbook.client.models.person import Person
 
 
-class Addressbook(BaseModel):
+class UpdateAddressbook(BaseModel):
     """
-    Addressbook
+    UpdateAddressbook
     """
 
     addrtype: Optional[StrictStr] = Field(None, description="The address type, e.g. work or home")
@@ -66,8 +66,8 @@ class Addressbook(BaseModel):
         return json.dumps(self.to_dict())
 
     @classmethod
-    def from_json(cls, json_str: str) -> Addressbook:
-        """Create an instance of Addressbook from a JSON string"""
+    def from_json(cls, json_str: str) -> UpdateAddressbook:
+        """Create an instance of UpdateAddressbook from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self):
@@ -79,15 +79,15 @@ class Addressbook(BaseModel):
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: dict) -> Addressbook:
-        """Create an instance of Addressbook from a dict"""
+    def from_dict(cls, obj: dict) -> UpdateAddressbook:
+        """Create an instance of UpdateAddressbook from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
-            return Addressbook.parse_obj(obj)
+            return UpdateAddressbook.parse_obj(obj)
 
-        _obj = Addressbook.parse_obj(
+        _obj = UpdateAddressbook.parse_obj(
             {
                 "addrtype": obj.get("addrtype"),
                 "city": obj.get("city"),

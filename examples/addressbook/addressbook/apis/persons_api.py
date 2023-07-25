@@ -17,36 +17,18 @@ from fastapi import (  # noqa: F401
 )
 
 from addressbook.models.extra_models import TokenModel  # noqa: F401
-from addressbook.models.addressbook_address_key_person_uuid_put_request_inner import (
-    AddressbookAddressKeyPersonUuidPutRequestInner,
-)
-from addressbook.models.persons import Persons
+from addressbook.models.create_person import CreatePerson
+from addressbook.models.person import Person
+from addressbook.models.update_person import UpdatePerson
 from addressbook.security_api import get_token_bearer_auth
 
 router = APIRouter()
 
 
-@router.delete(
-    "/persons",
-    responses={
-        200: {"model": Persons, "description": "Response for OK"},
-    },
-    tags=["persons"],
-    response_model_by_alias=True,
-)
-async def persons_delete(
-    limit: int = Query(None, description="Limit the number of responses back"),
-    offset: int = Query(None, description="The offset to start returning resources"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> Persons:
-    """delete operation for /persons"""
-    ...
-
-
 @router.get(
     "/persons",
     responses={
-        200: {"model": List[Persons], "description": "Response for OK"},
+        200: {"model": List[Person], "description": "Response for OK"},
     },
     tags=["persons"],
     response_model_by_alias=True,
@@ -56,60 +38,26 @@ async def persons_get(
     limit: int = Query(None, description="Limit the number of responses back"),
     offset: int = Query(None, description="The offset to start returning resources"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> List[Persons]:
-    """get operation for /persons"""
-    ...
-
-
-@router.head(
-    "/persons",
-    responses={
-        200: {"description": "Default HEAD response"},
-    },
-    tags=["persons"],
-    response_model_by_alias=True,
-)
-async def persons_head(
-    limit: int = Query(None, description="Limit the number of responses back"),
-    offset: int = Query(None, description="The offset to start returning resources"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> None:
-    """head operation for /persons"""
-    ...
-
-
-@router.patch(
-    "/persons",
-    responses={
-        200: {"model": Persons, "description": "Response for OK"},
-    },
-    tags=["persons"],
-    response_model_by_alias=True,
-)
-async def persons_patch(
-    limit: int = Query(None, description="Limit the number of responses back"),
-    offset: int = Query(None, description="The offset to start returning resources"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> Persons:
-    """patch operation for /persons"""
+) -> List[Person]:
+    """List all persons in this collection"""
     ...
 
 
 @router.post(
     "/persons",
     responses={
-        201: {"model": Persons, "description": "Response for CREATED"},
+        201: {"model": CreatePerson, "description": "Response for CREATED"},
     },
     tags=["persons"],
     response_model_by_alias=True,
 )
 async def persons_post(
-    persons: Persons = Body(None, description="The request body for /persons"),
+    create_person: CreatePerson = Body(None, description="The request body for /persons"),
     limit: int = Query(None, description="Limit the number of responses back"),
     offset: int = Query(None, description="The offset to start returning resources"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> Persons:
-    """post operation for /persons"""
+) -> CreatePerson:
+    """Create a new person in this collection, a new UUID key will be created"""
     ...
 
 
@@ -172,7 +120,7 @@ async def persons_uuid_age_head(
 )
 async def persons_uuid_age_put(
     uuid: str = Path(None, description=""),
-    body: int = Body(None, description="The request body for /persons/{uuid}/age"),
+    person: Person = Body(None, description="The request body for /persons/{uuid}/age"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> int:
     """put operation for /persons/{uuid}/age"""
@@ -182,7 +130,7 @@ async def persons_uuid_age_put(
 @router.delete(
     "/persons/{uuid}",
     responses={
-        200: {"model": Persons, "description": "Response for OK"},
+        200: {"model": Person, "description": "Response for OK"},
     },
     tags=["persons"],
     response_model_by_alias=True,
@@ -190,7 +138,7 @@ async def persons_uuid_age_put(
 async def persons_uuid_delete(
     uuid: str = Path(None, description=""),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> Persons:
+) -> Person:
     """delete operation for /persons/{uuid}"""
     ...
 
@@ -254,7 +202,7 @@ async def persons_uuid_first_name_head(
 )
 async def persons_uuid_first_name_put(
     uuid: str = Path(None, description=""),
-    body: str = Body(None, description="The request body for /persons/{uuid}/first_name"),
+    person: Person = Body(None, description="The request body for /persons/{uuid}/first_name"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /persons/{uuid}/first_name"""
@@ -264,7 +212,7 @@ async def persons_uuid_first_name_put(
 @router.get(
     "/persons/{uuid}",
     responses={
-        200: {"model": Persons, "description": "Response for OK"},
+        200: {"model": Person, "description": "Response for OK"},
     },
     tags=["persons"],
     response_model_by_alias=True,
@@ -273,8 +221,8 @@ async def persons_uuid_get(
     uuid: str = Path(None, description=""),
     last_name: str = Query(None, description="Filter by last name"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> Persons:
-    """get operation for /persons/{uuid}"""
+) -> Person:
+    """Get a specific person from this collection"""
     ...
 
 
@@ -290,7 +238,7 @@ async def persons_uuid_head(
     uuid: str = Path(None, description=""),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
-    """head operation for /persons/{uuid}"""
+    """Determine the existence and size of this person"""
     ...
 
 
@@ -353,9 +301,7 @@ async def persons_uuid_hobbies_head(
 )
 async def persons_uuid_hobbies_put(
     uuid: str = Path(None, description=""),
-    request_body: List[str] = Body(
-        None, description="The request body for /persons/{uuid}/hobbies"
-    ),
+    person: Person = Body(None, description="The request body for /persons/{uuid}/hobbies"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> List[str]:
     """put operation for /persons/{uuid}/hobbies"""
@@ -421,43 +367,25 @@ async def persons_uuid_last_name_head(
 )
 async def persons_uuid_last_name_put(
     uuid: str = Path(None, description=""),
-    body: str = Body(None, description="The request body for /persons/{uuid}/last_name"),
+    person: Person = Body(None, description="The request body for /persons/{uuid}/last_name"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /persons/{uuid}/last_name"""
     ...
 
 
-@router.patch(
-    "/persons/{uuid}",
-    responses={
-        200: {"model": Persons, "description": "Response for OK"},
-    },
-    tags=["persons"],
-    response_model_by_alias=True,
-)
-async def persons_uuid_patch(
-    uuid: str = Path(None, description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> Persons:
-    """patch operation for /persons/{uuid}"""
-    ...
-
-
 @router.put(
     "/persons/{uuid}",
     responses={
-        200: {"model": Persons, "description": "Response for OK"},
+        200: {"model": UpdatePerson, "description": "Response for OK"},
     },
     tags=["persons"],
     response_model_by_alias=True,
 )
 async def persons_uuid_put(
     uuid: str = Path(None, description=""),
-    addressbook_address_key_person_uuid_put_request_inner: List[
-        AddressbookAddressKeyPersonUuidPutRequestInner
-    ] = Body(None, description="The request body for /persons/{uuid}"),
+    update_person: UpdatePerson = Body(None, description="The request body for /persons/{uuid}"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> Persons:
-    """put operation for /persons/{uuid}"""
+) -> UpdatePerson:
+    """Put a new person in this collection, with the given UUId key"""
     ...

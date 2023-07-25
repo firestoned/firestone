@@ -514,6 +514,7 @@ class TestOpenAPIAddInstanceAttrMethods(unittest.TestCase):
             "/foo/{foo_key}",
             paths,
             components={"schemas": {}},
+            methods={},
         )
 
         self.assertIsNotNone(paths)
@@ -541,6 +542,7 @@ class TestOpenAPIAddInstanceAttrMethods(unittest.TestCase):
             },
             "/foo/{foo_key}",
             paths,
+            methods={},
         )
 
         self.assertIsNotNone(paths)
@@ -560,7 +562,7 @@ class TestOpenAPIAddInstanceAttrMethods(unittest.TestCase):
             },
             "/foo/{foo_key}",
             paths,
-            methods=["get"],
+            methods={"instance_attrs": ["get"]},
             components={"schemas": {}},
         )
 
@@ -603,6 +605,7 @@ class TestOpenAPIAddInstanceAttrMethods(unittest.TestCase):
             "/foo/{foo_key}",
             paths,
             components={"schemas": {}},
+            methods={},
         )
 
         self.assertIsNotNone(paths)
@@ -658,7 +661,7 @@ class TestOpenAPIGetPaths(unittest.TestCase):
             },
             "/foo/{foo_key}",
             mock.ANY,
-            methods=[],
+            methods={},
             keys=[{"name": "foo_key", "schema": {"type": "string"}}],
             default_query_params=None,
             components=None,

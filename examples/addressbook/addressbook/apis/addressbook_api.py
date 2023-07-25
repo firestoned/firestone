@@ -18,13 +18,11 @@ from fastapi import (  # noqa: F401
 
 from addressbook.models.extra_models import TokenModel  # noqa: F401
 from addressbook.models.addressbook import Addressbook
-from addressbook.models.addressbook_address_key_person_uuid_put_request_inner import (
-    AddressbookAddressKeyPersonUuidPutRequestInner,
-)
-from addressbook.models.addressbook_address_key_put_request_inner import (
-    AddressbookAddressKeyPutRequestInner,
-)
+from addressbook.models.create_addressbook import CreateAddressbook
+from addressbook.models.create_person import CreatePerson
 from addressbook.models.person import Person
+from addressbook.models.update_addressbook import UpdateAddressbook
+from addressbook.models.update_person import UpdatePerson
 from addressbook.security_api import get_token_bearer_auth
 
 router = APIRouter()
@@ -89,7 +87,9 @@ async def addressbook_address_key_addrtype_head(
 )
 async def addressbook_address_key_addrtype_put(
     address_key: str = Path(None, description=""),
-    body: str = Body(None, description="The request body for /addressbook/{address_key}/addrtype"),
+    addressbook: Addressbook = Body(
+        None, description="The request body for /addressbook/{address_key}/addrtype"
+    ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /addressbook/{address_key}/addrtype"""
@@ -155,7 +155,9 @@ async def addressbook_address_key_city_head(
 )
 async def addressbook_address_key_city_put(
     address_key: str = Path(None, description=""),
-    body: str = Body(None, description="The request body for /addressbook/{address_key}/city"),
+    addressbook: Addressbook = Body(
+        None, description="The request body for /addressbook/{address_key}/city"
+    ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /addressbook/{address_key}/city"""
@@ -221,7 +223,9 @@ async def addressbook_address_key_country_head(
 )
 async def addressbook_address_key_country_put(
     address_key: str = Path(None, description=""),
-    body: str = Body(None, description="The request body for /addressbook/{address_key}/country"),
+    addressbook: Addressbook = Body(
+        None, description="The request body for /addressbook/{address_key}/country"
+    ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /addressbook/{address_key}/country"""
@@ -336,7 +340,7 @@ async def addressbook_address_key_people_head(
 )
 async def addressbook_address_key_people_put(
     address_key: str = Path(None, description=""),
-    request_body: List[str] = Body(
+    addressbook: Addressbook = Body(
         None, description="The request body for /addressbook/{address_key}/people"
     ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
@@ -421,20 +425,20 @@ async def addressbook_address_key_person_patch(
 @router.post(
     "/addressbook/{address_key}/person",
     responses={
-        201: {"model": Person, "description": "Response for CREATED"},
+        201: {"model": CreatePerson, "description": "Response for CREATED"},
     },
     tags=["addressbook"],
     response_model_by_alias=True,
 )
 async def addressbook_address_key_person_post(
     address_key: str = Path(None, description=""),
-    person: Person = Body(
+    create_person: CreatePerson = Body(
         None, description="The request body for /addressbook/{address_key}/person"
     ),
     limit: int = Query(None, description="Limit the number of responses back"),
     offset: int = Query(None, description="The offset to start returning resources"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> Person:
+) -> CreatePerson:
     """post operation for /addressbook/{address_key}/person"""
     ...
 
@@ -502,7 +506,7 @@ async def addressbook_address_key_person_uuid_age_head(
 async def addressbook_address_key_person_uuid_age_put(
     address_key: str = Path(None, description=""),
     uuid: str = Path(None, description=""),
-    body: int = Body(
+    person: Person = Body(
         None, description="The request body for /addressbook/{address_key}/person/{uuid}/age"
     ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
@@ -591,7 +595,7 @@ async def addressbook_address_key_person_uuid_first_name_head(
 async def addressbook_address_key_person_uuid_first_name_put(
     address_key: str = Path(None, description=""),
     uuid: str = Path(None, description=""),
-    body: str = Body(
+    person: Person = Body(
         None, description="The request body for /addressbook/{address_key}/person/{uuid}/first_name"
     ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
@@ -698,7 +702,7 @@ async def addressbook_address_key_person_uuid_hobbies_head(
 async def addressbook_address_key_person_uuid_hobbies_put(
     address_key: str = Path(None, description=""),
     uuid: str = Path(None, description=""),
-    request_body: List[str] = Body(
+    person: Person = Body(
         None, description="The request body for /addressbook/{address_key}/person/{uuid}/hobbies"
     ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
@@ -770,7 +774,7 @@ async def addressbook_address_key_person_uuid_last_name_head(
 async def addressbook_address_key_person_uuid_last_name_put(
     address_key: str = Path(None, description=""),
     uuid: str = Path(None, description=""),
-    body: str = Body(
+    person: Person = Body(
         None, description="The request body for /addressbook/{address_key}/person/{uuid}/last_name"
     ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
@@ -799,7 +803,7 @@ async def addressbook_address_key_person_uuid_patch(
 @router.put(
     "/addressbook/{address_key}/person/{uuid}",
     responses={
-        200: {"model": Person, "description": "Response for OK"},
+        200: {"model": UpdatePerson, "description": "Response for OK"},
     },
     tags=["addressbook"],
     response_model_by_alias=True,
@@ -807,11 +811,11 @@ async def addressbook_address_key_person_uuid_patch(
 async def addressbook_address_key_person_uuid_put(
     address_key: str = Path(None, description=""),
     uuid: str = Path(None, description=""),
-    addressbook_address_key_person_uuid_put_request_inner: List[
-        AddressbookAddressKeyPersonUuidPutRequestInner
-    ] = Body(None, description="The request body for /addressbook/{address_key}/person/{uuid}"),
+    update_person: UpdatePerson = Body(
+        None, description="The request body for /addressbook/{address_key}/person/{uuid}"
+    ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> Person:
+) -> UpdatePerson:
     """put operation for /addressbook/{address_key}/person/{uuid}"""
     ...
 
@@ -819,18 +823,18 @@ async def addressbook_address_key_person_uuid_put(
 @router.put(
     "/addressbook/{address_key}",
     responses={
-        200: {"model": Addressbook, "description": "Response for OK"},
+        200: {"model": UpdateAddressbook, "description": "Response for OK"},
     },
     tags=["addressbook"],
     response_model_by_alias=True,
 )
 async def addressbook_address_key_put(
     address_key: str = Path(None, description=""),
-    addressbook_address_key_put_request_inner: List[AddressbookAddressKeyPutRequestInner] = Body(
+    update_addressbook: UpdateAddressbook = Body(
         None, description="The request body for /addressbook/{address_key}"
     ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> Addressbook:
+) -> UpdateAddressbook:
     """Update an existing address in this addressbook, with the given address key."""
     ...
 
@@ -894,7 +898,9 @@ async def addressbook_address_key_state_head(
 )
 async def addressbook_address_key_state_put(
     address_key: str = Path(None, description=""),
-    body: str = Body(None, description="The request body for /addressbook/{address_key}/state"),
+    addressbook: Addressbook = Body(
+        None, description="The request body for /addressbook/{address_key}/state"
+    ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /addressbook/{address_key}/state"""
@@ -960,7 +966,9 @@ async def addressbook_address_key_street_head(
 )
 async def addressbook_address_key_street_put(
     address_key: str = Path(None, description=""),
-    body: str = Body(None, description="The request body for /addressbook/{address_key}/street"),
+    addressbook: Addressbook = Body(
+        None, description="The request body for /addressbook/{address_key}/street"
+    ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /addressbook/{address_key}/street"""
@@ -988,16 +996,18 @@ async def addressbook_get(
 @router.post(
     "/addressbook",
     responses={
-        201: {"model": Addressbook, "description": "Response for CREATED"},
+        201: {"model": CreateAddressbook, "description": "Response for CREATED"},
     },
     tags=["addressbook"],
     response_model_by_alias=True,
 )
 async def addressbook_post(
-    addressbook: Addressbook = Body(None, description="The request body for /addressbook"),
+    create_addressbook: CreateAddressbook = Body(
+        None, description="The request body for /addressbook"
+    ),
     limit: int = Query(None, description="Limit the number of responses back"),
     offset: int = Query(None, description="The offset to start returning resources"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> Addressbook:
+) -> CreateAddressbook:
     """Create a new address in this addressbook, a new address key will be created."""
     ...

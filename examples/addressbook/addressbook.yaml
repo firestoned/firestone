@@ -29,7 +29,6 @@ methods:
   resource:
     - get
     - post
-    - put
   instance:
     - delete
     - get
@@ -81,8 +80,6 @@ schema:
         schema:
           $ref: "person.yaml#/schema"
       addrtype:
-        methods:
-          - get
         description: The address type, e.g. work or home
         type: string
         # Don't expose this attribute in the URL/specification
