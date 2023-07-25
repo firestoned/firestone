@@ -75,7 +75,7 @@ def main(ctx, debug, api_key, api_url, client_cert, client_key, threads, trust_p
         if "http_proxy" in os.environ:
             del os.environ["http_proxy"]
         if "https_proxy" in os.environ:
-            del os.environ["all_https_proxy"]
+            del os.environ["https_proxy"]
         if "all_http_proxy" in os.environ:
             del os.environ["all_http_proxy"]
         if "all_https_proxy" in os.environ:
@@ -154,9 +154,6 @@ async def {{ op["id"] }}(ctx_obj{% for attr in op["attrs"]|sort(attribute='name'
     {% if op["name"] == "create" %}
     req_body = create_{{ comp_name }}_model.Create{{ comp_name.capitalize() }}(**params)
     resp = await api_obj.{{ op["id"] }}(req_body)
-    {% elif op["name"] == "update" %}
-    req_body = update_{{ comp_name }}_model.Update{{ comp_name.capitalize() }}(**params)
-    resp = await api_obj.{{ op["id"] }}(req_body)
     {% else %}
     resp = await api_obj.{{ op["id"] }}(**params)
     {% endif -%}
@@ -178,7 +175,7 @@ async def {{ op["id"] }}(ctx_obj{% for attr in op["attrs"]|sort(attribute='name'
 {% if attr.get("argument") -%}
 @click.argument("{{ attr["name"] }}", type={{ attr["type"] }})
 {% else -%}
-@click.option("--{{ attr["name"] }}", help="{{ attr["description"] }}", type={{ attr["type"] }}, required={{ attr["required"] }})
+@click.option("--{{ attr["name"].replace("_", "-") }}", help="{{ attr["description"] }}", type={{ attr["type"] }}, required={{ attr["required"] }})
 {% endif -%}
 {% endfor -%}
 @click.pass_obj
@@ -189,13 +186,22 @@ async def {{ op["id"] }}(ctx_obj{% for attr in op["attrs"]|sort(attribute='name'
     api_obj = ctx_obj["api_obj"]
     params = {
         {% for attr in op["attrs"]|sort(attribute='name') -%}
+        {% if not attr.get("argument") -%}
         "{{ attr["name"] }}":  {{ attr["name"].replace("-", "_") }},
+        {% endif -%}
         {% endfor -%}
     }
+    {% set comp_name = rsrc["name"] if not rsrc["name"].endswith("s") else rsrc["name"][:-1] %}
     {% if op["name"] == "create" %}
-    req_body = {{ rsrc["name"] }}_model.{{ rsrc["name"].capitalize() }}()
-    req_body.from_dict(params)
+    req_body = create_{{ comp_name }}_model.{{ comp_name.capitalize(**params) }}()
     resp = await api_obj.{{ op["id"] }}(req_body)
+    {% elif op["name"] == "update" %}
+    req_body = update_{{ comp_name }}_model.Update{{ comp_name.capitalize() }}(**params)
+    resp = await api_obj.{{ op["id"] }}(
+        {% for attr in op["attrs"]|sort(attribute='name') -%}
+            {% if attr.get("argument") -%}{{ attr["name"] }}, {% endif -%}
+        {% endfor -%}
+        req_body)
     {% else %}
     resp = await api_obj.{{ op["id"] }}(**params)
     {% endif -%}

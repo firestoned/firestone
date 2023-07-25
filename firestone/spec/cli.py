@@ -29,14 +29,14 @@ def _get_op_name(method: str, top_level: bool) -> str:
     return None
 
 
-def params_to_attrs(params: list, required: list = None, keys: list = None):
+def params_to_attrs(params: list, required: list = None, key_names: list = None):
     """Convert the params from OpenAPI spec to Click attributes."""
     if not required:
         required = []
-    if not keys:
-        keys = []
+    if not key_names:
+        key_names = []
     _LOGGER.debug(f"params: {params}")
-    _LOGGER.debug(f"keys: {keys}")
+    _LOGGER.debug(f"key_names: {key_names}")
 
     attrs = []
     for param in params:
@@ -69,9 +69,11 @@ def params_to_attrs(params: list, required: list = None, keys: list = None):
 
         param_name = param["name"]
         required_val = param_name in required
+        _LOGGER.debug(f"param_name: {param_name}")
+        _LOGGER.debug(f"key_names: {key_names}")
         attrs.append(
             {
-                "argument": param_name in keys,
+                "argument": param_name in key_names,
                 "name": param_name,
                 "description": param.get("description"),
                 "type": cli_type,
@@ -81,19 +83,81 @@ def params_to_attrs(params: list, required: list = None, keys: list = None):
     return attrs
 
 
-def get_resource_attrs(schema: dict, check_required: bool = None):
+def get_resource_attrs(
+    schema: dict, params: dict = None, check_required: bool = None, key_names: list = None
+):
     """Get resource attributes."""
+    _LOGGER.debug(f"key_names: {key_names}")
     props = schema.get("items", {}).get("properties", {})
     tmp_attrs = [{"name": attr, **(props[attr])} for attr in props]
+    if params:
+        tmp_attrs.extend(params)
     _LOGGER.debug(f"tmp_attrs: {tmp_attrs}")
 
     required = schema["items"].get("required", []) if check_required else []
     _LOGGER.debug(f"required: {required}")
 
-    attrs = params_to_attrs(tmp_attrs, required)
+    attrs = params_to_attrs(tmp_attrs, required, key_names=key_names)
     _LOGGER.debug(f"attrs: {attrs}")
 
     return attrs
+
+
+def get_instance_ops(
+    rsrc_name: str,
+    schema: dict,
+    baseurl: str,
+    methods: list = None,
+    descs: list = None,
+    keys: list = None,
+):
+    """Add the instance methods to the paths.
+
+    :param str rsrc_name: the resource name
+    :param dict schema: the schema for this resource name
+    :param str baseurl: the baseurl to use for paths
+    :param list methods: optional set of methods to create for
+    :param list keys: the keys for the instance of this resource
+    :param dict paths: the paths
+    """
+    _LOGGER.debug(f"keys: {keys}")
+    ops = []
+    top_level = False
+    for method in spec_openapi.RSRC_INST_HTTP_METHODS:
+        if methods and method not in methods:
+            _LOGGER.info(
+                f"Skipping the definition of {method} in resource instance generation, "
+                "as it is not in the defined methods requested"
+            )
+            continue
+
+        op_name = _get_op_name(method, top_level)
+        if not op_name:
+            continue
+        _LOGGER.info(f"Getting CLI attributes for {op_name}")
+
+        op = {}
+        op["name"] = op_name
+        op["id"] = spec_base.get_opid(baseurl, method)
+        op["description"] = descs.get(method, f"{op_name.capitalize()} operation for {rsrc_name}")
+
+        params = spec_openapi.get_params(baseurl, method, schema, keys=keys)
+        _LOGGER.debug(f"params: {params}")
+
+        key_names = [key["name"] for key in keys]
+        _LOGGER.debug(f"key_names: {key_names}")
+        attrs = params_to_attrs(params, key_names=key_names)
+
+        if op_name == "update":
+            attrs = get_resource_attrs(schema, params=params, key_names=key_names)
+
+        _LOGGER.debug(f"attrs: {attrs}")
+
+        op["attrs"] = attrs
+
+        ops.append(op)
+
+    return ops
 
 
 def get_resource_ops(
@@ -114,6 +178,7 @@ def get_resource_ops(
     :param list keys: the keys for the instance of this resource
     :param dict default_query_params: the ops
     """
+    _LOGGER.debug(f"keys: {keys}")
     ops = []
 
     top_level = True
@@ -144,59 +209,7 @@ def get_resource_ops(
 
         if op_name == "create":
             check_required = True
-            attrs = get_resource_attrs(schema, check_required)
-
-        _LOGGER.debug(f"attrs: {attrs}")
-
-        op["attrs"] = attrs
-
-        ops.append(op)
-
-    return ops
-
-
-def get_instance_ops(
-    rsrc_name: str,
-    schema: dict,
-    baseurl: str,
-    methods: list = None,
-    descs: list = None,
-    keys: list = None,
-):
-    """Add the instance methods to the paths.
-
-    :param str rsrc_name: the resource name
-    :param dict schema: the schema for this resource name
-    :param str baseurl: the baseurl to use for paths
-    :param list methods: optional set of methods to create for
-    :param list keys: the keys for the instance of this resource
-    :param dict paths: the paths
-    """
-    ops = []
-    top_level = False
-    for method in spec_openapi.RSRC_INST_HTTP_METHODS:
-        if methods and method not in methods:
-            _LOGGER.info(
-                f"Skipping the definition of {method} in resource instance generation, "
-                "as it is not in the defined methods requested"
-            )
-            continue
-
-        op_name = _get_op_name(method, top_level)
-        if not op_name:
-            continue
-
-        op = {}
-        op["name"] = op_name
-        op["id"] = spec_base.get_opid(baseurl, method)
-        op["description"] = descs.get(method, f"{op_name.capitalize()} operation for {rsrc_name}")
-
-        params = spec_openapi.get_params(baseurl, method, schema, keys=keys)
-        attrs = params_to_attrs(params, keys=[key["name"] for key in keys])
-
-        if op_name == "update":
-            attrs = get_resource_attrs(schema)
-
+            attrs = get_resource_attrs(schema, check_required=check_required)
         _LOGGER.debug(f"attrs: {attrs}")
 
         op["attrs"] = attrs
@@ -233,6 +246,8 @@ def get_ops(
         if not has_param:
             keys.append(key)
 
+    _LOGGER.debug(f"keys: {keys}")
+
     # 1. Add operations to high-level baseurl
     ops["resource"] = get_resource_ops(
         rsrc_name,
@@ -247,7 +262,7 @@ def get_ops(
     instance_baseurl = "/".join([baseurl, f"{{{key['name']}}}"])
     _LOGGER.debug(f"instance_baseurl: {instance_baseurl}")
 
-    # 2. Add paths for each attribute
+    # 2. Get instance operations
     ops["instance"] = get_instance_ops(
         rsrc_name,
         schema,
