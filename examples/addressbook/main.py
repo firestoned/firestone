@@ -222,9 +222,7 @@ async def addressbook_get(ctx_obj, city, limit, offset):
 async def addressbook_address_key_delete(ctx_obj, address_key):
     """Delete an address from this addressbook."""
     api_obj = ctx_obj["api_obj"]
-    params = {
-        "address_key": address_key,
-    }
+    params = {}
 
     resp = await api_obj.addressbook_address_key_delete(**params)
     _LOGGER.debug(f"resp: {resp}")
@@ -245,7 +243,6 @@ async def addressbook_address_key_get(ctx_obj, address_key, city):
     """Get a specific address from this addressbook."""
     api_obj = ctx_obj["api_obj"]
     params = {
-        "address_key": address_key,
         "city": city,
     }
 
@@ -290,7 +287,6 @@ async def addressbook_address_key_put(
     """Update an existing address in this addressbook, with the given address key."""
     api_obj = ctx_obj["api_obj"]
     params = {
-        "address_key": address_key,
         "addrtype": addrtype,
         "city": city,
         "country": country,
@@ -384,9 +380,7 @@ async def persons_get(ctx_obj, last_name, limit, offset):
 async def persons_uuid_delete(ctx_obj, uuid):
     """Delete operation for persons"""
     api_obj = ctx_obj["api_obj"]
-    params = {
-        "uuid": uuid,
-    }
+    params = {}
 
     resp = await api_obj.persons_uuid_delete(**params)
     _LOGGER.debug(f"resp: {resp}")
@@ -408,7 +402,6 @@ async def persons_uuid_get(ctx_obj, last_name, uuid):
     api_obj = ctx_obj["api_obj"]
     params = {
         "last_name": last_name,
-        "uuid": uuid,
     }
 
     resp = await api_obj.persons_uuid_get(**params)
@@ -437,7 +430,6 @@ async def persons_uuid_put(ctx_obj, age, first_name, hobbies, last_name, uuid):
         "first_name": first_name,
         "hobbies": hobbies,
         "last_name": last_name,
-        "uuid": uuid,
     }
 
     req_body = update_person_model.UpdatePerson(**params)

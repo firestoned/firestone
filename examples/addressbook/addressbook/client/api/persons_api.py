@@ -967,8 +967,8 @@ class PersonsApi(object):
     async def persons_uuid_age_put(
         self,
         uuid: StrictStr,
-        person: Annotated[
-            Person, Field(..., description="The request body for /persons/{uuid}/age")
+        body: Annotated[
+            StrictInt, Field(..., description="The request body for /persons/{uuid}/age")
         ],
         **kwargs,
     ) -> int:  # noqa: E501
@@ -978,8 +978,8 @@ class PersonsApi(object):
     def persons_uuid_age_put(
         self,
         uuid: StrictStr,
-        person: Annotated[
-            Person, Field(..., description="The request body for /persons/{uuid}/age")
+        body: Annotated[
+            StrictInt, Field(..., description="The request body for /persons/{uuid}/age")
         ],
         async_req: Optional[bool] = True,
         **kwargs,
@@ -990,8 +990,8 @@ class PersonsApi(object):
     def persons_uuid_age_put(
         self,
         uuid: StrictStr,
-        person: Annotated[
-            Person, Field(..., description="The request body for /persons/{uuid}/age")
+        body: Annotated[
+            StrictInt, Field(..., description="The request body for /persons/{uuid}/age")
         ],
         async_req: Optional[bool] = None,
         **kwargs,
@@ -1002,13 +1002,13 @@ class PersonsApi(object):
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.persons_uuid_age_put(uuid, person, async_req=True)
+        >>> thread = api.persons_uuid_age_put(uuid, body, async_req=True)
         >>> result = thread.get()
 
         :param uuid: (required)
         :type uuid: str
-        :param person: The request body for /persons/{uuid}/age (required)
-        :type person: Person
+        :param body: The request body for /persons/{uuid}/age (required)
+        :type body: int
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _request_timeout: timeout setting for this request. If one
@@ -1027,14 +1027,14 @@ class PersonsApi(object):
             )
         if async_req is not None:
             kwargs["async_req"] = async_req
-        return self.persons_uuid_age_put_with_http_info(uuid, person, **kwargs)  # noqa: E501
+        return self.persons_uuid_age_put_with_http_info(uuid, body, **kwargs)  # noqa: E501
 
     @validate_arguments
     def persons_uuid_age_put_with_http_info(
         self,
         uuid: StrictStr,
-        person: Annotated[
-            Person, Field(..., description="The request body for /persons/{uuid}/age")
+        body: Annotated[
+            StrictInt, Field(..., description="The request body for /persons/{uuid}/age")
         ],
         **kwargs,
     ) -> ApiResponse:  # noqa: E501
@@ -1044,13 +1044,13 @@ class PersonsApi(object):
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.persons_uuid_age_put_with_http_info(uuid, person, async_req=True)
+        >>> thread = api.persons_uuid_age_put_with_http_info(uuid, body, async_req=True)
         >>> result = thread.get()
 
         :param uuid: (required)
         :type uuid: str
-        :param person: The request body for /persons/{uuid}/age (required)
-        :type person: Person
+        :param body: The request body for /persons/{uuid}/age (required)
+        :type body: int
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
@@ -1078,7 +1078,7 @@ class PersonsApi(object):
 
         _params = locals()
 
-        _all_params = ["uuid", "person"]
+        _all_params = ["uuid", "body"]
         _all_params.extend(
             [
                 "async_req",
@@ -1117,8 +1117,8 @@ class PersonsApi(object):
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params["person"] is not None:
-            _body_params = _params["person"]
+        if _params["body"] is not None:
+            _body_params = _params["body"]
 
         # set the HTTP header `Accept`
         _header_params["Accept"] = self.api_client.select_header_accept(
@@ -1808,8 +1808,8 @@ class PersonsApi(object):
     async def persons_uuid_first_name_put(
         self,
         uuid: StrictStr,
-        person: Annotated[
-            Person, Field(..., description="The request body for /persons/{uuid}/first_name")
+        body: Annotated[
+            StrictStr, Field(..., description="The request body for /persons/{uuid}/first_name")
         ],
         **kwargs,
     ) -> str:  # noqa: E501
@@ -1819,8 +1819,8 @@ class PersonsApi(object):
     def persons_uuid_first_name_put(
         self,
         uuid: StrictStr,
-        person: Annotated[
-            Person, Field(..., description="The request body for /persons/{uuid}/first_name")
+        body: Annotated[
+            StrictStr, Field(..., description="The request body for /persons/{uuid}/first_name")
         ],
         async_req: Optional[bool] = True,
         **kwargs,
@@ -1831,8 +1831,8 @@ class PersonsApi(object):
     def persons_uuid_first_name_put(
         self,
         uuid: StrictStr,
-        person: Annotated[
-            Person, Field(..., description="The request body for /persons/{uuid}/first_name")
+        body: Annotated[
+            StrictStr, Field(..., description="The request body for /persons/{uuid}/first_name")
         ],
         async_req: Optional[bool] = None,
         **kwargs,
@@ -1843,13 +1843,13 @@ class PersonsApi(object):
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.persons_uuid_first_name_put(uuid, person, async_req=True)
+        >>> thread = api.persons_uuid_first_name_put(uuid, body, async_req=True)
         >>> result = thread.get()
 
         :param uuid: (required)
         :type uuid: str
-        :param person: The request body for /persons/{uuid}/first_name (required)
-        :type person: Person
+        :param body: The request body for /persons/{uuid}/first_name (required)
+        :type body: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _request_timeout: timeout setting for this request. If one
@@ -1868,14 +1868,14 @@ class PersonsApi(object):
             )
         if async_req is not None:
             kwargs["async_req"] = async_req
-        return self.persons_uuid_first_name_put_with_http_info(uuid, person, **kwargs)  # noqa: E501
+        return self.persons_uuid_first_name_put_with_http_info(uuid, body, **kwargs)  # noqa: E501
 
     @validate_arguments
     def persons_uuid_first_name_put_with_http_info(
         self,
         uuid: StrictStr,
-        person: Annotated[
-            Person, Field(..., description="The request body for /persons/{uuid}/first_name")
+        body: Annotated[
+            StrictStr, Field(..., description="The request body for /persons/{uuid}/first_name")
         ],
         **kwargs,
     ) -> ApiResponse:  # noqa: E501
@@ -1885,13 +1885,13 @@ class PersonsApi(object):
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.persons_uuid_first_name_put_with_http_info(uuid, person, async_req=True)
+        >>> thread = api.persons_uuid_first_name_put_with_http_info(uuid, body, async_req=True)
         >>> result = thread.get()
 
         :param uuid: (required)
         :type uuid: str
-        :param person: The request body for /persons/{uuid}/first_name (required)
-        :type person: Person
+        :param body: The request body for /persons/{uuid}/first_name (required)
+        :type body: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
@@ -1919,7 +1919,7 @@ class PersonsApi(object):
 
         _params = locals()
 
-        _all_params = ["uuid", "person"]
+        _all_params = ["uuid", "body"]
         _all_params.extend(
             [
                 "async_req",
@@ -1958,8 +1958,8 @@ class PersonsApi(object):
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params["person"] is not None:
-            _body_params = _params["person"]
+        if _params["body"] is not None:
+            _body_params = _params["body"]
 
         # set the HTTP header `Accept`
         _header_params["Accept"] = self.api_client.select_header_accept(
@@ -3504,8 +3504,8 @@ class PersonsApi(object):
     async def persons_uuid_last_name_put(
         self,
         uuid: StrictStr,
-        person: Annotated[
-            Person, Field(..., description="The request body for /persons/{uuid}/last_name")
+        body: Annotated[
+            StrictStr, Field(..., description="The request body for /persons/{uuid}/last_name")
         ],
         **kwargs,
     ) -> str:  # noqa: E501
@@ -3515,8 +3515,8 @@ class PersonsApi(object):
     def persons_uuid_last_name_put(
         self,
         uuid: StrictStr,
-        person: Annotated[
-            Person, Field(..., description="The request body for /persons/{uuid}/last_name")
+        body: Annotated[
+            StrictStr, Field(..., description="The request body for /persons/{uuid}/last_name")
         ],
         async_req: Optional[bool] = True,
         **kwargs,
@@ -3527,8 +3527,8 @@ class PersonsApi(object):
     def persons_uuid_last_name_put(
         self,
         uuid: StrictStr,
-        person: Annotated[
-            Person, Field(..., description="The request body for /persons/{uuid}/last_name")
+        body: Annotated[
+            StrictStr, Field(..., description="The request body for /persons/{uuid}/last_name")
         ],
         async_req: Optional[bool] = None,
         **kwargs,
@@ -3539,13 +3539,13 @@ class PersonsApi(object):
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.persons_uuid_last_name_put(uuid, person, async_req=True)
+        >>> thread = api.persons_uuid_last_name_put(uuid, body, async_req=True)
         >>> result = thread.get()
 
         :param uuid: (required)
         :type uuid: str
-        :param person: The request body for /persons/{uuid}/last_name (required)
-        :type person: Person
+        :param body: The request body for /persons/{uuid}/last_name (required)
+        :type body: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _request_timeout: timeout setting for this request. If one
@@ -3564,14 +3564,14 @@ class PersonsApi(object):
             )
         if async_req is not None:
             kwargs["async_req"] = async_req
-        return self.persons_uuid_last_name_put_with_http_info(uuid, person, **kwargs)  # noqa: E501
+        return self.persons_uuid_last_name_put_with_http_info(uuid, body, **kwargs)  # noqa: E501
 
     @validate_arguments
     def persons_uuid_last_name_put_with_http_info(
         self,
         uuid: StrictStr,
-        person: Annotated[
-            Person, Field(..., description="The request body for /persons/{uuid}/last_name")
+        body: Annotated[
+            StrictStr, Field(..., description="The request body for /persons/{uuid}/last_name")
         ],
         **kwargs,
     ) -> ApiResponse:  # noqa: E501
@@ -3581,13 +3581,13 @@ class PersonsApi(object):
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.persons_uuid_last_name_put_with_http_info(uuid, person, async_req=True)
+        >>> thread = api.persons_uuid_last_name_put_with_http_info(uuid, body, async_req=True)
         >>> result = thread.get()
 
         :param uuid: (required)
         :type uuid: str
-        :param person: The request body for /persons/{uuid}/last_name (required)
-        :type person: Person
+        :param body: The request body for /persons/{uuid}/last_name (required)
+        :type body: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
@@ -3615,7 +3615,7 @@ class PersonsApi(object):
 
         _params = locals()
 
-        _all_params = ["uuid", "person"]
+        _all_params = ["uuid", "body"]
         _all_params.extend(
             [
                 "async_req",
@@ -3654,8 +3654,8 @@ class PersonsApi(object):
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params["person"] is not None:
-            _body_params = _params["person"]
+        if _params["body"] is not None:
+            _body_params = _params["body"]
 
         # set the HTTP header `Accept`
         _header_params["Accept"] = self.api_client.select_header_accept(

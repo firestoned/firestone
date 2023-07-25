@@ -549,8 +549,8 @@ class AddressbookApi(object):
     async def addressbook_address_key_addrtype_put(
         self,
         address_key: StrictStr,
-        addressbook: Annotated[
-            Addressbook,
+        body: Annotated[
+            StrictStr,
             Field(..., description="The request body for /addressbook/{address_key}/addrtype"),
         ],
         **kwargs,
@@ -561,8 +561,8 @@ class AddressbookApi(object):
     def addressbook_address_key_addrtype_put(
         self,
         address_key: StrictStr,
-        addressbook: Annotated[
-            Addressbook,
+        body: Annotated[
+            StrictStr,
             Field(..., description="The request body for /addressbook/{address_key}/addrtype"),
         ],
         async_req: Optional[bool] = True,
@@ -574,8 +574,8 @@ class AddressbookApi(object):
     def addressbook_address_key_addrtype_put(
         self,
         address_key: StrictStr,
-        addressbook: Annotated[
-            Addressbook,
+        body: Annotated[
+            StrictStr,
             Field(..., description="The request body for /addressbook/{address_key}/addrtype"),
         ],
         async_req: Optional[bool] = None,
@@ -587,13 +587,13 @@ class AddressbookApi(object):
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.addressbook_address_key_addrtype_put(address_key, addressbook, async_req=True)
+        >>> thread = api.addressbook_address_key_addrtype_put(address_key, body, async_req=True)
         >>> result = thread.get()
 
         :param address_key: (required)
         :type address_key: str
-        :param addressbook: The request body for /addressbook/{address_key}/addrtype (required)
-        :type addressbook: Addressbook
+        :param body: The request body for /addressbook/{address_key}/addrtype (required)
+        :type body: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _request_timeout: timeout setting for this request. If one
@@ -613,15 +613,15 @@ class AddressbookApi(object):
         if async_req is not None:
             kwargs["async_req"] = async_req
         return self.addressbook_address_key_addrtype_put_with_http_info(
-            address_key, addressbook, **kwargs
+            address_key, body, **kwargs
         )  # noqa: E501
 
     @validate_arguments
     def addressbook_address_key_addrtype_put_with_http_info(
         self,
         address_key: StrictStr,
-        addressbook: Annotated[
-            Addressbook,
+        body: Annotated[
+            StrictStr,
             Field(..., description="The request body for /addressbook/{address_key}/addrtype"),
         ],
         **kwargs,
@@ -632,13 +632,13 @@ class AddressbookApi(object):
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.addressbook_address_key_addrtype_put_with_http_info(address_key, addressbook, async_req=True)
+        >>> thread = api.addressbook_address_key_addrtype_put_with_http_info(address_key, body, async_req=True)
         >>> result = thread.get()
 
         :param address_key: (required)
         :type address_key: str
-        :param addressbook: The request body for /addressbook/{address_key}/addrtype (required)
-        :type addressbook: Addressbook
+        :param body: The request body for /addressbook/{address_key}/addrtype (required)
+        :type body: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
@@ -666,7 +666,7 @@ class AddressbookApi(object):
 
         _params = locals()
 
-        _all_params = ["address_key", "addressbook"]
+        _all_params = ["address_key", "body"]
         _all_params.extend(
             [
                 "async_req",
@@ -705,8 +705,8 @@ class AddressbookApi(object):
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params["addressbook"] is not None:
-            _body_params = _params["addressbook"]
+        if _params["body"] is not None:
+            _body_params = _params["body"]
 
         # set the HTTP header `Accept`
         _header_params["Accept"] = self.api_client.select_header_accept(
@@ -1247,8 +1247,8 @@ class AddressbookApi(object):
     async def addressbook_address_key_city_put(
         self,
         address_key: StrictStr,
-        addressbook: Annotated[
-            Addressbook,
+        body: Annotated[
+            StrictStr,
             Field(..., description="The request body for /addressbook/{address_key}/city"),
         ],
         **kwargs,
@@ -1259,8 +1259,8 @@ class AddressbookApi(object):
     def addressbook_address_key_city_put(
         self,
         address_key: StrictStr,
-        addressbook: Annotated[
-            Addressbook,
+        body: Annotated[
+            StrictStr,
             Field(..., description="The request body for /addressbook/{address_key}/city"),
         ],
         async_req: Optional[bool] = True,
@@ -1272,8 +1272,8 @@ class AddressbookApi(object):
     def addressbook_address_key_city_put(
         self,
         address_key: StrictStr,
-        addressbook: Annotated[
-            Addressbook,
+        body: Annotated[
+            StrictStr,
             Field(..., description="The request body for /addressbook/{address_key}/city"),
         ],
         async_req: Optional[bool] = None,
@@ -1285,13 +1285,13 @@ class AddressbookApi(object):
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.addressbook_address_key_city_put(address_key, addressbook, async_req=True)
+        >>> thread = api.addressbook_address_key_city_put(address_key, body, async_req=True)
         >>> result = thread.get()
 
         :param address_key: (required)
         :type address_key: str
-        :param addressbook: The request body for /addressbook/{address_key}/city (required)
-        :type addressbook: Addressbook
+        :param body: The request body for /addressbook/{address_key}/city (required)
+        :type body: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _request_timeout: timeout setting for this request. If one
@@ -1311,15 +1311,15 @@ class AddressbookApi(object):
         if async_req is not None:
             kwargs["async_req"] = async_req
         return self.addressbook_address_key_city_put_with_http_info(
-            address_key, addressbook, **kwargs
+            address_key, body, **kwargs
         )  # noqa: E501
 
     @validate_arguments
     def addressbook_address_key_city_put_with_http_info(
         self,
         address_key: StrictStr,
-        addressbook: Annotated[
-            Addressbook,
+        body: Annotated[
+            StrictStr,
             Field(..., description="The request body for /addressbook/{address_key}/city"),
         ],
         **kwargs,
@@ -1330,13 +1330,13 @@ class AddressbookApi(object):
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.addressbook_address_key_city_put_with_http_info(address_key, addressbook, async_req=True)
+        >>> thread = api.addressbook_address_key_city_put_with_http_info(address_key, body, async_req=True)
         >>> result = thread.get()
 
         :param address_key: (required)
         :type address_key: str
-        :param addressbook: The request body for /addressbook/{address_key}/city (required)
-        :type addressbook: Addressbook
+        :param body: The request body for /addressbook/{address_key}/city (required)
+        :type body: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
@@ -1364,7 +1364,7 @@ class AddressbookApi(object):
 
         _params = locals()
 
-        _all_params = ["address_key", "addressbook"]
+        _all_params = ["address_key", "body"]
         _all_params.extend(
             [
                 "async_req",
@@ -1403,8 +1403,8 @@ class AddressbookApi(object):
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params["addressbook"] is not None:
-            _body_params = _params["addressbook"]
+        if _params["body"] is not None:
+            _body_params = _params["body"]
 
         # set the HTTP header `Accept`
         _header_params["Accept"] = self.api_client.select_header_accept(
@@ -1945,8 +1945,8 @@ class AddressbookApi(object):
     async def addressbook_address_key_country_put(
         self,
         address_key: StrictStr,
-        addressbook: Annotated[
-            Addressbook,
+        body: Annotated[
+            StrictStr,
             Field(..., description="The request body for /addressbook/{address_key}/country"),
         ],
         **kwargs,
@@ -1957,8 +1957,8 @@ class AddressbookApi(object):
     def addressbook_address_key_country_put(
         self,
         address_key: StrictStr,
-        addressbook: Annotated[
-            Addressbook,
+        body: Annotated[
+            StrictStr,
             Field(..., description="The request body for /addressbook/{address_key}/country"),
         ],
         async_req: Optional[bool] = True,
@@ -1970,8 +1970,8 @@ class AddressbookApi(object):
     def addressbook_address_key_country_put(
         self,
         address_key: StrictStr,
-        addressbook: Annotated[
-            Addressbook,
+        body: Annotated[
+            StrictStr,
             Field(..., description="The request body for /addressbook/{address_key}/country"),
         ],
         async_req: Optional[bool] = None,
@@ -1983,13 +1983,13 @@ class AddressbookApi(object):
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.addressbook_address_key_country_put(address_key, addressbook, async_req=True)
+        >>> thread = api.addressbook_address_key_country_put(address_key, body, async_req=True)
         >>> result = thread.get()
 
         :param address_key: (required)
         :type address_key: str
-        :param addressbook: The request body for /addressbook/{address_key}/country (required)
-        :type addressbook: Addressbook
+        :param body: The request body for /addressbook/{address_key}/country (required)
+        :type body: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _request_timeout: timeout setting for this request. If one
@@ -2009,15 +2009,15 @@ class AddressbookApi(object):
         if async_req is not None:
             kwargs["async_req"] = async_req
         return self.addressbook_address_key_country_put_with_http_info(
-            address_key, addressbook, **kwargs
+            address_key, body, **kwargs
         )  # noqa: E501
 
     @validate_arguments
     def addressbook_address_key_country_put_with_http_info(
         self,
         address_key: StrictStr,
-        addressbook: Annotated[
-            Addressbook,
+        body: Annotated[
+            StrictStr,
             Field(..., description="The request body for /addressbook/{address_key}/country"),
         ],
         **kwargs,
@@ -2028,13 +2028,13 @@ class AddressbookApi(object):
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.addressbook_address_key_country_put_with_http_info(address_key, addressbook, async_req=True)
+        >>> thread = api.addressbook_address_key_country_put_with_http_info(address_key, body, async_req=True)
         >>> result = thread.get()
 
         :param address_key: (required)
         :type address_key: str
-        :param addressbook: The request body for /addressbook/{address_key}/country (required)
-        :type addressbook: Addressbook
+        :param body: The request body for /addressbook/{address_key}/country (required)
+        :type body: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
@@ -2062,7 +2062,7 @@ class AddressbookApi(object):
 
         _params = locals()
 
-        _all_params = ["address_key", "addressbook"]
+        _all_params = ["address_key", "body"]
         _all_params.extend(
             [
                 "async_req",
@@ -2101,8 +2101,8 @@ class AddressbookApi(object):
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params["addressbook"] is not None:
-            _body_params = _params["addressbook"]
+        if _params["body"] is not None:
+            _body_params = _params["body"]
 
         # set the HTTP header `Accept`
         _header_params["Accept"] = self.api_client.select_header_accept(
@@ -4941,8 +4941,8 @@ class AddressbookApi(object):
         self,
         address_key: StrictStr,
         uuid: StrictStr,
-        person: Annotated[
-            Person,
+        body: Annotated[
+            StrictInt,
             Field(
                 ..., description="The request body for /addressbook/{address_key}/person/{uuid}/age"
             ),
@@ -4956,8 +4956,8 @@ class AddressbookApi(object):
         self,
         address_key: StrictStr,
         uuid: StrictStr,
-        person: Annotated[
-            Person,
+        body: Annotated[
+            StrictInt,
             Field(
                 ..., description="The request body for /addressbook/{address_key}/person/{uuid}/age"
             ),
@@ -4972,8 +4972,8 @@ class AddressbookApi(object):
         self,
         address_key: StrictStr,
         uuid: StrictStr,
-        person: Annotated[
-            Person,
+        body: Annotated[
+            StrictInt,
             Field(
                 ..., description="The request body for /addressbook/{address_key}/person/{uuid}/age"
             ),
@@ -4987,15 +4987,15 @@ class AddressbookApi(object):
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.addressbook_address_key_person_uuid_age_put(address_key, uuid, person, async_req=True)
+        >>> thread = api.addressbook_address_key_person_uuid_age_put(address_key, uuid, body, async_req=True)
         >>> result = thread.get()
 
         :param address_key: (required)
         :type address_key: str
         :param uuid: (required)
         :type uuid: str
-        :param person: The request body for /addressbook/{address_key}/person/{uuid}/age (required)
-        :type person: Person
+        :param body: The request body for /addressbook/{address_key}/person/{uuid}/age (required)
+        :type body: int
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _request_timeout: timeout setting for this request. If one
@@ -5015,7 +5015,7 @@ class AddressbookApi(object):
         if async_req is not None:
             kwargs["async_req"] = async_req
         return self.addressbook_address_key_person_uuid_age_put_with_http_info(
-            address_key, uuid, person, **kwargs
+            address_key, uuid, body, **kwargs
         )  # noqa: E501
 
     @validate_arguments
@@ -5023,8 +5023,8 @@ class AddressbookApi(object):
         self,
         address_key: StrictStr,
         uuid: StrictStr,
-        person: Annotated[
-            Person,
+        body: Annotated[
+            StrictInt,
             Field(
                 ..., description="The request body for /addressbook/{address_key}/person/{uuid}/age"
             ),
@@ -5037,15 +5037,15 @@ class AddressbookApi(object):
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.addressbook_address_key_person_uuid_age_put_with_http_info(address_key, uuid, person, async_req=True)
+        >>> thread = api.addressbook_address_key_person_uuid_age_put_with_http_info(address_key, uuid, body, async_req=True)
         >>> result = thread.get()
 
         :param address_key: (required)
         :type address_key: str
         :param uuid: (required)
         :type uuid: str
-        :param person: The request body for /addressbook/{address_key}/person/{uuid}/age (required)
-        :type person: Person
+        :param body: The request body for /addressbook/{address_key}/person/{uuid}/age (required)
+        :type body: int
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
@@ -5073,7 +5073,7 @@ class AddressbookApi(object):
 
         _params = locals()
 
-        _all_params = ["address_key", "uuid", "person"]
+        _all_params = ["address_key", "uuid", "body"]
         _all_params.extend(
             [
                 "async_req",
@@ -5115,8 +5115,8 @@ class AddressbookApi(object):
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params["person"] is not None:
-            _body_params = _params["person"]
+        if _params["body"] is not None:
+            _body_params = _params["body"]
 
         # set the HTTP header `Accept`
         _header_params["Accept"] = self.api_client.select_header_accept(
@@ -5851,8 +5851,8 @@ class AddressbookApi(object):
         self,
         address_key: StrictStr,
         uuid: StrictStr,
-        person: Annotated[
-            Person,
+        body: Annotated[
+            StrictStr,
             Field(
                 ...,
                 description="The request body for /addressbook/{address_key}/person/{uuid}/first_name",
@@ -5867,8 +5867,8 @@ class AddressbookApi(object):
         self,
         address_key: StrictStr,
         uuid: StrictStr,
-        person: Annotated[
-            Person,
+        body: Annotated[
+            StrictStr,
             Field(
                 ...,
                 description="The request body for /addressbook/{address_key}/person/{uuid}/first_name",
@@ -5884,8 +5884,8 @@ class AddressbookApi(object):
         self,
         address_key: StrictStr,
         uuid: StrictStr,
-        person: Annotated[
-            Person,
+        body: Annotated[
+            StrictStr,
             Field(
                 ...,
                 description="The request body for /addressbook/{address_key}/person/{uuid}/first_name",
@@ -5900,15 +5900,15 @@ class AddressbookApi(object):
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.addressbook_address_key_person_uuid_first_name_put(address_key, uuid, person, async_req=True)
+        >>> thread = api.addressbook_address_key_person_uuid_first_name_put(address_key, uuid, body, async_req=True)
         >>> result = thread.get()
 
         :param address_key: (required)
         :type address_key: str
         :param uuid: (required)
         :type uuid: str
-        :param person: The request body for /addressbook/{address_key}/person/{uuid}/first_name (required)
-        :type person: Person
+        :param body: The request body for /addressbook/{address_key}/person/{uuid}/first_name (required)
+        :type body: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _request_timeout: timeout setting for this request. If one
@@ -5928,7 +5928,7 @@ class AddressbookApi(object):
         if async_req is not None:
             kwargs["async_req"] = async_req
         return self.addressbook_address_key_person_uuid_first_name_put_with_http_info(
-            address_key, uuid, person, **kwargs
+            address_key, uuid, body, **kwargs
         )  # noqa: E501
 
     @validate_arguments
@@ -5936,8 +5936,8 @@ class AddressbookApi(object):
         self,
         address_key: StrictStr,
         uuid: StrictStr,
-        person: Annotated[
-            Person,
+        body: Annotated[
+            StrictStr,
             Field(
                 ...,
                 description="The request body for /addressbook/{address_key}/person/{uuid}/first_name",
@@ -5951,15 +5951,15 @@ class AddressbookApi(object):
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.addressbook_address_key_person_uuid_first_name_put_with_http_info(address_key, uuid, person, async_req=True)
+        >>> thread = api.addressbook_address_key_person_uuid_first_name_put_with_http_info(address_key, uuid, body, async_req=True)
         >>> result = thread.get()
 
         :param address_key: (required)
         :type address_key: str
         :param uuid: (required)
         :type uuid: str
-        :param person: The request body for /addressbook/{address_key}/person/{uuid}/first_name (required)
-        :type person: Person
+        :param body: The request body for /addressbook/{address_key}/person/{uuid}/first_name (required)
+        :type body: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
@@ -5987,7 +5987,7 @@ class AddressbookApi(object):
 
         _params = locals()
 
-        _all_params = ["address_key", "uuid", "person"]
+        _all_params = ["address_key", "uuid", "body"]
         _all_params.extend(
             [
                 "async_req",
@@ -6029,8 +6029,8 @@ class AddressbookApi(object):
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params["person"] is not None:
-            _body_params = _params["person"]
+        if _params["body"] is not None:
+            _body_params = _params["body"]
 
         # set the HTTP header `Accept`
         _header_params["Accept"] = self.api_client.select_header_accept(
@@ -7697,8 +7697,8 @@ class AddressbookApi(object):
         self,
         address_key: StrictStr,
         uuid: StrictStr,
-        person: Annotated[
-            Person,
+        body: Annotated[
+            StrictStr,
             Field(
                 ...,
                 description="The request body for /addressbook/{address_key}/person/{uuid}/last_name",
@@ -7713,8 +7713,8 @@ class AddressbookApi(object):
         self,
         address_key: StrictStr,
         uuid: StrictStr,
-        person: Annotated[
-            Person,
+        body: Annotated[
+            StrictStr,
             Field(
                 ...,
                 description="The request body for /addressbook/{address_key}/person/{uuid}/last_name",
@@ -7730,8 +7730,8 @@ class AddressbookApi(object):
         self,
         address_key: StrictStr,
         uuid: StrictStr,
-        person: Annotated[
-            Person,
+        body: Annotated[
+            StrictStr,
             Field(
                 ...,
                 description="The request body for /addressbook/{address_key}/person/{uuid}/last_name",
@@ -7746,15 +7746,15 @@ class AddressbookApi(object):
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.addressbook_address_key_person_uuid_last_name_put(address_key, uuid, person, async_req=True)
+        >>> thread = api.addressbook_address_key_person_uuid_last_name_put(address_key, uuid, body, async_req=True)
         >>> result = thread.get()
 
         :param address_key: (required)
         :type address_key: str
         :param uuid: (required)
         :type uuid: str
-        :param person: The request body for /addressbook/{address_key}/person/{uuid}/last_name (required)
-        :type person: Person
+        :param body: The request body for /addressbook/{address_key}/person/{uuid}/last_name (required)
+        :type body: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _request_timeout: timeout setting for this request. If one
@@ -7774,7 +7774,7 @@ class AddressbookApi(object):
         if async_req is not None:
             kwargs["async_req"] = async_req
         return self.addressbook_address_key_person_uuid_last_name_put_with_http_info(
-            address_key, uuid, person, **kwargs
+            address_key, uuid, body, **kwargs
         )  # noqa: E501
 
     @validate_arguments
@@ -7782,8 +7782,8 @@ class AddressbookApi(object):
         self,
         address_key: StrictStr,
         uuid: StrictStr,
-        person: Annotated[
-            Person,
+        body: Annotated[
+            StrictStr,
             Field(
                 ...,
                 description="The request body for /addressbook/{address_key}/person/{uuid}/last_name",
@@ -7797,15 +7797,15 @@ class AddressbookApi(object):
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.addressbook_address_key_person_uuid_last_name_put_with_http_info(address_key, uuid, person, async_req=True)
+        >>> thread = api.addressbook_address_key_person_uuid_last_name_put_with_http_info(address_key, uuid, body, async_req=True)
         >>> result = thread.get()
 
         :param address_key: (required)
         :type address_key: str
         :param uuid: (required)
         :type uuid: str
-        :param person: The request body for /addressbook/{address_key}/person/{uuid}/last_name (required)
-        :type person: Person
+        :param body: The request body for /addressbook/{address_key}/person/{uuid}/last_name (required)
+        :type body: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
@@ -7833,7 +7833,7 @@ class AddressbookApi(object):
 
         _params = locals()
 
-        _all_params = ["address_key", "uuid", "person"]
+        _all_params = ["address_key", "uuid", "body"]
         _all_params.extend(
             [
                 "async_req",
@@ -7875,8 +7875,8 @@ class AddressbookApi(object):
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params["person"] is not None:
-            _body_params = _params["person"]
+        if _params["body"] is not None:
+            _body_params = _params["body"]
 
         # set the HTTP header `Accept`
         _header_params["Accept"] = self.api_client.select_header_accept(
@@ -8998,8 +8998,8 @@ class AddressbookApi(object):
     async def addressbook_address_key_state_put(
         self,
         address_key: StrictStr,
-        addressbook: Annotated[
-            Addressbook,
+        body: Annotated[
+            StrictStr,
             Field(..., description="The request body for /addressbook/{address_key}/state"),
         ],
         **kwargs,
@@ -9010,8 +9010,8 @@ class AddressbookApi(object):
     def addressbook_address_key_state_put(
         self,
         address_key: StrictStr,
-        addressbook: Annotated[
-            Addressbook,
+        body: Annotated[
+            StrictStr,
             Field(..., description="The request body for /addressbook/{address_key}/state"),
         ],
         async_req: Optional[bool] = True,
@@ -9023,8 +9023,8 @@ class AddressbookApi(object):
     def addressbook_address_key_state_put(
         self,
         address_key: StrictStr,
-        addressbook: Annotated[
-            Addressbook,
+        body: Annotated[
+            StrictStr,
             Field(..., description="The request body for /addressbook/{address_key}/state"),
         ],
         async_req: Optional[bool] = None,
@@ -9036,13 +9036,13 @@ class AddressbookApi(object):
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.addressbook_address_key_state_put(address_key, addressbook, async_req=True)
+        >>> thread = api.addressbook_address_key_state_put(address_key, body, async_req=True)
         >>> result = thread.get()
 
         :param address_key: (required)
         :type address_key: str
-        :param addressbook: The request body for /addressbook/{address_key}/state (required)
-        :type addressbook: Addressbook
+        :param body: The request body for /addressbook/{address_key}/state (required)
+        :type body: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _request_timeout: timeout setting for this request. If one
@@ -9062,15 +9062,15 @@ class AddressbookApi(object):
         if async_req is not None:
             kwargs["async_req"] = async_req
         return self.addressbook_address_key_state_put_with_http_info(
-            address_key, addressbook, **kwargs
+            address_key, body, **kwargs
         )  # noqa: E501
 
     @validate_arguments
     def addressbook_address_key_state_put_with_http_info(
         self,
         address_key: StrictStr,
-        addressbook: Annotated[
-            Addressbook,
+        body: Annotated[
+            StrictStr,
             Field(..., description="The request body for /addressbook/{address_key}/state"),
         ],
         **kwargs,
@@ -9081,13 +9081,13 @@ class AddressbookApi(object):
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.addressbook_address_key_state_put_with_http_info(address_key, addressbook, async_req=True)
+        >>> thread = api.addressbook_address_key_state_put_with_http_info(address_key, body, async_req=True)
         >>> result = thread.get()
 
         :param address_key: (required)
         :type address_key: str
-        :param addressbook: The request body for /addressbook/{address_key}/state (required)
-        :type addressbook: Addressbook
+        :param body: The request body for /addressbook/{address_key}/state (required)
+        :type body: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
@@ -9115,7 +9115,7 @@ class AddressbookApi(object):
 
         _params = locals()
 
-        _all_params = ["address_key", "addressbook"]
+        _all_params = ["address_key", "body"]
         _all_params.extend(
             [
                 "async_req",
@@ -9154,8 +9154,8 @@ class AddressbookApi(object):
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params["addressbook"] is not None:
-            _body_params = _params["addressbook"]
+        if _params["body"] is not None:
+            _body_params = _params["body"]
 
         # set the HTTP header `Accept`
         _header_params["Accept"] = self.api_client.select_header_accept(
@@ -9696,8 +9696,8 @@ class AddressbookApi(object):
     async def addressbook_address_key_street_put(
         self,
         address_key: StrictStr,
-        addressbook: Annotated[
-            Addressbook,
+        body: Annotated[
+            StrictStr,
             Field(..., description="The request body for /addressbook/{address_key}/street"),
         ],
         **kwargs,
@@ -9708,8 +9708,8 @@ class AddressbookApi(object):
     def addressbook_address_key_street_put(
         self,
         address_key: StrictStr,
-        addressbook: Annotated[
-            Addressbook,
+        body: Annotated[
+            StrictStr,
             Field(..., description="The request body for /addressbook/{address_key}/street"),
         ],
         async_req: Optional[bool] = True,
@@ -9721,8 +9721,8 @@ class AddressbookApi(object):
     def addressbook_address_key_street_put(
         self,
         address_key: StrictStr,
-        addressbook: Annotated[
-            Addressbook,
+        body: Annotated[
+            StrictStr,
             Field(..., description="The request body for /addressbook/{address_key}/street"),
         ],
         async_req: Optional[bool] = None,
@@ -9734,13 +9734,13 @@ class AddressbookApi(object):
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.addressbook_address_key_street_put(address_key, addressbook, async_req=True)
+        >>> thread = api.addressbook_address_key_street_put(address_key, body, async_req=True)
         >>> result = thread.get()
 
         :param address_key: (required)
         :type address_key: str
-        :param addressbook: The request body for /addressbook/{address_key}/street (required)
-        :type addressbook: Addressbook
+        :param body: The request body for /addressbook/{address_key}/street (required)
+        :type body: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _request_timeout: timeout setting for this request. If one
@@ -9760,15 +9760,15 @@ class AddressbookApi(object):
         if async_req is not None:
             kwargs["async_req"] = async_req
         return self.addressbook_address_key_street_put_with_http_info(
-            address_key, addressbook, **kwargs
+            address_key, body, **kwargs
         )  # noqa: E501
 
     @validate_arguments
     def addressbook_address_key_street_put_with_http_info(
         self,
         address_key: StrictStr,
-        addressbook: Annotated[
-            Addressbook,
+        body: Annotated[
+            StrictStr,
             Field(..., description="The request body for /addressbook/{address_key}/street"),
         ],
         **kwargs,
@@ -9779,13 +9779,13 @@ class AddressbookApi(object):
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please pass async_req=True
 
-        >>> thread = api.addressbook_address_key_street_put_with_http_info(address_key, addressbook, async_req=True)
+        >>> thread = api.addressbook_address_key_street_put_with_http_info(address_key, body, async_req=True)
         >>> result = thread.get()
 
         :param address_key: (required)
         :type address_key: str
-        :param addressbook: The request body for /addressbook/{address_key}/street (required)
-        :type addressbook: Addressbook
+        :param body: The request body for /addressbook/{address_key}/street (required)
+        :type body: str
         :param async_req: Whether to execute the request asynchronously.
         :type async_req: bool, optional
         :param _preload_content: if False, the ApiResponse.data will
@@ -9813,7 +9813,7 @@ class AddressbookApi(object):
 
         _params = locals()
 
-        _all_params = ["address_key", "addressbook"]
+        _all_params = ["address_key", "body"]
         _all_params.extend(
             [
                 "async_req",
@@ -9852,8 +9852,8 @@ class AddressbookApi(object):
         _files = {}
         # process the body parameter
         _body_params = None
-        if _params["addressbook"] is not None:
-            _body_params = _params["addressbook"]
+        if _params["body"] is not None:
+            _body_params = _params["body"]
 
         # set the HTTP header `Accept`
         _header_params["Accept"] = self.api_client.select_header_accept(
