@@ -26,6 +26,18 @@ _LOGGER = logging.getLogger(__name__)
 # TODO add support for JSON Patch: https://www.jvt.me/posts/2022/05/29/openapi-json-patch/
 
 
+def _dedup_params(params: list):
+    seen = set()
+    new_list = []
+    for param in params:
+        name = param["name"]
+        if name not in seen:
+            seen.add(name)
+            new_list.append(param)
+
+    return new_list
+
+
 def get_responses(
     method: str,
     schema: dict,
@@ -135,6 +147,10 @@ def get_method_op(
         request_schema = copy.deepcopy(schema)
         if comp_name:
             request_schema = {"$ref": f"#/components/schemas/{comp_name}"}
+            if attr_name:
+                request_schema = {
+                    "$ref": f"#/components/schemas/{comp_name}/properties/{attr_name}"
+                }
     _LOGGER.debug(f"request_schema: {request_schema}")
 
     if request_schema:
@@ -260,6 +276,7 @@ def add_resource_methods(
         params = get_params(baseurl, method, schema, keys=keys)
         if default_query_params:
             params.extend(default_query_params)
+            params = _dedup_params(params)
         _LOGGER.debug(f"params: {params}")
         paths[baseurl][method]["parameters"] = params
 
