@@ -301,7 +301,9 @@ async def persons_uuid_hobbies_head(
 )
 async def persons_uuid_hobbies_put(
     uuid: str = Path(None, description=""),
-    person: Person = Body(None, description="The request body for /persons/{uuid}/hobbies"),
+    request_body: List[str] = Body(
+        None, description="The request body for /persons/{uuid}/hobbies"
+    ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> List[str]:
     """put operation for /persons/{uuid}/hobbies"""
