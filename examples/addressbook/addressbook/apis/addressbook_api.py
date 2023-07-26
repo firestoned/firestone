@@ -334,7 +334,7 @@ async def addressbook_address_key_people_head(
 )
 async def addressbook_address_key_people_put(
     address_key: str = Path(None, description=""),
-    addressbook: Addressbook = Body(
+    request_body: List[str] = Body(
         None, description="The request body for /addressbook/{address_key}/people"
     ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
@@ -696,7 +696,7 @@ async def addressbook_address_key_person_uuid_hobbies_head(
 async def addressbook_address_key_person_uuid_hobbies_put(
     address_key: str = Path(None, description=""),
     uuid: str = Path(None, description=""),
-    person: Person = Body(
+    request_body: List[str] = Body(
         None, description="The request body for /addressbook/{address_key}/person/{uuid}/hobbies"
     ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),

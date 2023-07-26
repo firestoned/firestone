@@ -120,6 +120,7 @@ def get_method_op(
     _LOGGER.debug(f"method: {method}")
     _LOGGER.debug(f"schema: {schema}")
     _LOGGER.debug(f"comp_name: {comp_name}")
+    _LOGGER.debug(f"attr_name: {attr_name}")
     _LOGGER.debug(f"is_list: {is_list}")
     opr["responses"] = get_responses(
         method,
@@ -145,7 +146,8 @@ def get_method_op(
     elif method == "put":
         _LOGGER.debug(f"Getting {method} operation")
         request_schema = copy.deepcopy(schema)
-        if "items" in request_schema and comp_name:
+        _LOGGER.debug(f"request_schema: {request_schema}")
+        if comp_name and not attr_name:
             request_schema = {"$ref": f"#/components/schemas/{comp_name}"}
     _LOGGER.debug(f"request_schema: {request_schema}")
 

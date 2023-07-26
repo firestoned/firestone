@@ -544,7 +544,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/addressbook'
+              description: A list of people's names living there
+              items:
+                type: string
+              type: array
         description: The request body for /addressbook/{address_key}/people
         required: true
       responses:
@@ -1087,7 +1090,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/person'
+              description: The person's hobbies
+              items:
+                type: string
+              type: array
         description: The request body for /addressbook/{address_key}/person/{uuid}/hobbies
         required: true
       responses:
@@ -1737,7 +1743,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/person'
+              description: The person's hobbies
+              items:
+                type: string
+              type: array
         description: The request body for /persons/{uuid}/hobbies
         required: true
       responses:
