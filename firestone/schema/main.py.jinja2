@@ -137,7 +137,7 @@ def {{ rsrc["name"] }}(ctx_obj):
 {% for op in rsrc["operations"]["resource"]|sort(attribute='name') -%}
 @{{ rsrc["name"] }}.command("{{ op["name"] }}")
 {% for attr in op["attrs"]|sort(attribute='name') -%}
-@click.option("--{{ attr["name"] }}", help="{{ attr["description"] }}", type={{ attr["type"] }}, required={{ attr["required"] }})
+@click.option("--{{ attr["name"].replace("_", "-") }}", help="{{ attr["description"] }}", type={{ attr["type"] }}, required={{ attr["required"] }})
 {% endfor -%}
 @click.pass_obj
 @firestone_utils.click_coro
