@@ -33,7 +33,10 @@ def api_exc(func):
         try:
             resp = await func(*args, **kwargs)
         except exceptions.ApiException as apie:
-            click.echo(apie.reason)
+            if apie.body:
+                click.echo(apie.body)
+            else:
+                click.echo(apie.reason)
             await api_obj.api_client.close()
         return resp
 
@@ -186,7 +189,7 @@ async def {{ op["id"] }}(ctx_obj{% for attr in op["attrs"]|sort(attribute='name'
     api_obj = ctx_obj["api_obj"]
     params = {
         {% for attr in op["attrs"]|sort(attribute='name') -%}
-        {% if not attr.get("argument") -%}
+        {% if not attr.get("argument") or op["name"] == "delete" -%}
         "{{ attr["name"] }}":  {{ attr["name"].replace("-", "_") }},
         {% endif -%}
         {% endfor -%}
