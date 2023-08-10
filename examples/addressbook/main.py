@@ -38,7 +38,10 @@ def api_exc(func):
         try:
             resp = await func(*args, **kwargs)
         except exceptions.ApiException as apie:
-            click.echo(apie.reason)
+            if apie.body:
+                click.echo(apie.body)
+            else:
+                click.echo(apie.reason)
             await api_obj.api_client.close()
         return resp
 
@@ -222,7 +225,9 @@ async def addressbook_get(ctx_obj, city, limit, offset):
 async def addressbook_address_key_delete(ctx_obj, address_key):
     """Delete an address from this addressbook."""
     api_obj = ctx_obj["api_obj"]
-    params = {}
+    params = {
+        "address_key": address_key,
+    }
 
     resp = await api_obj.addressbook_address_key_delete(**params)
     _LOGGER.debug(f"resp: {resp}")
@@ -317,9 +322,9 @@ def persons(ctx_obj):
 # pylint: disable=redefined-builtin
 @persons.command("create")
 @click.option("--age", help="The person's age", type=int, required=False)
-@click.option("--first_name", help="The person's first name", type=str, required=False)
+@click.option("--first-name", help="The person's first name", type=str, required=False)
 @click.option("--hobbies", help="The person's hobbies", type=cli.StrList, required=False)
-@click.option("--last_name", help="The person's last name", type=str, required=False)
+@click.option("--last-name", help="The person's last name", type=str, required=False)
 @click.pass_obj
 @firestone_utils.click_coro
 @api_exc
@@ -346,7 +351,7 @@ async def persons_post(ctx_obj, age, first_name, hobbies, last_name):
 
 
 @persons.command("list")
-@click.option("--last_name", help="Filter by last name", type=str, required=False)
+@click.option("--last-name", help="Filter by last name", type=str, required=False)
 @click.option("--limit", help="Limit the number of responses back", type=int, required=False)
 @click.option("--offset", help="The offset to start returning resources", type=int, required=False)
 @click.pass_obj
@@ -380,7 +385,9 @@ async def persons_get(ctx_obj, last_name, limit, offset):
 async def persons_uuid_delete(ctx_obj, uuid):
     """Delete operation for persons"""
     api_obj = ctx_obj["api_obj"]
-    params = {}
+    params = {
+        "uuid": uuid,
+    }
 
     resp = await api_obj.persons_uuid_delete(**params)
     _LOGGER.debug(f"resp: {resp}")
