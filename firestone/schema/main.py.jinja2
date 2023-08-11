@@ -151,7 +151,7 @@ async def {{ op["id"] }}(ctx_obj{% for attr in op["attrs"]|sort(attribute='name'
     params = {
         {% for attr in op["attrs"]|sort(attribute='name') -%}
         "{{ attr["name"] }}":  {{ attr["name"].replace("-", "_") }},
-        {% endfor -%}
+        {% endfor %}
     }
     {% set comp_name = rsrc["name"] if not rsrc["name"].endswith("s") else rsrc["name"][:-1] %}
     {% if op["name"] == "create" %}
@@ -164,12 +164,16 @@ async def {{ op["id"] }}(ctx_obj{% for attr in op["attrs"]|sort(attribute='name'
 
     if isinstance(resp, list):
         click.echo(json.dumps([obj.to_dict() for obj in resp]))
-    elif resp:
+        return
+
+    if resp:
         click.echo(json.dumps(resp.to_dict()))
-    else:
-        click.echo("No data returned")
+        return
+
+    click.echo("No data returned")
 
 {% endfor -%}
+
 
 {# high-level resource instance operations -#}
 {% for op in rsrc["operations"]["instance"]|sort(attribute='name') -%}
@@ -189,31 +193,37 @@ async def {{ op["id"] }}(ctx_obj{% for attr in op["attrs"]|sort(attribute='name'
     api_obj = ctx_obj["api_obj"]
     params = {
         {% for attr in op["attrs"]|sort(attribute='name') -%}
-        {% if not attr.get("argument") or op["name"] == "delete" -%}
+        {% if not attr.get("argument") -%}
         "{{ attr["name"] }}":  {{ attr["name"].replace("-", "_") }},
         {% endif -%}
-        {% endfor -%}
+        {% endfor %}
     }
     {% set comp_name = rsrc["name"] if not rsrc["name"].endswith("s") else rsrc["name"][:-1] %}
     {% if op["name"] == "create" %}
     req_body = create_{{ comp_name }}_model.{{ comp_name.capitalize(**params) }}()
-    resp = await api_obj.{{ op["id"] }}(req_body)
-    {% elif op["name"] == "update" %}
+    {% elif op["name"] in "update" %}
     req_body = update_{{ comp_name }}_model.Update{{ comp_name.capitalize() }}(**params)
     resp = await api_obj.{{ op["id"] }}(
         {% for attr in op["attrs"]|sort(attribute='name') -%}
             {% if attr.get("argument") -%}{{ attr["name"] }}, {% endif -%}
         {% endfor -%}
-        req_body)
+        req_body
+    )
     {% else %}
-    resp = await api_obj.{{ op["id"] }}(**params)
+    resp = await api_obj.{{ op["id"] }}(
+        {% for attr in op["attrs"]|sort(attribute='name') -%}
+            {% if attr.get("argument") -%}{{ attr["name"] }}, {% endif -%}
+        {% endfor -%}
+        **params
+    )
     {% endif -%}
     _LOGGER.debug(f"resp: {resp}")
 
     if isinstance(resp, list):
         print(json.dumps([obj.to_dict() for obj in resp]))
-    else:
-        print(json.dumps(resp.to_dict()) if resp else "None")
+        return
+
+    print(json.dumps(resp.to_dict()) if resp else "None")
 
 
 {% endfor -%}
