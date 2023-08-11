@@ -184,10 +184,13 @@ async def addressbook_post(ctx_obj, addrtype, city, country, people, person, sta
 
     if isinstance(resp, list):
         click.echo(json.dumps([obj.to_dict() for obj in resp]))
-    elif resp:
+        return
+
+    if resp:
         click.echo(json.dumps(resp.to_dict()))
-    else:
-        click.echo("No data returned")
+        return
+
+    click.echo("No data returned")
 
 
 @addressbook.command("list")
@@ -211,10 +214,13 @@ async def addressbook_get(ctx_obj, city, limit, offset):
 
     if isinstance(resp, list):
         click.echo(json.dumps([obj.to_dict() for obj in resp]))
-    elif resp:
+        return
+
+    if resp:
         click.echo(json.dumps(resp.to_dict()))
-    else:
-        click.echo("No data returned")
+        return
+
+    click.echo("No data returned")
 
 
 @addressbook.command("delete")
@@ -225,17 +231,16 @@ async def addressbook_get(ctx_obj, city, limit, offset):
 async def addressbook_address_key_delete(ctx_obj, address_key):
     """Delete an address from this addressbook."""
     api_obj = ctx_obj["api_obj"]
-    params = {
-        "address_key": address_key,
-    }
+    params = {}
 
-    resp = await api_obj.addressbook_address_key_delete(**params)
+    resp = await api_obj.addressbook_address_key_delete(address_key, **params)
     _LOGGER.debug(f"resp: {resp}")
 
     if isinstance(resp, list):
         print(json.dumps([obj.to_dict() for obj in resp]))
-    else:
-        print(json.dumps(resp.to_dict()) if resp else "None")
+        return
+
+    print(json.dumps(resp.to_dict()) if resp else "None")
 
 
 @addressbook.command("get")
@@ -251,13 +256,14 @@ async def addressbook_address_key_get(ctx_obj, address_key, city):
         "city": city,
     }
 
-    resp = await api_obj.addressbook_address_key_get(**params)
+    resp = await api_obj.addressbook_address_key_get(address_key, **params)
     _LOGGER.debug(f"resp: {resp}")
 
     if isinstance(resp, list):
         print(json.dumps([obj.to_dict() for obj in resp]))
-    else:
-        print(json.dumps(resp.to_dict()) if resp else "None")
+        return
+
+    print(json.dumps(resp.to_dict()) if resp else "None")
 
 
 @addressbook.command("update")
@@ -307,8 +313,9 @@ async def addressbook_address_key_put(
 
     if isinstance(resp, list):
         print(json.dumps([obj.to_dict() for obj in resp]))
-    else:
-        print(json.dumps(resp.to_dict()) if resp else "None")
+        return
+
+    print(json.dumps(resp.to_dict()) if resp else "None")
 
 
 @main.group()
@@ -344,10 +351,13 @@ async def persons_post(ctx_obj, age, first_name, hobbies, last_name):
 
     if isinstance(resp, list):
         click.echo(json.dumps([obj.to_dict() for obj in resp]))
-    elif resp:
+        return
+
+    if resp:
         click.echo(json.dumps(resp.to_dict()))
-    else:
-        click.echo("No data returned")
+        return
+
+    click.echo("No data returned")
 
 
 @persons.command("list")
@@ -371,10 +381,13 @@ async def persons_get(ctx_obj, last_name, limit, offset):
 
     if isinstance(resp, list):
         click.echo(json.dumps([obj.to_dict() for obj in resp]))
-    elif resp:
+        return
+
+    if resp:
         click.echo(json.dumps(resp.to_dict()))
-    else:
-        click.echo("No data returned")
+        return
+
+    click.echo("No data returned")
 
 
 @persons.command("delete")
@@ -385,17 +398,16 @@ async def persons_get(ctx_obj, last_name, limit, offset):
 async def persons_uuid_delete(ctx_obj, uuid):
     """Delete operation for persons"""
     api_obj = ctx_obj["api_obj"]
-    params = {
-        "uuid": uuid,
-    }
+    params = {}
 
-    resp = await api_obj.persons_uuid_delete(**params)
+    resp = await api_obj.persons_uuid_delete(uuid, **params)
     _LOGGER.debug(f"resp: {resp}")
 
     if isinstance(resp, list):
         print(json.dumps([obj.to_dict() for obj in resp]))
-    else:
-        print(json.dumps(resp.to_dict()) if resp else "None")
+        return
+
+    print(json.dumps(resp.to_dict()) if resp else "None")
 
 
 @persons.command("get")
@@ -411,13 +423,14 @@ async def persons_uuid_get(ctx_obj, last_name, uuid):
         "last_name": last_name,
     }
 
-    resp = await api_obj.persons_uuid_get(**params)
+    resp = await api_obj.persons_uuid_get(uuid, **params)
     _LOGGER.debug(f"resp: {resp}")
 
     if isinstance(resp, list):
         print(json.dumps([obj.to_dict() for obj in resp]))
-    else:
-        print(json.dumps(resp.to_dict()) if resp else "None")
+        return
+
+    print(json.dumps(resp.to_dict()) if resp else "None")
 
 
 @persons.command("update")
@@ -445,8 +458,9 @@ async def persons_uuid_put(ctx_obj, age, first_name, hobbies, last_name, uuid):
 
     if isinstance(resp, list):
         print(json.dumps([obj.to_dict() for obj in resp]))
-    else:
-        print(json.dumps(resp.to_dict()) if resp else "None")
+        return
+
+    print(json.dumps(resp.to_dict()) if resp else "None")
 
 
 if __name__ == "__main__":
