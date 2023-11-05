@@ -6,6 +6,7 @@ import functools
 import json
 import logging
 import os
+import sys
 
 import click
 from firestone_lib import cli
@@ -31,14 +32,14 @@ def api_exc(func):
         api_obj = args[0]["api_obj"]
         resp = None
         try:
-            resp = await func(*args, **kwargs)
+            return await func(*args, **kwargs)
         except exceptions.ApiException as apie:
             if apie.body:
                 click.echo(apie.body)
             else:
                 click.echo(apie.reason)
             await api_obj.api_client.close()
-        return resp
+        sys.exit(-1)
 
     return functools.update_wrapper(wrapper, func)
 
