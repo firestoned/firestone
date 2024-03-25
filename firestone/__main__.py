@@ -1,13 +1,14 @@
 """
 The main entry point for firestone.
 """
+
 import logging
 
 import click
 
 from firestone_lib import cli as firestone_cli
+from firestone_lib import resource as firestone_rsrc
 
-from firestone import resource as firestone_rsrc
 from firestone import spec as firestone_spec
 
 _LOGGER = logging.getLogger(__name__)

@@ -67,9 +67,8 @@ def api_exc(func):
     envvar="CLIENT_KEY",
 )
 @click.option("--trust-proxy", help="Trust the proxy env vars", is_flag=True, default=False)
-@click.option("--threads", help="The number of threads for client side", type=int, default=1)
 @click.pass_context
-def main(ctx, debug, api_key, api_url, client_cert, client_key, threads, trust_proxy):
+def main(ctx, debug, api_key, api_url, client_cert, client_key, trust_proxy):
     """{{ title }}
 
     {{ description }}
@@ -119,7 +118,7 @@ def main(ctx, debug, api_key, api_url, client_cert, client_key, threads, trust_p
         config.cert_file = client_cert
     if client_key:
         config.key_file = client_key
-    aclient = api_client.ApiClient(configuration=config, pool_threads=threads)
+    aclient = api_client.ApiClient(configuration=config)
 
     ctx.obj = {
         "api_client": aclient,
@@ -133,7 +132,15 @@ def main(ctx, debug, api_key, api_url, client_cert, client_key, threads, trust_p
 def {{ rsrc["name"] }}(ctx_obj):
     """High level command for an {{ rsrc["name"] }}."""
     _LOGGER.debug(f"ctx_obj: {ctx_obj}")
-    ctx_obj["api_obj"] = {{ rsrc["name"] }}_api.{{ rsrc["name"].capitalize() }}Api(api_client=ctx_obj["api_client"])
+    {% set clazz_name = rsrc["name"].capitalize() -%}
+    {% if "_" in clazz_name -%}
+    {% set new_clazz_name = [] -%}
+    {% for part in  clazz_name.split("_") -%}
+        {% set _ = new_clazz_name.append(part.capitalize()) -%}
+    {% endfor -%}
+    {% set clazz_name = "".join(new_clazz_name) -%}
+    {% endif -%}
+    ctx_obj["api_obj"] = {{ rsrc["name"] }}_api.{{ clazz_name }}Api(api_client=ctx_obj["api_client"])
 
 
 # pylint: disable=redefined-builtin

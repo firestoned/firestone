@@ -1,6 +1,7 @@
 """
 Test the firestone.spec.openapi module.
 """
+
 import http.client
 
 import unittest
@@ -8,6 +9,7 @@ from unittest import mock
 
 from firestone.spec import _base as spec_base
 from firestone.spec import openapi
+
 
 # pylint: disable=duplicate-code
 class TestOpenAPIGetResponses(unittest.TestCase):

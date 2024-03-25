@@ -1,6 +1,11 @@
 # coding: utf-8
 
 from typing import Dict, List  # noqa: F401
+import importlib
+import pkgutil
+
+from addressbook.apis.addressbook_api_base import BaseAddressbookApi
+import addressbook.impl
 
 from fastapi import (  # noqa: F401
     APIRouter,
@@ -27,6 +32,10 @@ from addressbook.security_api import get_token_bearer_auth
 
 router = APIRouter()
 
+ns_pkg = addressbook.impl
+for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
+    importlib.import_module(name)
+
 
 @router.delete(
     "/addressbook/{address_key}/addrtype",
@@ -37,11 +46,11 @@ router = APIRouter()
     response_model_by_alias=True,
 )
 async def addressbook_address_key_addrtype_delete(
-    address_key: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """delete operation for /addressbook/{address_key}/addrtype"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_addrtype_delete(address_key)
 
 
 @router.get(
@@ -53,12 +62,14 @@ async def addressbook_address_key_addrtype_delete(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_addrtype_get(
-    address_key: str = Path(None, description=""),
-    city: str = Query(None, description="Filter by city name"),
+    address_key: str = Path(..., description=""),
+    city: str = Query(None, description="Filter by city name", alias="city"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """get operation for /addressbook/{address_key}/addrtype"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_addrtype_get(
+        address_key, city
+    )
 
 
 @router.head(
@@ -70,11 +81,11 @@ async def addressbook_address_key_addrtype_get(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_addrtype_head(
-    address_key: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """head operation for /addressbook/{address_key}/addrtype"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_addrtype_head(address_key)
 
 
 @router.put(
@@ -86,12 +97,14 @@ async def addressbook_address_key_addrtype_head(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_addrtype_put(
-    address_key: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
     body: str = Body(None, description="The request body for /addressbook/{address_key}/addrtype"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /addressbook/{address_key}/addrtype"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_addrtype_put(
+        address_key, body
+    )
 
 
 @router.delete(
@@ -103,11 +116,11 @@ async def addressbook_address_key_addrtype_put(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_city_delete(
-    address_key: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """delete operation for /addressbook/{address_key}/city"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_city_delete(address_key)
 
 
 @router.get(
@@ -119,12 +132,12 @@ async def addressbook_address_key_city_delete(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_city_get(
-    address_key: str = Path(None, description=""),
-    city: str = Query(None, description="Filter by city name"),
+    address_key: str = Path(..., description=""),
+    city: str = Query(None, description="Filter by city name", alias="city"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """get operation for /addressbook/{address_key}/city"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_city_get(address_key, city)
 
 
 @router.head(
@@ -136,11 +149,11 @@ async def addressbook_address_key_city_get(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_city_head(
-    address_key: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """head operation for /addressbook/{address_key}/city"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_city_head(address_key)
 
 
 @router.put(
@@ -152,12 +165,12 @@ async def addressbook_address_key_city_head(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_city_put(
-    address_key: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
     body: str = Body(None, description="The request body for /addressbook/{address_key}/city"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /addressbook/{address_key}/city"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_city_put(address_key, body)
 
 
 @router.delete(
@@ -169,11 +182,11 @@ async def addressbook_address_key_city_put(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_country_delete(
-    address_key: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """delete operation for /addressbook/{address_key}/country"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_country_delete(address_key)
 
 
 @router.get(
@@ -185,12 +198,12 @@ async def addressbook_address_key_country_delete(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_country_get(
-    address_key: str = Path(None, description=""),
-    city: str = Query(None, description="Filter by city name"),
+    address_key: str = Path(..., description=""),
+    city: str = Query(None, description="Filter by city name", alias="city"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """get operation for /addressbook/{address_key}/country"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_country_get(address_key, city)
 
 
 @router.head(
@@ -202,11 +215,11 @@ async def addressbook_address_key_country_get(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_country_head(
-    address_key: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """head operation for /addressbook/{address_key}/country"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_country_head(address_key)
 
 
 @router.put(
@@ -218,12 +231,12 @@ async def addressbook_address_key_country_head(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_country_put(
-    address_key: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
     body: str = Body(None, description="The request body for /addressbook/{address_key}/country"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /addressbook/{address_key}/country"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_country_put(address_key, body)
 
 
 @router.delete(
@@ -235,11 +248,11 @@ async def addressbook_address_key_country_put(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_delete(
-    address_key: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> Addressbook:
     """Delete an address from this addressbook."""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_delete(address_key)
 
 
 @router.get(
@@ -251,12 +264,12 @@ async def addressbook_address_key_delete(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_get(
-    address_key: str = Path(None, description=""),
-    city: str = Query(None, description="Filter by city name"),
+    address_key: str = Path(..., description=""),
+    city: str = Query(None, description="Filter by city name", alias="city"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> Addressbook:
     """Get a specific address from this addressbook."""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_get(address_key, city)
 
 
 @router.head(
@@ -268,11 +281,11 @@ async def addressbook_address_key_get(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_head(
-    address_key: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """Determine the existence and size of this address."""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_head(address_key)
 
 
 @router.delete(
@@ -284,11 +297,11 @@ async def addressbook_address_key_head(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_people_delete(
-    address_key: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> List[str]:
     """delete operation for /addressbook/{address_key}/people"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_people_delete(address_key)
 
 
 @router.get(
@@ -300,12 +313,12 @@ async def addressbook_address_key_people_delete(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_people_get(
-    address_key: str = Path(None, description=""),
-    city: str = Query(None, description="Filter by city name"),
+    address_key: str = Path(..., description=""),
+    city: str = Query(None, description="Filter by city name", alias="city"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> List[str]:
     """get operation for /addressbook/{address_key}/people"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_people_get(address_key, city)
 
 
 @router.head(
@@ -317,11 +330,11 @@ async def addressbook_address_key_people_get(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_people_head(
-    address_key: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """head operation for /addressbook/{address_key}/people"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_people_head(address_key)
 
 
 @router.put(
@@ -333,14 +346,16 @@ async def addressbook_address_key_people_head(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_people_put(
-    address_key: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
     request_body: List[str] = Body(
         None, description="The request body for /addressbook/{address_key}/people"
     ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> List[str]:
     """put operation for /addressbook/{address_key}/people"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_people_put(
+        address_key, request_body
+    )
 
 
 @router.delete(
@@ -352,13 +367,17 @@ async def addressbook_address_key_people_put(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_person_delete(
-    address_key: str = Path(None, description=""),
-    limit: int = Query(None, description="Limit the number of responses back"),
-    offset: int = Query(None, description="The offset to start returning resources"),
+    address_key: str = Path(..., description=""),
+    limit: int = Query(None, description="Limit the number of responses back", alias="limit"),
+    offset: int = Query(
+        None, description="The offset to start returning resources", alias="offset"
+    ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> Person:
     """delete operation for /addressbook/{address_key}/person"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_delete(
+        address_key, limit, offset
+    )
 
 
 @router.get(
@@ -370,14 +389,18 @@ async def addressbook_address_key_person_delete(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_person_get(
-    address_key: str = Path(None, description=""),
-    last_name: str = Query(None, description="Filter by last name"),
-    limit: int = Query(None, description="Limit the number of responses back"),
-    offset: int = Query(None, description="The offset to start returning resources"),
+    address_key: str = Path(..., description=""),
+    last_name: str = Query(None, description="Filter by last name", alias="last_name"),
+    limit: int = Query(None, description="Limit the number of responses back", alias="limit"),
+    offset: int = Query(
+        None, description="The offset to start returning resources", alias="offset"
+    ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> List[Person]:
     """get operation for /addressbook/{address_key}/person"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_get(
+        address_key, last_name, limit, offset
+    )
 
 
 @router.head(
@@ -389,13 +412,17 @@ async def addressbook_address_key_person_get(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_person_head(
-    address_key: str = Path(None, description=""),
-    limit: int = Query(None, description="Limit the number of responses back"),
-    offset: int = Query(None, description="The offset to start returning resources"),
+    address_key: str = Path(..., description=""),
+    limit: int = Query(None, description="Limit the number of responses back", alias="limit"),
+    offset: int = Query(
+        None, description="The offset to start returning resources", alias="offset"
+    ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """head operation for /addressbook/{address_key}/person"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_head(
+        address_key, limit, offset
+    )
 
 
 @router.patch(
@@ -407,13 +434,17 @@ async def addressbook_address_key_person_head(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_person_patch(
-    address_key: str = Path(None, description=""),
-    limit: int = Query(None, description="Limit the number of responses back"),
-    offset: int = Query(None, description="The offset to start returning resources"),
+    address_key: str = Path(..., description=""),
+    limit: int = Query(None, description="Limit the number of responses back", alias="limit"),
+    offset: int = Query(
+        None, description="The offset to start returning resources", alias="offset"
+    ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> Person:
     """patch operation for /addressbook/{address_key}/person"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_patch(
+        address_key, limit, offset
+    )
 
 
 @router.post(
@@ -425,16 +456,20 @@ async def addressbook_address_key_person_patch(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_person_post(
-    address_key: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
     create_person: CreatePerson = Body(
         None, description="The request body for /addressbook/{address_key}/person"
     ),
-    limit: int = Query(None, description="Limit the number of responses back"),
-    offset: int = Query(None, description="The offset to start returning resources"),
+    limit: int = Query(None, description="Limit the number of responses back", alias="limit"),
+    offset: int = Query(
+        None, description="The offset to start returning resources", alias="offset"
+    ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> CreatePerson:
     """post operation for /addressbook/{address_key}/person"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_post(
+        address_key, create_person, limit, offset
+    )
 
 
 @router.delete(
@@ -446,12 +481,14 @@ async def addressbook_address_key_person_post(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_person_uuid_age_delete(
-    address_key: str = Path(None, description=""),
-    uuid: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
+    uuid: str = Path(..., description=""),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> int:
     """delete operation for /addressbook/{address_key}/person/{uuid}/age"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_age_delete(
+        address_key, uuid
+    )
 
 
 @router.get(
@@ -463,13 +500,15 @@ async def addressbook_address_key_person_uuid_age_delete(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_person_uuid_age_get(
-    address_key: str = Path(None, description=""),
-    uuid: str = Path(None, description=""),
-    last_name: str = Query(None, description="Filter by last name"),
+    address_key: str = Path(..., description=""),
+    uuid: str = Path(..., description=""),
+    last_name: str = Query(None, description="Filter by last name", alias="last_name"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> int:
     """get operation for /addressbook/{address_key}/person/{uuid}/age"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_age_get(
+        address_key, uuid, last_name
+    )
 
 
 @router.head(
@@ -481,12 +520,14 @@ async def addressbook_address_key_person_uuid_age_get(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_person_uuid_age_head(
-    address_key: str = Path(None, description=""),
-    uuid: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
+    uuid: str = Path(..., description=""),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """head operation for /addressbook/{address_key}/person/{uuid}/age"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_age_head(
+        address_key, uuid
+    )
 
 
 @router.put(
@@ -498,15 +539,17 @@ async def addressbook_address_key_person_uuid_age_head(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_person_uuid_age_put(
-    address_key: str = Path(None, description=""),
-    uuid: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
+    uuid: str = Path(..., description=""),
     body: int = Body(
         None, description="The request body for /addressbook/{address_key}/person/{uuid}/age"
     ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> int:
     """put operation for /addressbook/{address_key}/person/{uuid}/age"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_age_put(
+        address_key, uuid, body
+    )
 
 
 @router.delete(
@@ -518,12 +561,14 @@ async def addressbook_address_key_person_uuid_age_put(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_person_uuid_delete(
-    address_key: str = Path(None, description=""),
-    uuid: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
+    uuid: str = Path(..., description=""),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> Person:
     """delete operation for /addressbook/{address_key}/person/{uuid}"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_delete(
+        address_key, uuid
+    )
 
 
 @router.delete(
@@ -535,12 +580,14 @@ async def addressbook_address_key_person_uuid_delete(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_person_uuid_first_name_delete(
-    address_key: str = Path(None, description=""),
-    uuid: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
+    uuid: str = Path(..., description=""),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """delete operation for /addressbook/{address_key}/person/{uuid}/first_name"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_first_name_delete(
+        address_key, uuid
+    )
 
 
 @router.get(
@@ -552,13 +599,15 @@ async def addressbook_address_key_person_uuid_first_name_delete(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_person_uuid_first_name_get(
-    address_key: str = Path(None, description=""),
-    uuid: str = Path(None, description=""),
-    last_name: str = Query(None, description="Filter by last name"),
+    address_key: str = Path(..., description=""),
+    uuid: str = Path(..., description=""),
+    last_name: str = Query(None, description="Filter by last name", alias="last_name"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """get operation for /addressbook/{address_key}/person/{uuid}/first_name"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_first_name_get(
+        address_key, uuid, last_name
+    )
 
 
 @router.head(
@@ -570,12 +619,14 @@ async def addressbook_address_key_person_uuid_first_name_get(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_person_uuid_first_name_head(
-    address_key: str = Path(None, description=""),
-    uuid: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
+    uuid: str = Path(..., description=""),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """head operation for /addressbook/{address_key}/person/{uuid}/first_name"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_first_name_head(
+        address_key, uuid
+    )
 
 
 @router.put(
@@ -587,15 +638,17 @@ async def addressbook_address_key_person_uuid_first_name_head(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_person_uuid_first_name_put(
-    address_key: str = Path(None, description=""),
-    uuid: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
+    uuid: str = Path(..., description=""),
     body: str = Body(
         None, description="The request body for /addressbook/{address_key}/person/{uuid}/first_name"
     ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /addressbook/{address_key}/person/{uuid}/first_name"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_first_name_put(
+        address_key, uuid, body
+    )
 
 
 @router.get(
@@ -607,13 +660,15 @@ async def addressbook_address_key_person_uuid_first_name_put(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_person_uuid_get(
-    address_key: str = Path(None, description=""),
-    uuid: str = Path(None, description=""),
-    last_name: str = Query(None, description="Filter by last name"),
+    address_key: str = Path(..., description=""),
+    uuid: str = Path(..., description=""),
+    last_name: str = Query(None, description="Filter by last name", alias="last_name"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> Person:
     """get operation for /addressbook/{address_key}/person/{uuid}"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_get(
+        address_key, uuid, last_name
+    )
 
 
 @router.head(
@@ -625,12 +680,14 @@ async def addressbook_address_key_person_uuid_get(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_person_uuid_head(
-    address_key: str = Path(None, description=""),
-    uuid: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
+    uuid: str = Path(..., description=""),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """head operation for /addressbook/{address_key}/person/{uuid}"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_head(
+        address_key, uuid
+    )
 
 
 @router.delete(
@@ -642,12 +699,14 @@ async def addressbook_address_key_person_uuid_head(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_person_uuid_hobbies_delete(
-    address_key: str = Path(None, description=""),
-    uuid: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
+    uuid: str = Path(..., description=""),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> List[str]:
     """delete operation for /addressbook/{address_key}/person/{uuid}/hobbies"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_hobbies_delete(
+        address_key, uuid
+    )
 
 
 @router.get(
@@ -659,13 +718,15 @@ async def addressbook_address_key_person_uuid_hobbies_delete(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_person_uuid_hobbies_get(
-    address_key: str = Path(None, description=""),
-    uuid: str = Path(None, description=""),
-    last_name: str = Query(None, description="Filter by last name"),
+    address_key: str = Path(..., description=""),
+    uuid: str = Path(..., description=""),
+    last_name: str = Query(None, description="Filter by last name", alias="last_name"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> List[str]:
     """get operation for /addressbook/{address_key}/person/{uuid}/hobbies"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_hobbies_get(
+        address_key, uuid, last_name
+    )
 
 
 @router.head(
@@ -677,12 +738,14 @@ async def addressbook_address_key_person_uuid_hobbies_get(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_person_uuid_hobbies_head(
-    address_key: str = Path(None, description=""),
-    uuid: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
+    uuid: str = Path(..., description=""),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """head operation for /addressbook/{address_key}/person/{uuid}/hobbies"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_hobbies_head(
+        address_key, uuid
+    )
 
 
 @router.put(
@@ -694,15 +757,17 @@ async def addressbook_address_key_person_uuid_hobbies_head(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_person_uuid_hobbies_put(
-    address_key: str = Path(None, description=""),
-    uuid: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
+    uuid: str = Path(..., description=""),
     request_body: List[str] = Body(
         None, description="The request body for /addressbook/{address_key}/person/{uuid}/hobbies"
     ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> List[str]:
     """put operation for /addressbook/{address_key}/person/{uuid}/hobbies"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_hobbies_put(
+        address_key, uuid, request_body
+    )
 
 
 @router.delete(
@@ -714,12 +779,14 @@ async def addressbook_address_key_person_uuid_hobbies_put(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_person_uuid_last_name_delete(
-    address_key: str = Path(None, description=""),
-    uuid: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
+    uuid: str = Path(..., description=""),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """delete operation for /addressbook/{address_key}/person/{uuid}/last_name"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_last_name_delete(
+        address_key, uuid
+    )
 
 
 @router.get(
@@ -731,13 +798,15 @@ async def addressbook_address_key_person_uuid_last_name_delete(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_person_uuid_last_name_get(
-    address_key: str = Path(None, description=""),
-    uuid: str = Path(None, description=""),
-    last_name: str = Query(None, description="Filter by last name"),
+    address_key: str = Path(..., description=""),
+    uuid: str = Path(..., description=""),
+    last_name: str = Query(None, description="Filter by last name", alias="last_name"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """get operation for /addressbook/{address_key}/person/{uuid}/last_name"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_last_name_get(
+        address_key, uuid, last_name
+    )
 
 
 @router.head(
@@ -749,12 +818,14 @@ async def addressbook_address_key_person_uuid_last_name_get(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_person_uuid_last_name_head(
-    address_key: str = Path(None, description=""),
-    uuid: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
+    uuid: str = Path(..., description=""),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """head operation for /addressbook/{address_key}/person/{uuid}/last_name"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_last_name_head(
+        address_key, uuid
+    )
 
 
 @router.put(
@@ -766,15 +837,17 @@ async def addressbook_address_key_person_uuid_last_name_head(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_person_uuid_last_name_put(
-    address_key: str = Path(None, description=""),
-    uuid: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
+    uuid: str = Path(..., description=""),
     body: str = Body(
         None, description="The request body for /addressbook/{address_key}/person/{uuid}/last_name"
     ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /addressbook/{address_key}/person/{uuid}/last_name"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_last_name_put(
+        address_key, uuid, body
+    )
 
 
 @router.patch(
@@ -786,12 +859,14 @@ async def addressbook_address_key_person_uuid_last_name_put(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_person_uuid_patch(
-    address_key: str = Path(None, description=""),
-    uuid: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
+    uuid: str = Path(..., description=""),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> Person:
     """patch operation for /addressbook/{address_key}/person/{uuid}"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_patch(
+        address_key, uuid
+    )
 
 
 @router.put(
@@ -803,15 +878,17 @@ async def addressbook_address_key_person_uuid_patch(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_person_uuid_put(
-    address_key: str = Path(None, description=""),
-    uuid: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
+    uuid: str = Path(..., description=""),
     update_person: UpdatePerson = Body(
         None, description="The request body for /addressbook/{address_key}/person/{uuid}"
     ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> UpdatePerson:
     """put operation for /addressbook/{address_key}/person/{uuid}"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_put(
+        address_key, uuid, update_person
+    )
 
 
 @router.put(
@@ -823,14 +900,16 @@ async def addressbook_address_key_person_uuid_put(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_put(
-    address_key: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
     update_addressbook: UpdateAddressbook = Body(
         None, description="The request body for /addressbook/{address_key}"
     ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> UpdateAddressbook:
     """Update an existing address in this addressbook, with the given address key."""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_put(
+        address_key, update_addressbook
+    )
 
 
 @router.delete(
@@ -842,11 +921,11 @@ async def addressbook_address_key_put(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_state_delete(
-    address_key: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """delete operation for /addressbook/{address_key}/state"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_state_delete(address_key)
 
 
 @router.get(
@@ -858,12 +937,12 @@ async def addressbook_address_key_state_delete(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_state_get(
-    address_key: str = Path(None, description=""),
-    city: str = Query(None, description="Filter by city name"),
+    address_key: str = Path(..., description=""),
+    city: str = Query(None, description="Filter by city name", alias="city"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """get operation for /addressbook/{address_key}/state"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_state_get(address_key, city)
 
 
 @router.head(
@@ -875,11 +954,11 @@ async def addressbook_address_key_state_get(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_state_head(
-    address_key: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """head operation for /addressbook/{address_key}/state"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_state_head(address_key)
 
 
 @router.put(
@@ -891,12 +970,12 @@ async def addressbook_address_key_state_head(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_state_put(
-    address_key: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
     body: str = Body(None, description="The request body for /addressbook/{address_key}/state"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /addressbook/{address_key}/state"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_state_put(address_key, body)
 
 
 @router.delete(
@@ -908,11 +987,11 @@ async def addressbook_address_key_state_put(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_street_delete(
-    address_key: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """delete operation for /addressbook/{address_key}/street"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_street_delete(address_key)
 
 
 @router.get(
@@ -924,12 +1003,12 @@ async def addressbook_address_key_street_delete(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_street_get(
-    address_key: str = Path(None, description=""),
-    city: str = Query(None, description="Filter by city name"),
+    address_key: str = Path(..., description=""),
+    city: str = Query(None, description="Filter by city name", alias="city"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """get operation for /addressbook/{address_key}/street"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_street_get(address_key, city)
 
 
 @router.head(
@@ -941,11 +1020,11 @@ async def addressbook_address_key_street_get(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_street_head(
-    address_key: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """head operation for /addressbook/{address_key}/street"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_street_head(address_key)
 
 
 @router.put(
@@ -957,12 +1036,12 @@ async def addressbook_address_key_street_head(
     response_model_by_alias=True,
 )
 async def addressbook_address_key_street_put(
-    address_key: str = Path(None, description=""),
+    address_key: str = Path(..., description=""),
     body: str = Body(None, description="The request body for /addressbook/{address_key}/street"),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /addressbook/{address_key}/street"""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_street_put(address_key, body)
 
 
 @router.get(
@@ -974,13 +1053,15 @@ async def addressbook_address_key_street_put(
     response_model_by_alias=True,
 )
 async def addressbook_get(
-    city: str = Query(None, description="Filter by city name"),
-    limit: int = Query(None, description="Limit the number of responses back"),
-    offset: int = Query(None, description="The offset to start returning resources"),
+    city: str = Query(None, description="Filter by city name", alias="city"),
+    limit: int = Query(None, description="Limit the number of responses back", alias="limit"),
+    offset: int = Query(
+        None, description="The offset to start returning resources", alias="offset"
+    ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> List[Addressbook]:
     """List all addresses in this addressbook."""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_get(city, limit, offset)
 
 
 @router.post(
@@ -995,9 +1076,11 @@ async def addressbook_post(
     create_addressbook: CreateAddressbook = Body(
         None, description="The request body for /addressbook"
     ),
-    limit: int = Query(None, description="Limit the number of responses back"),
-    offset: int = Query(None, description="The offset to start returning resources"),
+    limit: int = Query(None, description="Limit the number of responses back", alias="limit"),
+    offset: int = Query(
+        None, description="The offset to start returning resources", alias="offset"
+    ),
     token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> CreateAddressbook:
     """Create a new address in this addressbook, a new address key will be created."""
-    ...
+    return BaseAddressbookApi.subclasses[0]().addressbook_post(create_addressbook, limit, offset)

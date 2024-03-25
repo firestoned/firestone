@@ -6,6 +6,7 @@ import functools
 import json
 import logging
 import os
+import sys
 
 import click
 from firestone_lib import cli
@@ -25,6 +26,11 @@ from addressbook.client.models import person as person_model
 from addressbook.client.models import create_person as create_person_model
 from addressbook.client.models import update_person as update_person_model
 
+from addressbook.client.api import postal_codes_api
+from addressbook.client.models import postal_code as postal_code_model
+from addressbook.client.models import create_postal_code as create_postal_code_model
+from addressbook.client.models import update_postal_code as update_postal_code_model
+
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -36,14 +42,14 @@ def api_exc(func):
         api_obj = args[0]["api_obj"]
         resp = None
         try:
-            resp = await func(*args, **kwargs)
+            return await func(*args, **kwargs)
         except exceptions.ApiException as apie:
             if apie.body:
                 click.echo(apie.body)
             else:
                 click.echo(apie.reason)
             await api_obj.api_client.close()
-        return resp
+        sys.exit(-1)
 
     return functools.update_wrapper(wrapper, func)
 
@@ -71,9 +77,8 @@ def api_exc(func):
     envvar="CLIENT_KEY",
 )
 @click.option("--trust-proxy", help="Trust the proxy env vars", is_flag=True, default=False)
-@click.option("--threads", help="The number of threads for client side", type=int, default=1)
 @click.pass_context
-def main(ctx, debug, api_key, api_url, client_cert, client_key, threads, trust_proxy):
+def main(ctx, debug, api_key, api_url, client_cert, client_key, trust_proxy):
     """Addressbook CLI
 
     This is the CLI for the example Addressbook
@@ -123,7 +128,7 @@ def main(ctx, debug, api_key, api_url, client_cert, client_key, threads, trust_p
         config.cert_file = client_cert
     if client_key:
         config.key_file = client_key
-    aclient = api_client.ApiClient(configuration=config, pool_threads=threads)
+    aclient = api_client.ApiClient(configuration=config)
 
     ctx.obj = {
         "api_client": aclient,
@@ -155,7 +160,7 @@ def addressbook(ctx_obj):
 @click.option(
     "--person",
     help="This is a person object that lives at this address.",
-    type=cli.FromJSON(),
+    type=cli.FromJsonOrYaml(),
     required=False,
 )
 @click.option("--state", help="The state of this address", type=str, required=True)
@@ -282,7 +287,7 @@ async def addressbook_address_key_get(ctx_obj, address_key, city):
 @click.option(
     "--person",
     help="This is a person object that lives at this address.",
-    type=cli.FromJSON(),
+    type=cli.FromJsonOrYaml(),
     required=False,
 )
 @click.option("--state", help="The state of this address", type=str, required=False)
@@ -454,6 +459,139 @@ async def persons_uuid_put(ctx_obj, age, first_name, hobbies, last_name, uuid):
 
     req_body = update_person_model.UpdatePerson(**params)
     resp = await api_obj.persons_uuid_put(uuid, req_body)
+    _LOGGER.debug(f"resp: {resp}")
+
+    if isinstance(resp, list):
+        print(json.dumps([obj.to_dict() for obj in resp]))
+        return
+
+    print(json.dumps(resp.to_dict()) if resp else "None")
+
+
+@main.group()
+@click.pass_obj
+def postal_codes(ctx_obj):
+    """High level command for an postal_codes."""
+    _LOGGER.debug(f"ctx_obj: {ctx_obj}")
+    ctx_obj["api_obj"] = postal_codes_api.PostalCodesApi(api_client=ctx_obj["api_client"])
+
+
+# pylint: disable=redefined-builtin
+@postal_codes.command("create")
+@click.option("--name", help="The postal code's name/id", type=str, required=False)
+@click.pass_obj
+@firestone_utils.click_coro
+@api_exc
+async def postal_codes_post(ctx_obj, name):
+    """Create a new postal code in this collection, a new UUID key will be created"""
+    api_obj = ctx_obj["api_obj"]
+    params = {
+        "name": name,
+    }
+
+    req_body = create_postal_code_model.CreatePostal_code(**params)
+    resp = await api_obj.postal_codes_post(req_body)
+    _LOGGER.debug(f"resp: {resp}")
+
+    if isinstance(resp, list):
+        click.echo(json.dumps([obj.to_dict() for obj in resp]))
+        return
+
+    if resp:
+        click.echo(json.dumps(resp.to_dict()))
+        return
+
+    click.echo("No data returned")
+
+
+@postal_codes.command("list")
+@click.option("--limit", help="Limit the number of responses back", type=int, required=False)
+@click.option("--name", help="Filter by name", type=str, required=False)
+@click.option("--offset", help="The offset to start returning resources", type=int, required=False)
+@click.pass_obj
+@firestone_utils.click_coro
+@api_exc
+async def postal_codes_get(ctx_obj, limit, name, offset):
+    """List all postal codes in this collection"""
+    api_obj = ctx_obj["api_obj"]
+    params = {
+        "limit": limit,
+        "name": name,
+        "offset": offset,
+    }
+
+    resp = await api_obj.postal_codes_get(**params)
+    _LOGGER.debug(f"resp: {resp}")
+
+    if isinstance(resp, list):
+        click.echo(json.dumps([obj.to_dict() for obj in resp]))
+        return
+
+    if resp:
+        click.echo(json.dumps(resp.to_dict()))
+        return
+
+    click.echo("No data returned")
+
+
+@postal_codes.command("delete")
+@click.argument("uuid", type=str)
+@click.pass_obj
+@firestone_utils.click_coro
+@api_exc
+async def postal_codes_uuid_delete(ctx_obj, uuid):
+    """Delete operation for postal_codes"""
+    api_obj = ctx_obj["api_obj"]
+    params = {}
+
+    resp = await api_obj.postal_codes_uuid_delete(uuid, **params)
+    _LOGGER.debug(f"resp: {resp}")
+
+    if isinstance(resp, list):
+        print(json.dumps([obj.to_dict() for obj in resp]))
+        return
+
+    print(json.dumps(resp.to_dict()) if resp else "None")
+
+
+@postal_codes.command("get")
+@click.option("--name", help="Filter by name", type=str, required=False)
+@click.argument("uuid", type=str)
+@click.pass_obj
+@firestone_utils.click_coro
+@api_exc
+async def postal_codes_uuid_get(ctx_obj, name, uuid):
+    """Get a specific postal code from this collection"""
+    api_obj = ctx_obj["api_obj"]
+    params = {
+        "name": name,
+    }
+
+    resp = await api_obj.postal_codes_uuid_get(uuid, **params)
+    _LOGGER.debug(f"resp: {resp}")
+
+    if isinstance(resp, list):
+        print(json.dumps([obj.to_dict() for obj in resp]))
+        return
+
+    print(json.dumps(resp.to_dict()) if resp else "None")
+
+
+@postal_codes.command("update")
+@click.option("--name", help="The postal code's name/id", type=str, required=False)
+@click.argument("uuid", type=str)
+@click.pass_obj
+@firestone_utils.click_coro
+@api_exc
+async def postal_codes_uuid_put(ctx_obj, name, uuid):
+    """Put a new postal code in this collection, with the given UUId key"""
+    api_obj = ctx_obj["api_obj"]
+    params = {
+        "name": name,
+    }
+
+    req_body = update_postal_code_model.UpdatePostal_code(**params)
+    resp = await api_obj.postal_codes_uuid_put(uuid, req_body)
     _LOGGER.debug(f"resp: {resp}")
 
     if isinstance(resp, list):

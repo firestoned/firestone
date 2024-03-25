@@ -1,6 +1,7 @@
 """
 Generate AsyncAPI 2.5 Spec
 """
+
 # TODO: fix dupe code
 # pylint: disable=duplicate-code
 
