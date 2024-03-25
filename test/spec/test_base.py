@@ -1,6 +1,7 @@
 """
 Test the firestone.spec.openapi module.
 """
+
 import unittest
 
 from firestone.spec import _base as spec_base

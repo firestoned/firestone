@@ -1,6 +1,7 @@
 """
 Generate OpenAPI 3.0 Spec
 """
+
 # TODO: fix dupe code
 # pylint: disable=duplicate-code
 

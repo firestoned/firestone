@@ -27,16 +27,13 @@ except ImportError:
     from typing_extensions import Self
 
 
-class UpdatePerson(BaseModel):
+class UpdatePostalCode(BaseModel):
     """
-    UpdatePerson
+    UpdatePostalCode
     """  # noqa: E501
 
-    age: Optional[Any] = Field(default=None, description="The person's age")
-    first_name: Optional[Any] = Field(default=None, description="The person's first name")
-    hobbies: Optional[Any] = Field(default=None, description="The person's hobbies")
-    last_name: Optional[Any] = Field(default=None, description="The person's last name")
-    __properties: ClassVar[List[str]] = ["age", "first_name", "hobbies", "last_name"]
+    name: Optional[Any] = Field(default=None, description="The postal code's name/id")
+    __properties: ClassVar[List[str]] = ["name"]
 
     model_config = {
         "populate_by_name": True,
@@ -55,7 +52,7 @@ class UpdatePerson(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:
-        """Create an instance of UpdatePerson from a JSON string"""
+        """Create an instance of UpdatePostalCode from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -73,43 +70,21 @@ class UpdatePerson(BaseModel):
             exclude={},
             exclude_none=True,
         )
-        # set to None if age (nullable) is None
+        # set to None if name (nullable) is None
         # and model_fields_set contains the field
-        if self.age is None and "age" in self.model_fields_set:
-            _dict["age"] = None
-
-        # set to None if first_name (nullable) is None
-        # and model_fields_set contains the field
-        if self.first_name is None and "first_name" in self.model_fields_set:
-            _dict["first_name"] = None
-
-        # set to None if hobbies (nullable) is None
-        # and model_fields_set contains the field
-        if self.hobbies is None and "hobbies" in self.model_fields_set:
-            _dict["hobbies"] = None
-
-        # set to None if last_name (nullable) is None
-        # and model_fields_set contains the field
-        if self.last_name is None and "last_name" in self.model_fields_set:
-            _dict["last_name"] = None
+        if self.name is None and "name" in self.model_fields_set:
+            _dict["name"] = None
 
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Dict) -> Self:
-        """Create an instance of UpdatePerson from a dict"""
+        """Create an instance of UpdatePostalCode from a dict"""
         if obj is None:
             return None
 
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        _obj = cls.model_validate(
-            {
-                "age": obj.get("age"),
-                "first_name": obj.get("first_name"),
-                "hobbies": obj.get("hobbies"),
-                "last_name": obj.get("last_name"),
-            }
-        )
+        _obj = cls.model_validate({"name": obj.get("name")})
         return _obj

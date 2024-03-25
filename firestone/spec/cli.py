@@ -1,6 +1,7 @@
 """
 Generate python Click based CLI from one or more resource schemas.
 """
+
 import logging
 
 from firestone.spec import _base as spec_base
@@ -48,7 +49,7 @@ def params_to_attrs(params: list, required: list = None, key_names: list = None)
         # this means that this param/attribute is another object
         if param_type in ["object", "array"]:
             _LOGGER.info(f"{param['name']} is of type '{param_type}', processing special CLI type.")
-            cli_type = "cli.FromJSON()"
+            cli_type = "cli.FromJsonOrYaml()"
             items_type = param_schema.get("items", {}).get("type", "string")
             _LOGGER.debug(f"cli_type: {cli_type}")
             _LOGGER.debug(f"items_type: {items_type}")

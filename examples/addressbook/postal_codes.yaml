@@ -1,0 +1,63 @@
+name: postal_codes
+description: An example of a postal code resource
+version: 1.0
+version_in_path: false
+default_query_params:
+  - name: limit
+    description: Limit the number of responses back
+    in: query
+    schema:
+      type: integer
+  - name: offset
+    description: The offset to start returning resources
+    in: query
+    schema:
+      type: integer
+methods:
+  resource:
+    - get
+    - post
+  instance:
+    - delete
+    - get
+    - head
+    - put
+  instance_attrs:
+    - delete
+    - get
+    - head
+    - put
+descriptions:
+  resource:
+    get: List all postal codes in this collection
+    head: Determine the existence and size of postal codes in this collection
+    patch: Patch one or more postal codes in this collection
+    post: Create a new postal code in this collection, a new UUID key will be created
+  instance:
+    get: Get a specific postal code from this collection
+    head: Determine the existence and size of this postal code
+    patch: Patch this postal code in the collection
+    put: Put a new postal code in this collection, with the given UUId key
+schema:
+  type: array
+  key:
+    name: uuid
+    description: A UUID associated to this postal code
+    schema:
+      type: string
+  query_params:
+    - name: name
+      description: Filter by name
+      schema:
+        type: string
+      methods:
+        - get
+  items:
+    type: object
+    properties:
+      name:
+        description: The postal code's name/id
+        type: string
+        # Don't expose this attribute in the URL/specification
+        # expose: false
+

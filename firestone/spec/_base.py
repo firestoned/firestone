@@ -1,6 +1,7 @@
 """
 Base functions for managing spec files
 """
+
 import jinja2
 import yaml
 

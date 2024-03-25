@@ -9,14 +9,14 @@ OPENAPI_GEN := $(shell which openapi-generator)
 FIRESTONE := $(shell which firestone)
 
 ADDRESSBOOK_DIR := examples/addressbook
-RESOURCES := ${ADDRESSBOOK_DIR}/addressbook.yaml,${ADDRESSBOOK_DIR}/person.yaml
+RESOURCES := ${ADDRESSBOOK_DIR}/addressbook.yaml,${ADDRESSBOOK_DIR}/person.yaml,${ADDRESSBOOK_DIR}/postal_codes.yaml
 OPENAPI_DOC := ${ADDRESSBOOK_DIR}/openapi.yaml
 
 PKG := addressbook
 CLIENT_PKG := addressbook.client
 MAIN_FILE := ${ADDRESSBOOK_DIR}/main.py
 
-.PHONY: gen-openapi openapi-generator
+.PHONY: gen-openapi gen-server gen-client gen-cli
 
 help:
 	@echo "gen-openapi: Generate OpenAPI file from resources."
@@ -31,16 +31,19 @@ gen-openapi: ${FIRESTONE}
 		--resources ${RESOURCES} \
 		--version 1.0 \
 		openapi \
+		--version 3.1.0 \
 		--security '{"name": "bearer_auth", "scheme": "bearer", "type": "http", "bearerFormat": "JWT"}' \
 		> ${OPENAPI_DOC}
 
-gen-server: $(OPENAPI_GEN)
+gen-server: $(OPENAPI_GEN) \
+			${OPENAPI_DOC}
 	${OPENAPI_GEN} generate \
 		-i ${OPENAPI_DOC} \
 		-g python-fastapi \
 		--package-name addressbook \
 		-o ${SERVER_CLIENT_OUTDIR} \
-		--skip-validate-spec
+		--skip-validate-spec \
+		-c ${ADDRESSBOOK_DIR}/openapi-gen-server-config.json
 
 	@echo "Copying model files from temp dir to project"
 	${MKDIR} -pv ${ADDRESSBOOK_DIR}/addressbook/models
@@ -52,10 +55,11 @@ gen-server: $(OPENAPI_GEN)
 	${MKDIR} -pv ${ADDRESSBOOK_DIR}/addressbook/apis
 	${CP} -rv ${SERVER_CLIENT_OUTDIR}/src/addressbook/apis/* ${ADDRESSBOOK_DIR}/addressbook/apis
 
-gen-client: $(OPENAPI_GEN)
+gen-client: $(OPENAPI_GEN) \
+			${ADDRESSBOOK_DIR}/addressbook/apis
 	${OPENAPI_GEN} generate \
 		-i ${OPENAPI_DOC} \
-		-g python-nextgen \
+		-g python \
 		-o ${CLIENT_OUTDIR} \
 		--skip-validate-spec \
 		-c ${ADDRESSBOOK_DIR}/openapi-gen-config.json

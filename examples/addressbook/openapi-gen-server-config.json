@@ -1,0 +1,6 @@
+{
+    "packageName": "addressbook",
+    "projectName": "addressbook",
+    "sortParamsByRequiredFlag": true,
+    "fastapiImplementationPackage": "addressbook.impl"
+}
