@@ -18,7 +18,7 @@ import re  # noqa: F401
 import json
 
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from addressbook.models.person import Person
 
@@ -33,13 +33,15 @@ class CreateAddressbook(BaseModel):
     CreateAddressbook
     """  # noqa: E501
 
-    addrtype: Optional[Any] = Field(description="The address type, e.g. work or home")
-    city: Optional[Any] = Field(description="The city of this address")
-    country: Optional[Any] = Field(description="The country of this address")
-    people: Optional[Any] = Field(default=None, description="A list of people's names living there")
+    addrtype: StrictStr = Field(description="The address type, e.g. work or home")
+    city: StrictStr = Field(description="The city of this address")
+    country: StrictStr = Field(description="The country of this address")
+    people: Optional[List[Any]] = Field(
+        default=None, description="A list of people's names living there"
+    )
     person: Optional[Person] = None
-    state: Optional[Any] = Field(description="The state of this address")
-    street: Optional[Any] = Field(description="The street and civic number of this address")
+    state: StrictStr = Field(description="The state of this address")
+    street: StrictStr = Field(description="The street and civic number of this address")
     __properties: ClassVar[List[str]] = [
         "addrtype",
         "city",
@@ -53,9 +55,6 @@ class CreateAddressbook(BaseModel):
     @field_validator("addrtype")
     def addrtype_validate_enum(cls, value):
         """Validates the enum"""
-        if value is None:
-            return value
-
         if value not in ("work", "home"):
             raise ValueError("must be one of enum values ('work', 'home')")
         return value
@@ -98,36 +97,6 @@ class CreateAddressbook(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of person
         if self.person:
             _dict["person"] = self.person.to_dict()
-        # set to None if addrtype (nullable) is None
-        # and model_fields_set contains the field
-        if self.addrtype is None and "addrtype" in self.model_fields_set:
-            _dict["addrtype"] = None
-
-        # set to None if city (nullable) is None
-        # and model_fields_set contains the field
-        if self.city is None and "city" in self.model_fields_set:
-            _dict["city"] = None
-
-        # set to None if country (nullable) is None
-        # and model_fields_set contains the field
-        if self.country is None and "country" in self.model_fields_set:
-            _dict["country"] = None
-
-        # set to None if people (nullable) is None
-        # and model_fields_set contains the field
-        if self.people is None and "people" in self.model_fields_set:
-            _dict["people"] = None
-
-        # set to None if state (nullable) is None
-        # and model_fields_set contains the field
-        if self.state is None and "state" in self.model_fields_set:
-            _dict["state"] = None
-
-        # set to None if street (nullable) is None
-        # and model_fields_set contains the field
-        if self.street is None and "street" in self.model_fields_set:
-            _dict["street"] = None
-
         return _dict
 
     @classmethod

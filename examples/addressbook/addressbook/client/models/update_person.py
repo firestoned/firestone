@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing import Optional, Set
 from typing_extensions import Self
@@ -28,10 +28,10 @@ class UpdatePerson(BaseModel):
     UpdatePerson
     """  # noqa: E501
 
-    age: Optional[Any] = Field(default=None, description="The person's age")
-    first_name: Optional[Any] = Field(default=None, description="The person's first name")
-    hobbies: Optional[Any] = Field(default=None, description="The person's hobbies")
-    last_name: Optional[Any] = Field(default=None, description="The person's last name")
+    age: Optional[StrictInt] = Field(default=None, description="The person's age")
+    first_name: Optional[StrictStr] = Field(default=None, description="The person's first name")
+    hobbies: Optional[List[Any]] = Field(default=None, description="The person's hobbies")
+    last_name: Optional[StrictStr] = Field(default=None, description="The person's last name")
     __properties: ClassVar[List[str]] = ["age", "first_name", "hobbies", "last_name"]
 
     model_config = ConfigDict(
@@ -71,26 +71,6 @@ class UpdatePerson(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # set to None if age (nullable) is None
-        # and model_fields_set contains the field
-        if self.age is None and "age" in self.model_fields_set:
-            _dict["age"] = None
-
-        # set to None if first_name (nullable) is None
-        # and model_fields_set contains the field
-        if self.first_name is None and "first_name" in self.model_fields_set:
-            _dict["first_name"] = None
-
-        # set to None if hobbies (nullable) is None
-        # and model_fields_set contains the field
-        if self.hobbies is None and "hobbies" in self.model_fields_set:
-            _dict["hobbies"] = None
-
-        # set to None if last_name (nullable) is None
-        # and model_fields_set contains the field
-        if self.last_name is None and "last_name" in self.model_fields_set:
-            _dict["last_name"] = None
-
         return _dict
 
     @classmethod

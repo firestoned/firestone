@@ -18,7 +18,7 @@ import re  # noqa: F401
 import json
 
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 
 try:
@@ -32,7 +32,7 @@ class CreatePostalCode(BaseModel):
     CreatePostalCode
     """  # noqa: E501
 
-    name: Optional[Any] = Field(default=None, description="The postal code's name/id")
+    name: Optional[StrictStr] = Field(default=None, description="The postal code's name/id")
     __properties: ClassVar[List[str]] = ["name"]
 
     model_config = {
@@ -70,11 +70,6 @@ class CreatePostalCode(BaseModel):
             exclude={},
             exclude_none=True,
         )
-        # set to None if name (nullable) is None
-        # and model_fields_set contains the field
-        if self.name is None and "name" in self.model_fields_set:
-            _dict["name"] = None
-
         return _dict
 
     @classmethod

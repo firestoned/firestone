@@ -39,7 +39,6 @@ def api_exc(func):
     """Handle ApiExceptions in all functions."""
 
     async def wrapper(*args, **kwargs):
-        api_obj = args[0]["api_obj"]
         resp = None
         try:
             return await func(*args, **kwargs)
@@ -48,7 +47,10 @@ def api_exc(func):
                 click.echo(apie.body)
             else:
                 click.echo(apie.reason)
-            await api_obj.api_client.close()
+
+            api_obj = args[0].get("api_obj")
+            if api_obj:
+                await api_obj.api_client.close()
         sys.exit(-1)
 
     return functools.update_wrapper(wrapper, func)
@@ -84,23 +86,12 @@ def main(ctx, debug, api_key, api_url, client_cert, client_key, trust_proxy):
     This is the CLI for the example Addressbook
     """
     if not trust_proxy:
-        # Convert to loop
-        if "http_proxy" in os.environ:
-            del os.environ["http_proxy"]
-        if "https_proxy" in os.environ:
-            del os.environ["https_proxy"]
-        if "all_http_proxy" in os.environ:
-            del os.environ["all_http_proxy"]
-        if "all_https_proxy" in os.environ:
-            del os.environ["https_proxy"]
-        if "HTTP_PROXY" in os.environ:
-            del os.environ["HTTP_PROXY"]
-        if "HTTPS_PROXY" in os.environ:
-            del os.environ["HTTPS_PROXY"]
-        if "ALL_HTTP_PROXY" in os.environ:
-            del os.environ["ALL_HTTP_PROXY"]
-        if "ALL_HTTPS_PROXY" in os.environ:
-            del os.environ["ALL_HTTPS_PROXY"]
+        for prefix in ["http", "https", "all_http", "all_https"]:
+            env_var = f"{prefix}_proxy"
+            if env_var in os.environ:
+                del os.environ[env_var]
+            if env_var.upper() in os.environ:
+                del os.environ[env_var.upper()]
 
     try:
         cli.init_logging("addressbook.resources.logging", "cli.conf")
@@ -182,7 +173,6 @@ async def addressbook_post(ctx_obj, addrtype, city, country, people, person, sta
         "state": state,
         "street": street,
     }
-
     req_body = create_addressbook_model.CreateAddressbook(**params)
     resp = await api_obj.addressbook_post(req_body)
     _LOGGER.debug(f"resp: {resp}")
@@ -349,7 +339,6 @@ async def persons_post(ctx_obj, age, first_name, hobbies, last_name):
         "hobbies": hobbies,
         "last_name": last_name,
     }
-
     req_body = create_person_model.CreatePerson(**params)
     resp = await api_obj.persons_post(req_body)
     _LOGGER.debug(f"resp: {resp}")
@@ -488,8 +477,7 @@ async def postal_codes_post(ctx_obj, name):
     params = {
         "name": name,
     }
-
-    req_body = create_postal_code_model.CreatePostal_code(**params)
+    req_body = create_postal_code_model.CreatePostalCode(**params)
     resp = await api_obj.postal_codes_post(req_body)
     _LOGGER.debug(f"resp: {resp}")
 
