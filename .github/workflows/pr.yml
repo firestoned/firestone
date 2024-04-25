@@ -23,27 +23,34 @@ jobs:
         python-version: ["3.9", "3.10", "3.11"]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - name: Install poetry
+        run: pipx install poetry
+
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: 'poetry'
+
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install poetry
           poetry install
           poetry build
+
       - name: Run black check
         run: |
           poetry run black --check .
+
       - name: pylint and pycodestyle
         run: |
           poetry run pylint firestone test
           poetry run pycodestyle --config .pycodestyle firestone test
+
       - name: Test with pytest
         run: |
           poetry run pytest --color=yes --cache-clear --cov-report=term-missing:skip-covered --junitxml=./pytest-coverage.xml --cov=firestone test/ > ./pytest-coverage.txt
+
       - name: Pytest coverage comment
         uses: MishaKav/pytest-coverage-comment@main
         with:
