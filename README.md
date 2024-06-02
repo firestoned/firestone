@@ -29,8 +29,7 @@ It's a simple as running the following `pip` command:
 sudo pip install firestoned
 ```
 
-> Yes, `firestone**d**`, not `firestone`! This is because there already is a, albeit emtpy, repo
-on [pypi.org](https://pypi.org/) with the same name ...
+> Yes, `firestone**d**`, not `firestone`! This is because there already is a, albeit emtpy, repository on [pypi.org](https://pypi.org/) with the same name ...
 
 ### `poetry`
 
@@ -286,4 +285,4 @@ firestone generate \
 
 ## Contributing
 
-`firestone` and the larger **Firestone Project** are open-source projects and we welcome contributions.  Please follow standard GitHub practices, including forking the project, creating a branch, and submitting a PR.
+`firestone` and the larger [**Firestone Project**](https://github.com/firestoned) are open-source projects and we welcome contributions.  Please follow standard GitHub practices, including forking the project, creating a branch, and submitting a PR.
