@@ -7,8 +7,8 @@
 
 Resource-Based Approach to Building APIs
 
-``firestone`` allows you to build OpenAPI, AsyncAPI and gRPC specs based off one or
-more resource json schema files. This allows you to focus on what really
+``firestone` allows you to build OpenAPI, AsyncAPI and gRPC specs based off one or
+more resource JSON schema files. This allows you to focus on what really
 matters, the resource you are developing!
 
 Once you have generated the appropriate specification file for your project, you
@@ -18,7 +18,7 @@ you.
 **The primary premise of this project is not to introduce any new "language" to describe your
 resources(s), use JSON Schema!**
 
-THis makes it easy to come up to speed and little to no prior knowledge to get
+This makes it easy to come up to speed with little to no prior knowledge to get
 going.
 
 Having said that, the schema for a resource provides additional helpful functionality,
@@ -26,25 +26,26 @@ see [schema](#schema) section.
 
 ## Quick Start
 
-You can use pip or poetry to install and run ``firestone``. We suggest using pip if you wish to install
-`firestone`` machine-wide, else, for local use, use poetry.
+You can use `pip` or `poetry` to install and run `firestone``. We suggest using `pip` if you wish to install `firestone` machine-wide, else, for local use, use `poetry``.
 
-### pip
+### `pip`
 
-It's a simple as running the following ``pip`` command:
+It's a simple as running the following `pip` command:
 
 ```
 sudo pip install firestoned
 ```
 
-NOTE: yes, `firestone**d**`, not `firestone`! This is because there already is a, albeit emtpy, repo
-on pypi.org with the same name...
+> Yes, `firestone**d**`, not `firestone`! This is because there already is a, albeit emtpy, repo
+on [pypi.org](https://pypi.org/) with the same name ...
 
-### poetry
+### `poetry`
 
-[Poetry](https://python-poetry.org/) is a great build tool for python that
+[Poetry](https://python-poetry.org/) is a great build tool for Python that
 allows you to build and run all locally in a virtual environment. This is great
 for checking out the tool and playing around with `firestone` itself.
+
+#### MacOS
 
 ```
 brew install poetry
@@ -52,14 +53,24 @@ poetry install
 poetry build
 ```
 
+#### Linux
+```
+# RHEL Family
+sudo dnf install poetry
+# Debian Family
+sudo apt install poetry
+poetry install
+poetry build
+```
+
+
 ## Running
 
-Now that you have a copy of ``firestone``, let's try running it with the
-example resource provided, an addressbook!
+Now that you have a copy of `firestone`, let's try running it with the example resource provided, an addressbook!
 
-Note: if running within poetry build, simply prepend commands with ``poetry run``
+> If running within `poetry` build, simply prepend commands with `poetry run`.
 
-For the remainder of this documentation, we will assume you have installed firestone.
+For the remainder of this documentation, we will assume you have installed `firestone`.
 
 ### Generate an OpenAPI Spec
 
@@ -75,12 +86,12 @@ firestone \
 
 Let's quickly dissect this command:
 
-- we are telling firestone to generate an `openapi` spec, given the ``title``,
-  ``description`` and the two given resource files.
-- By default, this will output the specification file to stdout, alternatively
+- We are telling firestone to generate an `openapi` spec, given the `title`,
+  `description`, and the two given resource files.
+- By default, this will output the specification file to `stdout`, alternatively
   you can provide the `-O` option to output to a specific file.
 
-You can also, add the command line `--ui-server` tot he end, which will launch a
+You can also add the command line `--ui-server` to the end, which will launch a
 small webserver and run the Swagger UI to view this specification file.
 
 ```
@@ -100,14 +111,11 @@ firestone --debug generate --title 'Example person and addressBook API' \
 # 2022-10-31 02:47:17,120 - [MainThread] hypercorn.error:102 INFO - Running on http://127.0.0.1:5000 (CTRL + C to quit)
 ```
 
-Now you can use your browser to navigate to `http://127.0.0.1:5000/apidocs`
+Now you can use your browser to navigate to `http://127.0.0.1:5000/apidocs` to view the Swagger UI.
 
 ## Schema
 
-It all begins with your resource definition! This is done using JSON schema and
-we have provided an example in our `examples` directory, called addressBook. We
-will use this to describe how the schema is setup and how you can adapt to your
-own.
+It all begins with your resource definition! This is done using JSON schema and we have provided an example in our `examples` directory, called addressBook. We will use this to describe how the schema is setup and how you can adapt to your own.
 
 Here is the full file:
 
@@ -127,6 +135,19 @@ default_query_params:
     in: params
     schema:
       type: integer
+methods:
+  resource:
+    - get
+    - head
+    - patch
+    - post
+    - delete
+  instance:
+    - get
+    - head
+    - patch
+    - put
+    - delete
 descriptions:
   resource:
     get: List all addresses in this addressbook.
@@ -182,9 +203,7 @@ schema:
 
 ### Metadata
 
-There is a certain amount of metadata that all of these specifications
-use/require, and this is done at the top of the resource,yaml; for posterity,
-they are:
+There is a certain amount of metadata that all of these specifications use/require.  This is done at the top of the `resource.yaml` file, and in this case, for the addressBook, this is what the metadata looks like:
 
 ```yaml
 name: addressBook
@@ -194,19 +213,40 @@ version: 1.0
 
 #### `name`
 
-The name is used in various places, including as the root to API URLs, for
-example in OpenAPI, `/addressBook`
+Name is used in various places, including as the root to API URLs, for example in OpenAPI, `/addressBook`
 
 #### `description`
 
-This is self evident, I hope, the description of this resource and is used nt he
-generated specification files.
+The description of this resource is used in the generated specification files.
 
+#### `version`
+
+The version of this resource definition, this can alternatively be used in the URL as well, see below `version_in_path`.
+
+#### `version_in_path`
+
+This attribute defines whether to prepend the version defined above in the URL paths.  For example, for the
+above, you would get: `/v1.0/addressBook`.
+
+#### `default_query_params`
+
+You can provide a list of default query parameters that will be added to all HTTP methods,
+or optionally you can provide a list of the HTTP methods, for which `firestone` will add.
+
+#### `methods`
+
+This is a map/dict of `resource`, and/or `instance`, and/or `instance_attrs` (the instance attributes to expose), and a list of methods to explicitly expose, for example:
+
+```yaml
+methods:
+  resource:
+    - get
+    - post
+    - put
+```
 #### `descriptions`
 
-This is a map/dict of either `resource` and/or `instance`, which itself is a map or
-methods to descriptions, e.g.:
-
+This is a map/dict of either `resource` and/or `instance`, which itself is a map or methods to descriptions, for example:
 
 ```yaml
 descriptions:
@@ -218,43 +258,11 @@ descriptions:
     delete: Delete all addresses from this addressbook.
 ```
 
-#### `methods`
-
-This is a map/dict of `resource`, and/or `instance`, and/or `instance_attrs`
-(the instance attributes to expose), and a list of methods to explicitly expose,
-e.g.:
-
-
-```yaml
-methods:
-  resource:
-    - get
-    - post
-    - put
-```
-
-#### `version`
-
-The version of this resource definition, this cna alternatively be used in the
-URL as well, see below `version_in_path`
-
-#### `version_in_path`
-
-This attribute defines whether to prepend the version defined above in the URL paths, e.g., for the
-above, you would get: `/v1.0/addressBook`.
-
-#### `default_query_params`
-
-You can provide a list of default query parameters that will be added to all HTTP methods,
-or optionally you can provide a list of the HTTP methods, for which `firestone` will add.
-
-
 ### Generate OpenAPI Client
 
-Now, to generate your OpenAPI client, you will need the `openapi-generator` command, and this can be
-used to generate client code in many languages. For more details on this project, see [here](https://openapi-generator.tech/).
+Now, to generate your OpenAPI client, you will need the `openapi-generator` command, and this can be used to generate client code in many languages. For more details on this project, see [here](https://openapi-generator.tech/).
 
-This client code can then be used as an SDK or used by our CLI generation, see below.
+This client code can then be used as an SDK or used by our CLI generation, for example:
 
 ```
 openapi-generator generate \
@@ -267,9 +275,7 @@ openapi-generator generate \
 
 ### Generate Python CRUD CLI
 
-Now that you have generated the client code, you can also generate a CRUD, Python Click-based
-CLI around your code. This generator creates a standalone script or as a module to be used
-in your console scripts, as part of your project build.
+Now that you have generated the client code, you can also generate a CRUD, Python Click-based CLI around your code. This generator creates a standalone script or as a module to be used in your console scripts, as part of your project build.
 
 Here is an example command we use to generate the example Addressbook.
 
@@ -284,11 +290,6 @@ firestone generate \
      --client-pkg addressbook.client > examples/addressbook/main.py
 ```
 
-Let's quickly dissect this command:
-
-- we are telling firestone to generate an `openapi` spec, given the ``title``,
-  ``description`` and the two given resource files.
-- By default, this will output the specification file to stdout, alternatively
-  you can provide the `-O` option to output to a specific file.
-
 ## Contributing
+
+`firestone` and the larger **Firestone Project** are open-source projects and we welcome contributions.  Please follow standard GitHub practices, including forking the project, creating a branch, and submitting a PR.
