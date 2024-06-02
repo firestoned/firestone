@@ -5,34 +5,27 @@
 
 # Firestone
 
-Resource-Based Approach to Building APIs
+#### A Resource-Based Approach to Building APIs
 
-``firestone` allows you to build OpenAPI, AsyncAPI and gRPC specs based off one or
-more resource JSON schema files. This allows you to focus on what really
-matters, the resource you are developing!
+`firestone` allows you to build OpenAPI, AsyncAPI and gRPC specs based off one or more resource JSON schema files. This allows you to focus on what really matters, the resource you are developing!
 
-Once you have generated the appropriate specification file for your project, you
-can then use the myriad of libraries and frameworks to generate stub code for
-you.
+Once you have generated the appropriate specification file for your project, you can then use the myriad of libraries and frameworks to generate stub code.
 
-**The primary premise of this project is not to introduce any new "language" to describe your
-resources(s), use JSON Schema!**
+**The primary premise of this project is not to introduce any new "language" to describe your resources(s), rather, use JSON Schema!**
 
-This makes it easy to come up to speed with little to no prior knowledge to get
-going.
+This makes it easy to come up to speed with little to no prior knowledge to get going.
 
-Having said that, the schema for a resource provides additional helpful functionality,
-see [schema](#schema) section.
+Having said that, the schema for a resource provides additional helpful functionality, see the [schema](#schema) section for further details.
 
 ## Quick Start
 
-You can use `pip` or `poetry` to install and run `firestone``. We suggest using `pip` if you wish to install `firestone` machine-wide, else, for local use, use `poetry``.
+You can use `pip` or `poetry` to install and run `firestone`. We suggest using `pip` if you wish to install `firestone` globally, or for virtual environments, use `poetry`.
 
 ### `pip`
 
 It's a simple as running the following `pip` command:
 
-```
+```zsh
 sudo pip install firestoned
 ```
 
@@ -41,28 +34,20 @@ on [pypi.org](https://pypi.org/) with the same name ...
 
 ### `poetry`
 
-[Poetry](https://python-poetry.org/) is a great build tool for Python that
-allows you to build and run all locally in a virtual environment. This is great
-for checking out the tool and playing around with `firestone` itself.
+[Poetry](https://python-poetry.org/) is a great build tool for Python that allows you to build and run all locally in a virtual environment. This is great for checking out the tool and playing around with `firestone` itself.
 
-#### MacOS
+If you're starting with a new project, declare `firestoned` in your dependencies during the `poetry install` process:
 
-```
-brew install poetry
+```zsh
 poetry install
 poetry build
 ```
 
-#### Linux
-```
-# RHEL Family
-sudo dnf install poetry
-# Debian Family
-sudo apt install poetry
-poetry install
-poetry build
-```
+If you're adding `firestone` to a `poetry` project:
 
+```zsh
+poetry add firestoned
+```
 
 ## Running
 
@@ -70,11 +55,11 @@ Now that you have a copy of `firestone`, let's try running it with the example r
 
 > If running within `poetry` build, simply prepend commands with `poetry run`.
 
-For the remainder of this documentation, we will assume you have installed `firestone`.
+> For the remainder of this documentation, we will assume you have installed `firestone`.
 
 ### Generate an OpenAPI Spec
 
-```
+```zsh
 firestone \
     generate \
     --title 'Addressbook resource' \
@@ -86,15 +71,12 @@ firestone \
 
 Let's quickly dissect this command:
 
-- We are telling firestone to generate an `openapi` spec, given the `title`,
-  `description`, and the two given resource files.
-- By default, this will output the specification file to `stdout`, alternatively
-  you can provide the `-O` option to output to a specific file.
+- We are telling firestone to generate an `openapi` spec, given the `title`, `description`, and the two given resource files.
+- By default, this will output the specification file to `stdout`, alternatively, you can provide the `-O` option to output to a specific file.
 
-You can also add the command line `--ui-server` to the end, which will launch a
-small webserver and run the Swagger UI to view this specification file.
+You can also add the command line `--ui-server` to the end, which will launch a small webserver and run the Swagger UI to view this specification file.
 
-```
+```zsh
 firestone --debug generate --title 'Example person and addressBook API' \
     --description 'An example API with more than one resource' \
     --resources examples/addressBook.yaml,examples/person.yaml \
@@ -120,34 +102,47 @@ It all begins with your resource definition! This is done using JSON schema and 
 Here is the full file:
 
 ```yaml
-name: addressBook
-description: An example of an addressBook resource
+# Metadata: start
+name: addressbook
+description: An example of an addressbook resource
 version: 1.0
 version_in_path: false
 default_query_params:
   - name: limit
     description: Limit the number of responses back
-    in: params
+    in: query
     schema:
       type: integer
   - name: offset
     description: The offset to start returning resources
-    in: params
+    in: query
     schema:
       type: integer
+asyncapi:
+  servers:
+    dev:
+      url: ws://localhost
+      protocol: ws
+      description: The development websocket server
+  channels:
+    resources: true
+    instances: true
+    instance_attrs: true
+# You can limit the overall HTTP methods for the high level resource endpoint
 methods:
   resource:
     - get
-    - head
-    - patch
     - post
-    - delete
   instance:
+    - delete
     - get
     - head
-    - patch
     - put
+  instance_attrs:
     - delete
+    - get
+    - head
+    - put
 descriptions:
   resource:
     get: List all addresses in this addressbook.
@@ -159,14 +154,15 @@ descriptions:
     get: Get a specific address from this addressbook.
     head: Determine the existence and size of this address.
     patch: Patch this address in the addressbook.
-    put: Put a new address in this addressbook, with the given address key.
+    put: Update an existing address in this addressbook, with the given address key.
     delete: Delete an address from this addressbook.
+# Metadata: end
 schema:
   type: array
   key:
     name: address_key
+    description: A unique identifier for an addressbook entry.
     schema:
-      description: A unique identifier for an addressbook entry.
       type: string
   #responseCodes:
   # - 200
@@ -174,6 +170,7 @@ schema:
   query_params:
     - name: city
       description: Filter by city name
+      required: false
       schema:
         type: string
       methods:
@@ -181,9 +178,16 @@ schema:
   items:
     type: object
     properties:
+      # embeded person
+      person:
+        description: This is a person object that lives at this address.
+        schema:
+          $ref: "person.yaml#/schema"
       addrtype:
         description: The address type, e.g. work or home
         type: string
+        # Don't expose this attribute in the URL/specification
+        # expose: false
         enum:
           - work
           - home
@@ -199,17 +203,20 @@ schema:
       country:
         description: The country of this address
         type: string
+      people:
+        description: A list of people's names living there
+        type: array
+        items:
+          type: string
+    required:
+      - addrtype
+      - street
+      - city
+      - state
+      - country
 ```
 
-### Metadata
-
-There is a certain amount of metadata that all of these specifications use/require.  This is done at the top of the `resource.yaml` file, and in this case, for the addressBook, this is what the metadata looks like:
-
-```yaml
-name: addressBook
-description: An example of an addressBook resource
-version: 1.0
-```
+### Schema Metadata Fields
 
 #### `name`
 
@@ -235,36 +242,21 @@ or optionally you can provide a list of the HTTP methods, for which `firestone` 
 
 #### `methods`
 
-This is a map/dict of `resource`, and/or `instance`, and/or `instance_attrs` (the instance attributes to expose), and a list of methods to explicitly expose, for example:
+This is a map/dict of `resource`, and/or `instance`, and/or `instance_attrs` (the instance attributes to expose), and a list of methods to explicitly expose.
 
-```yaml
-methods:
-  resource:
-    - get
-    - post
-    - put
-```
 #### `descriptions`
 
-This is a map/dict of either `resource` and/or `instance`, which itself is a map or methods to descriptions, for example:
-
-```yaml
-descriptions:
-  resource:
-    get: List all addresses in this addressbook.
-    head: Determine the existence and size of addresses in this addressbook.
-    patch: Patch one or more addresses in this addressbook.
-    post: Create a new address in this addressbook, a new address key will be created.
-    delete: Delete all addresses from this addressbook.
-```
+This is a map/dict of either `resource` and/or `instance`, which itself is a map or methods to descriptions.
 
 ### Generate OpenAPI Client
 
-Now, to generate your OpenAPI client, you will need the `openapi-generator` command, and this can be used to generate client code in many languages. For more details on this project, see [here](https://openapi-generator.tech/).
+Now, to generate your OpenAPI client, you will need the `openapi-generator` command ([installation instructions](https://openapi-generator.tech/docs/installation) to generate client code in many languages. 
+
+> Please check out the [OpenAPI Project](https://openapi-generator.tech/) for more details.
 
 This client code can then be used as an SDK or used by our CLI generation, for example:
 
-```
+```zsh
 openapi-generator generate \
     -i examples/addressbook/openapi.yaml \
     -g python-nextgen \
@@ -276,6 +268,8 @@ openapi-generator generate \
 ### Generate Python CRUD CLI
 
 Now that you have generated the client code, you can also generate a CRUD, Python Click-based CLI around your code. This generator creates a standalone script or as a module to be used in your console scripts, as part of your project build.
+
+> Please checkout the [Click Project](https://click.palletsprojects.com) for more details.
 
 Here is an example command we use to generate the example Addressbook.
 
