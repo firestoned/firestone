@@ -1,11 +1,11 @@
 [![Last PR Build 🐍](https://github.com/firestoned/firestone/actions/workflows/pr.yml/badge.svg)](https://github.com/firestoned/firestone/actions/workflows/pr.yml)
 <!-- Pytest Coverage Comment:Begin -->
-<a href="https://github.com/bradpenney/firestone/blob/main/README.md"><img alt="Coverage" src="https://img.shields.io/badge/Coverage-43%25-orange.svg" /></a>
+<a href="https://github.com/firestoned/firestone/blob/main/README.md"><img alt="Coverage" src="https://img.shields.io/badge/Coverage-43%25-orange.svg" /></a>
 <!-- Pytest Coverage Comment:End -->
 
 # Firestone
 
-#### A Resource-Based Approach to Building APIs
+### A Resource-Based Approach to Building APIs
 
 `firestone` allows you to build OpenAPI, AsyncAPI and gRPC specs based off one or more resource JSON schema files. This allows you to focus on what really matters, the resource you are developing!
 
@@ -46,6 +46,7 @@ If you're adding `firestone` to a `poetry` project:
 
 ```zsh
 poetry add firestoned
+poetry build
 ```
 
 ## Running
