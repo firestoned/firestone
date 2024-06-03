@@ -30,13 +30,16 @@ jobs:
         run: |
           poetry install
           poetry build
+
       - name: pylint and pycodestyle
         run: |
           poetry run pylint firestone test
           poetry run pycodestyle --config .pycodestyle firestone test
+
       - name: Test with pytest
         run: |
           poetry run pytest --color=yes --cache-clear --cov-report=term-missing:skip-covered --junitxml=./pytest-coverage.xml --cov=firestone test/ > ./pytest-coverage.txt
+
       - name: Pytest coverage comment
         if: ${{ github.ref == 'refs/heads/main' }}
         id: coverageComment
@@ -46,6 +49,7 @@ jobs:
           hide-report: true
           pytest-coverage-path: ./pytest-coverage.txt
           junitxml-path: ./pytest-coverage.xml
+
       - name: Update README with Coverage HTML
         if: ${{ github.ref == 'refs/heads/main' }}
         run: |
