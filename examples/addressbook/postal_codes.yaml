@@ -21,12 +21,9 @@ methods:
     - delete
     - get
     - head
-    - put
   instance_attrs:
     - delete
     - get
-    - head
-    - put
 descriptions:
   resource:
     get: List all postal codes in this collection

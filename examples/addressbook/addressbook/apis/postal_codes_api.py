@@ -24,7 +24,6 @@ from fastapi import (  # noqa: F401
 from addressbook.models.extra_models import TokenModel  # noqa: F401
 from addressbook.models.create_postal_code import CreatePostalCode
 from addressbook.models.postal_code import PostalCode
-from addressbook.models.update_postal_code import UpdatePostalCode
 from addressbook.security_api import get_token_bearer_auth
 
 router = APIRouter()
@@ -156,55 +155,3 @@ async def postal_codes_uuid_name_get(
 ) -> str:
     """get operation for /postal_codes/{uuid}/name"""
     return BasePostalCodesApi.subclasses[0]().postal_codes_uuid_name_get(uuid, name)
-
-
-@router.head(
-    "/postal_codes/{uuid}/name",
-    responses={
-        200: {"description": "Default HEAD response"},
-    },
-    tags=["postal_codes"],
-    response_model_by_alias=True,
-)
-async def postal_codes_uuid_name_head(
-    uuid: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> None:
-    """head operation for /postal_codes/{uuid}/name"""
-    return BasePostalCodesApi.subclasses[0]().postal_codes_uuid_name_head(uuid)
-
-
-@router.put(
-    "/postal_codes/{uuid}/name",
-    responses={
-        200: {"model": str, "description": "Response for OK"},
-    },
-    tags=["postal_codes"],
-    response_model_by_alias=True,
-)
-async def postal_codes_uuid_name_put(
-    uuid: str = Path(..., description=""),
-    body: str = Body(None, description="The request body for /postal_codes/{uuid}/name"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> str:
-    """put operation for /postal_codes/{uuid}/name"""
-    return BasePostalCodesApi.subclasses[0]().postal_codes_uuid_name_put(uuid, body)
-
-
-@router.put(
-    "/postal_codes/{uuid}",
-    responses={
-        200: {"model": UpdatePostalCode, "description": "Response for OK"},
-    },
-    tags=["postal_codes"],
-    response_model_by_alias=True,
-)
-async def postal_codes_uuid_put(
-    uuid: str = Path(..., description=""),
-    update_postal_code: UpdatePostalCode = Body(
-        None, description="The request body for /postal_codes/{uuid}"
-    ),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> UpdatePostalCode:
-    """Put a new postal code in this collection, with the given UUId key"""
-    return BasePostalCodesApi.subclasses[0]().postal_codes_uuid_put(uuid, update_postal_code)

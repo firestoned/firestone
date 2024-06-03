@@ -29,7 +29,6 @@ from addressbook.client.models import update_person as update_person_model
 from addressbook.client.api import postal_codes_api
 from addressbook.client.models import postal_code as postal_code_model
 from addressbook.client.models import create_postal_code as create_postal_code_model
-from addressbook.client.models import update_postal_code as update_postal_code_model
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -556,30 +555,6 @@ async def postal_codes_uuid_get(ctx_obj, name, uuid):
     }
 
     resp = await api_obj.postal_codes_uuid_get(uuid, **params)
-    _LOGGER.debug(f"resp: {resp}")
-
-    if isinstance(resp, list):
-        print(json.dumps([obj.to_dict() for obj in resp]))
-        return
-
-    print(json.dumps(resp.to_dict()) if resp else "None")
-
-
-@postal_codes.command("update")
-@click.option("--name", help="The postal code's name/id", type=str, required=False)
-@click.argument("uuid", type=str)
-@click.pass_obj
-@firestone_utils.click_coro
-@api_exc
-async def postal_codes_uuid_put(ctx_obj, name, uuid):
-    """Put a new postal code in this collection, with the given UUId key"""
-    api_obj = ctx_obj["api_obj"]
-    params = {
-        "name": name,
-    }
-
-    req_body = update_postal_code_model.UpdatePostal_code(**params)
-    resp = await api_obj.postal_codes_uuid_put(uuid, req_body)
     _LOGGER.debug(f"resp: {resp}")
 
     if isinstance(resp, list):

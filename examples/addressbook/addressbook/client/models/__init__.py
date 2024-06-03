@@ -22,4 +22,3 @@ from addressbook.client.models.person import Person
 from addressbook.client.models.postal_code import PostalCode
 from addressbook.client.models.update_addressbook import UpdateAddressbook
 from addressbook.client.models.update_person import UpdatePerson
-from addressbook.client.models.update_postal_code import UpdatePostalCode
