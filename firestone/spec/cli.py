@@ -308,6 +308,7 @@ def generate(
             }
         )
 
+    _LOGGER.info(f"rsrcs: {rsrcs}")
     tmpl = spec_base.JINJA_ENV.get_template("main.py.jinja2")
     return tmpl.render(
         title=title,

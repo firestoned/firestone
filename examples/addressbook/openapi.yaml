@@ -34,10 +34,6 @@ components:
       allOf:
       - $ref: '#/components/schemas/person'
       - type: object
-    UpdatePostal_code:
-      allOf:
-      - $ref: '#/components/schemas/postal_code'
-      - type: object
     addressbook:
       properties:
         addrtype:
@@ -1966,31 +1962,6 @@ paths:
           description: Default HEAD response
       tags:
       - postal_codes
-    put:
-      description: Put a new postal code in this collection, with the given UUId key
-      operationId: postal_codes_uuid_put
-      parameters:
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdatePostal_code'
-        description: The request body for /postal_codes/{uuid}
-        required: true
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UpdatePostal_code'
-          description: Response for OK
-      tags:
-      - postal_codes
   /postal_codes/{uuid}/name:
     delete:
       description: delete operation for /postal_codes/{uuid}/name
@@ -2026,45 +1997,6 @@ paths:
         required: true
         schema:
           type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema: *id025
-          description: Response for OK
-      tags:
-      - postal_codes
-    head:
-      description: head operation for /postal_codes/{uuid}/name
-      operationId: postal_codes_uuid_name_head
-      parameters:
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        default:
-          description: Default HEAD response
-      tags:
-      - postal_codes
-    put:
-      description: put operation for /postal_codes/{uuid}/name
-      operationId: postal_codes_uuid_name_put
-      parameters:
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              description: The postal code's name/id
-              type: string
-        description: The request body for /postal_codes/{uuid}/name
-        required: true
       responses:
         200:
           content:

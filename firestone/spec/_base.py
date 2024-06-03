@@ -10,6 +10,7 @@ DEFAULT_CONTENT_TYPE = "application/json"
 JINJA_ENV = jinja2.Environment(
     loader=jinja2.PackageLoader("firestone", package_path="schema"),
     autoescape=jinja2.select_autoescape(),
+    extensions=["jinja2.ext.loopcontrols"],
 )
 
 

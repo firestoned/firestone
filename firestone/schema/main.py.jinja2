@@ -16,11 +16,31 @@ from {{ client_pkg }} import api_client
 from {{ client_pkg }} import configuration
 from {{ client_pkg }} import exceptions
 {% for rsrc in rsrcs -%}
+
+{% set ns = namespace(has_create=False, has_update=False) -%}
+{% for op in rsrc["operations"]["resource"] -%}
+{% if op["name"] == "create" -%}
+{% set ns.has_create = True -%}
+{% break -%}
+{% endif -%}
+{% endfor -%}
+
+{% for op in rsrc["operations"]["instance"] -%}
+{% if op["name"] == "update" -%}
+{% set ns.has_update = True -%}
+{% break -%}
+{% endif -%}
+{% endfor -%}
+
 {% set comp_name = rsrc["name"] if not rsrc["name"].endswith("s") else rsrc["name"][:-1] %}
 from {{ client_pkg }}.api import {{ rsrc["name"] }}_api
 from {{ client_pkg }}.models import {{ comp_name }} as {{ comp_name }}_model
+{% if ns.has_create -%}
 from {{ client_pkg }}.models import create_{{ comp_name }} as create_{{ comp_name }}_model
+{% endif -%}
+{% if ns.has_update -%}
 from {{ client_pkg }}.models import update_{{ comp_name }} as update_{{ comp_name }}_model
+{% endif -%}
 {% endfor %}
 
 _LOGGER = logging.getLogger(__name__)
@@ -210,7 +230,7 @@ async def {{ op["id"] }}(ctx_obj{% for attr in op["attrs"]|sort(attribute='name'
     {% set comp_name = rsrc["name"] if not rsrc["name"].endswith("s") else rsrc["name"][:-1] %}
     {% if op["name"] == "create" %}
     req_body = create_{{ comp_name }}_model.{{ comp_name.capitalize(**params) }}()
-    {% elif op["name"] in "update" %}
+    {% elif op["name"] == "update" %}
     req_body = update_{{ comp_name }}_model.Update{{ comp_name.capitalize() }}(**params)
     resp = await api_obj.{{ op["id"] }}(
         {% for attr in op["attrs"]|sort(attribute='name') -%}

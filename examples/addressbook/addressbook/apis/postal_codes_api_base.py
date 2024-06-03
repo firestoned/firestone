@@ -4,7 +4,6 @@ from typing import ClassVar, Dict, List, Tuple  # noqa: F401
 
 from addressbook.models.create_postal_code import CreatePostalCode
 from addressbook.models.postal_code import PostalCode
-from addressbook.models.update_postal_code import UpdatePostalCode
 from addressbook.security_api import get_token_bearer_auth
 
 
@@ -68,27 +67,4 @@ class BasePostalCodesApi:
         name: str,
     ) -> str:
         """get operation for /postal_codes/{uuid}/name"""
-        ...
-
-    def postal_codes_uuid_name_head(
-        self,
-        uuid: str,
-    ) -> None:
-        """head operation for /postal_codes/{uuid}/name"""
-        ...
-
-    def postal_codes_uuid_name_put(
-        self,
-        uuid: str,
-        body: str,
-    ) -> str:
-        """put operation for /postal_codes/{uuid}/name"""
-        ...
-
-    def postal_codes_uuid_put(
-        self,
-        uuid: str,
-        update_postal_code: UpdatePostalCode,
-    ) -> UpdatePostalCode:
-        """Put a new postal code in this collection, with the given UUId key"""
         ...
