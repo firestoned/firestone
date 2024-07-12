@@ -118,6 +118,11 @@ def main(ctx, debug, api_key, api_url, client_cert, client_key, trust_proxy):
         config.cert_file = client_cert
     if client_key:
         config.key_file = client_key
+    if "SSL_CA_CERT" in os.environ:
+        config.ssl_ca_cert = os.environ["SSL_CA_CERT"]
+    if "REQUESTS_CA_BUNDLE" in os.environ:
+        config.ssl_ca_cert = os.environ["REQUESTS_CA_BUNDLE"]
+
     aclient = api_client.ApiClient(configuration=config)
 
     ctx.obj = {
