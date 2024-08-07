@@ -104,6 +104,9 @@ schema:
         type: array
         items:
           type: string
+      is_valid:
+        description: Address is valid or not
+        type: boolean
     required:
       - addrtype
       - street

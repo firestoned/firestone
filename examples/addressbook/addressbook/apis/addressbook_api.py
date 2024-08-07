@@ -289,6 +289,76 @@ async def addressbook_address_key_head(
 
 
 @router.delete(
+    "/addressbook/{address_key}/is_valid",
+    responses={
+        200: {"model": bool, "description": "Response for OK"},
+    },
+    tags=["addressbook"],
+    response_model_by_alias=True,
+)
+async def addressbook_address_key_is_valid_delete(
+    address_key: str = Path(..., description=""),
+    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
+) -> bool:
+    """delete operation for /addressbook/{address_key}/is_valid"""
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_is_valid_delete(address_key)
+
+
+@router.get(
+    "/addressbook/{address_key}/is_valid",
+    responses={
+        200: {"model": bool, "description": "Response for OK"},
+    },
+    tags=["addressbook"],
+    response_model_by_alias=True,
+)
+async def addressbook_address_key_is_valid_get(
+    address_key: str = Path(..., description=""),
+    city: str = Query(None, description="Filter by city name", alias="city"),
+    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
+) -> bool:
+    """get operation for /addressbook/{address_key}/is_valid"""
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_is_valid_get(
+        address_key, city
+    )
+
+
+@router.head(
+    "/addressbook/{address_key}/is_valid",
+    responses={
+        200: {"description": "Default HEAD response"},
+    },
+    tags=["addressbook"],
+    response_model_by_alias=True,
+)
+async def addressbook_address_key_is_valid_head(
+    address_key: str = Path(..., description=""),
+    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
+) -> None:
+    """head operation for /addressbook/{address_key}/is_valid"""
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_is_valid_head(address_key)
+
+
+@router.put(
+    "/addressbook/{address_key}/is_valid",
+    responses={
+        200: {"model": bool, "description": "Response for OK"},
+    },
+    tags=["addressbook"],
+    response_model_by_alias=True,
+)
+async def addressbook_address_key_is_valid_put(
+    address_key: str = Path(..., description=""),
+    body: bool = Body(None, description="The request body for /addressbook/{address_key}/is_valid"),
+    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
+) -> bool:
+    """put operation for /addressbook/{address_key}/is_valid"""
+    return BaseAddressbookApi.subclasses[0]().addressbook_address_key_is_valid_put(
+        address_key, body
+    )
+
+
+@router.delete(
     "/addressbook/{address_key}/people",
     responses={
         200: {"model": List[str], "description": "Response for OK"},

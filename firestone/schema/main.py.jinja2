@@ -134,18 +134,16 @@ def main(ctx, debug, api_key, api_url, client_cert, client_key, trust_proxy):
     if "REQUESTS_CA_BUNDLE" in os.environ:
         config.ssl_ca_cert = os.environ["REQUESTS_CA_BUNDLE"]
 
-    aclient = api_client.ApiClient(configuration=config)
-
     ctx.obj = {
-        "api_client": aclient,
+        "api_client_config": config,
     }
-    _LOGGER.debug(f"ctx.obj: {ctx.obj}")
 
 
 {% for rsrc in rsrcs|sort(attribute='name') -%}
 @main.group()
+@firestone_utils.click_coro
 @click.pass_obj
-def {{ rsrc["name"] }}(ctx_obj):
+async def {{ rsrc["name"] }}(ctx_obj):
     """High level command for an {{ rsrc["name"] }}."""
     _LOGGER.debug(f"ctx_obj: {ctx_obj}")
     {% set clazz_name = rsrc["name"].capitalize() -%}
@@ -156,7 +154,9 @@ def {{ rsrc["name"] }}(ctx_obj):
     {% endfor -%}
     {% set clazz_name = "".join(new_clazz_name) -%}
     {% endif -%}
-    ctx_obj["api_obj"] = {{ rsrc["name"] }}_api.{{ clazz_name }}Api(api_client=ctx_obj["api_client"])
+    config = ctx_obj["api_client_config"]
+    aclient = api_client.ApiClient(configuration=config)
+    ctx_obj["api_obj"] = {{ rsrc["name"] }}_api.{{ clazz_name }}Api(api_client=aclient)
 
 
 # pylint: disable=redefined-builtin
@@ -164,7 +164,13 @@ def {{ rsrc["name"] }}(ctx_obj):
 {% for op in rsrc["operations"]["resource"]|sort(attribute='name') -%}
 @{{ rsrc["name"] }}.command("{{ op["name"] }}")
 {% for attr in op["attrs"]|sort(attribute='name') -%}
-@click.option("--{{ attr["name"].replace("_", "-") }}", help="{{ attr["description"] }}", type={{ attr["type"] }}, required={{ attr["required"] }})
+@click.option("--{{ attr["name"].replace("_", "-") }}{%-
+    if attr["type"] == "bool" -%}
+    /--no-{{ attr["name"].replace("_", "-") }}
+    {%- endif -%}
+", help="{{ attr["description"] }}", {%-
+    if attr["type"] == "bool" -%}
+    is_flag=True, {% else %} type={{ attr["type"] }}, {% endif -%} show_default=True, required={{ attr["required"] }})
 {% endfor -%}
 @click.pass_obj
 @firestone_utils.click_coro

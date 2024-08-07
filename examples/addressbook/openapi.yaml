@@ -48,6 +48,9 @@ components:
         country:
           description: The country of this address
           type: string
+        is_valid:
+          description: Address is valid or not
+          type: boolean
         people:
           description: A list of people's names living there
           items:
@@ -482,6 +485,88 @@ paths:
           description: Response for OK
       tags:
       - addressbook
+  /addressbook/{address_key}/is_valid:
+    delete:
+      description: delete operation for /addressbook/{address_key}/is_valid
+      operationId: addressbook_address_key_is_valid_delete
+      parameters:
+      - in: path
+        name: address_key
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema: &id007
+                description: Address is valid or not
+                type: boolean
+          description: Response for OK
+      tags:
+      - addressbook
+    get:
+      description: get operation for /addressbook/{address_key}/is_valid
+      operationId: addressbook_address_key_is_valid_get
+      parameters:
+      - description: Filter by city name
+        in: query
+        name: city
+        required: false
+        schema:
+          type: string
+      - in: path
+        name: address_key
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema: *id007
+          description: Response for OK
+      tags:
+      - addressbook
+    head:
+      description: head operation for /addressbook/{address_key}/is_valid
+      operationId: addressbook_address_key_is_valid_head
+      parameters:
+      - in: path
+        name: address_key
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: Default HEAD response
+      tags:
+      - addressbook
+    put:
+      description: put operation for /addressbook/{address_key}/is_valid
+      operationId: addressbook_address_key_is_valid_put
+      parameters:
+      - in: path
+        name: address_key
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: Address is valid or not
+              type: boolean
+        description: The request body for /addressbook/{address_key}/is_valid
+        required: true
+      responses:
+        200:
+          content:
+            application/json:
+              schema: *id007
+          description: Response for OK
+      tags:
+      - addressbook
   /addressbook/{address_key}/people:
     delete:
       description: delete operation for /addressbook/{address_key}/people
@@ -496,7 +581,7 @@ paths:
         200:
           content:
             application/json:
-              schema: &id007
+              schema: &id008
                 description: A list of people's names living there
                 items:
                   type: string
@@ -523,7 +608,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id007
+              schema: *id008
           description: Response for OK
       tags:
       - addressbook
@@ -564,7 +649,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id007
+              schema: *id008
           description: Response for OK
       tags:
       - addressbook
@@ -667,7 +752,7 @@ paths:
       requestBody:
         content:
           application/json:
-            schema: &id008
+            schema: &id009
               $ref: '#/components/schemas/CreatePerson'
         description: The request body for /addressbook/{address_key}/person
         required: true
@@ -675,7 +760,7 @@ paths:
         201:
           content:
             application/json:
-              schema: *id008
+              schema: *id009
           description: Response for CREATED
       tags:
       - addressbook
@@ -823,7 +908,7 @@ paths:
         200:
           content:
             application/json:
-              schema: &id009
+              schema: &id010
                 description: The person's age
                 type: integer
           description: Response for OK
@@ -853,7 +938,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id009
+              schema: *id010
           description: Response for OK
       tags:
       - addressbook
@@ -902,7 +987,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id009
+              schema: *id010
           description: Response for OK
       tags:
       - addressbook
@@ -925,7 +1010,7 @@ paths:
         200:
           content:
             application/json:
-              schema: &id010
+              schema: &id011
                 description: The person's first name
                 type: string
           description: Response for OK
@@ -955,7 +1040,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id010
+              schema: *id011
           description: Response for OK
       tags:
       - addressbook
@@ -1004,7 +1089,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id010
+              schema: *id011
           description: Response for OK
       tags:
       - addressbook
@@ -1027,7 +1112,7 @@ paths:
         200:
           content:
             application/json:
-              schema: &id011
+              schema: &id012
                 description: The person's hobbies
                 items:
                   type: string
@@ -1059,7 +1144,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id011
+              schema: *id012
           description: Response for OK
       tags:
       - addressbook
@@ -1110,7 +1195,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id011
+              schema: *id012
           description: Response for OK
       tags:
       - addressbook
@@ -1133,7 +1218,7 @@ paths:
         200:
           content:
             application/json:
-              schema: &id012
+              schema: &id013
                 description: The person's last name
                 type: string
           description: Response for OK
@@ -1163,7 +1248,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id012
+              schema: *id013
           description: Response for OK
       tags:
       - addressbook
@@ -1212,7 +1297,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id012
+              schema: *id013
           description: Response for OK
       tags:
       - addressbook
@@ -1230,7 +1315,7 @@ paths:
         200:
           content:
             application/json:
-              schema: &id013
+              schema: &id014
                 description: The state of this address
                 type: string
           description: Response for OK
@@ -1255,7 +1340,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id013
+              schema: *id014
           description: Response for OK
       tags:
       - addressbook
@@ -1294,7 +1379,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id013
+              schema: *id014
           description: Response for OK
       tags:
       - addressbook
@@ -1312,7 +1397,7 @@ paths:
         200:
           content:
             application/json:
-              schema: &id014
+              schema: &id015
                 description: The street and civic number of this address
                 type: string
           description: Response for OK
@@ -1337,7 +1422,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id014
+              schema: *id015
           description: Response for OK
       tags:
       - addressbook
@@ -1376,7 +1461,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id014
+              schema: *id015
           description: Response for OK
       tags:
       - addressbook
@@ -1391,13 +1476,13 @@ paths:
         required: false
         schema:
           type: string
-      - &id015
+      - &id016
         description: Limit the number of responses back
         in: query
         name: limit
         schema:
           type: integer
-      - &id016
+      - &id017
         description: The offset to start returning resources
         in: query
         name: offset
@@ -1418,12 +1503,12 @@ paths:
       description: Create a new person in this collection, a new UUID key will be created
       operationId: persons_post
       parameters:
-      - *id015
       - *id016
+      - *id017
       requestBody:
         content:
           application/json:
-            schema: &id017
+            schema: &id018
               $ref: '#/components/schemas/CreatePerson'
         description: The request body for /persons
         required: true
@@ -1431,7 +1516,7 @@ paths:
         201:
           content:
             application/json:
-              schema: *id017
+              schema: *id018
           description: Response for CREATED
       tags:
       - persons
@@ -1531,7 +1616,7 @@ paths:
         200:
           content:
             application/json:
-              schema: &id018
+              schema: &id019
                 description: The person's age
                 type: integer
           description: Response for OK
@@ -1556,7 +1641,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id018
+              schema: *id019
           description: Response for OK
       tags:
       - persons
@@ -1595,7 +1680,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id018
+              schema: *id019
           description: Response for OK
       tags:
       - persons
@@ -1613,7 +1698,7 @@ paths:
         200:
           content:
             application/json:
-              schema: &id019
+              schema: &id020
                 description: The person's first name
                 type: string
           description: Response for OK
@@ -1638,7 +1723,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id019
+              schema: *id020
           description: Response for OK
       tags:
       - persons
@@ -1677,7 +1762,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id019
+              schema: *id020
           description: Response for OK
       tags:
       - persons
@@ -1695,7 +1780,7 @@ paths:
         200:
           content:
             application/json:
-              schema: &id020
+              schema: &id021
                 description: The person's hobbies
                 items:
                   type: string
@@ -1722,7 +1807,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id020
+              schema: *id021
           description: Response for OK
       tags:
       - persons
@@ -1763,7 +1848,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id020
+              schema: *id021
           description: Response for OK
       tags:
       - persons
@@ -1781,7 +1866,7 @@ paths:
         200:
           content:
             application/json:
-              schema: &id021
+              schema: &id022
                 description: The person's last name
                 type: string
           description: Response for OK
@@ -1806,7 +1891,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id021
+              schema: *id022
           description: Response for OK
       tags:
       - persons
@@ -1845,7 +1930,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id021
+              schema: *id022
           description: Response for OK
       tags:
       - persons
@@ -1860,13 +1945,13 @@ paths:
         required: false
         schema:
           type: string
-      - &id022
+      - &id023
         description: Limit the number of responses back
         in: query
         name: limit
         schema:
           type: integer
-      - &id023
+      - &id024
         description: The offset to start returning resources
         in: query
         name: offset
@@ -1888,12 +1973,12 @@ paths:
         be created
       operationId: postal_codes_post
       parameters:
-      - *id022
       - *id023
+      - *id024
       requestBody:
         content:
           application/json:
-            schema: &id024
+            schema: &id025
               $ref: '#/components/schemas/CreatePostal_code'
         description: The request body for /postal_codes
         required: true
@@ -1901,7 +1986,7 @@ paths:
         201:
           content:
             application/json:
-              schema: *id024
+              schema: *id025
           description: Response for CREATED
       tags:
       - postal_codes
@@ -1976,7 +2061,7 @@ paths:
         200:
           content:
             application/json:
-              schema: &id025
+              schema: &id026
                 description: The postal code's name/id
                 type: string
           description: Response for OK
@@ -2001,7 +2086,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id025
+              schema: *id026
           description: Response for OK
       tags:
       - postal_codes

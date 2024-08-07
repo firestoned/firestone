@@ -18,7 +18,7 @@ import re  # noqa: F401
 import json
 
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from addressbook.models.person import Person
 
@@ -38,6 +38,7 @@ class Addressbook(BaseModel):
     )
     city: Optional[StrictStr] = Field(default=None, description="The city of this address")
     country: Optional[StrictStr] = Field(default=None, description="The country of this address")
+    is_valid: Optional[StrictBool] = Field(default=None, description="Address is valid or not")
     people: Optional[List[StrictStr]] = Field(
         default=None, description="A list of people's names living there"
     )
@@ -50,6 +51,7 @@ class Addressbook(BaseModel):
         "addrtype",
         "city",
         "country",
+        "is_valid",
         "people",
         "person",
         "state",
@@ -120,6 +122,7 @@ class Addressbook(BaseModel):
                 "addrtype": obj.get("addrtype"),
                 "city": obj.get("city"),
                 "country": obj.get("country"),
+                "is_valid": obj.get("is_valid"),
                 "people": obj.get("people"),
                 "person": (
                     Person.from_dict(obj.get("person")) if obj.get("person") is not None else None

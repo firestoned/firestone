@@ -123,20 +123,20 @@ def main(ctx, debug, api_key, api_url, client_cert, client_key, trust_proxy):
     if "REQUESTS_CA_BUNDLE" in os.environ:
         config.ssl_ca_cert = os.environ["REQUESTS_CA_BUNDLE"]
 
-    aclient = api_client.ApiClient(configuration=config)
-
     ctx.obj = {
-        "api_client": aclient,
+        "api_client_config": config,
     }
-    _LOGGER.debug(f"ctx.obj: {ctx.obj}")
 
 
 @main.group()
+@firestone_utils.click_coro
 @click.pass_obj
-def addressbook(ctx_obj):
+async def addressbook(ctx_obj):
     """High level command for an addressbook."""
     _LOGGER.debug(f"ctx_obj: {ctx_obj}")
-    ctx_obj["api_obj"] = addressbook_api.AddressbookApi(api_client=ctx_obj["api_client"])
+    config = ctx_obj["api_client_config"]
+    aclient = api_client.ApiClient(configuration=config)
+    ctx_obj["api_obj"] = addressbook_api.AddressbookApi(api_client=aclient)
 
 
 # pylint: disable=redefined-builtin
@@ -145,33 +145,57 @@ def addressbook(ctx_obj):
     "--addrtype",
     help="The address type, e.g. work or home",
     type=click.Choice(["work", "home"]),
+    show_default=True,
     required=True,
 )
-@click.option("--city", help="The city of this address", type=str, required=True)
-@click.option("--country", help="The country of this address", type=str, required=True)
+@click.option("--city", help="The city of this address", type=str, show_default=True, required=True)
 @click.option(
-    "--people", help="A list of people's names living there", type=cli.StrList, required=False
+    "--country", help="The country of this address", type=str, show_default=True, required=True
+)
+@click.option(
+    "--is-valid/--no-is-valid",
+    help="Address is valid or not",
+    is_flag=True,
+    show_default=True,
+    required=False,
+)
+@click.option(
+    "--people",
+    help="A list of people's names living there",
+    type=cli.StrList,
+    show_default=True,
+    required=False,
 )
 @click.option(
     "--person",
     help="This is a person object that lives at this address.",
     type=cli.FromJsonOrYaml(),
+    show_default=True,
     required=False,
 )
-@click.option("--state", help="The state of this address", type=str, required=True)
 @click.option(
-    "--street", help="The street and civic number of this address", type=str, required=True
+    "--state", help="The state of this address", type=str, show_default=True, required=True
+)
+@click.option(
+    "--street",
+    help="The street and civic number of this address",
+    type=str,
+    show_default=True,
+    required=True,
 )
 @click.pass_obj
 @firestone_utils.click_coro
 @api_exc
-async def addressbook_post(ctx_obj, addrtype, city, country, people, person, state, street):
+async def addressbook_post(
+    ctx_obj, addrtype, city, country, is_valid, people, person, state, street
+):
     """Create a new address in this addressbook, a new address key will be created."""
     api_obj = ctx_obj["api_obj"]
     params = {
         "addrtype": addrtype,
         "city": city,
         "country": country,
+        "is_valid": is_valid,
         "people": people,
         "person": person,
         "state": state,
@@ -193,9 +217,21 @@ async def addressbook_post(ctx_obj, addrtype, city, country, people, person, sta
 
 
 @addressbook.command("list")
-@click.option("--city", help="Filter by city name", type=str, required=False)
-@click.option("--limit", help="Limit the number of responses back", type=int, required=False)
-@click.option("--offset", help="The offset to start returning resources", type=int, required=False)
+@click.option("--city", help="Filter by city name", type=str, show_default=True, required=False)
+@click.option(
+    "--limit",
+    help="Limit the number of responses back",
+    type=int,
+    show_default=True,
+    required=False,
+)
+@click.option(
+    "--offset",
+    help="The offset to start returning resources",
+    type=int,
+    show_default=True,
+    required=False,
+)
 @click.pass_obj
 @firestone_utils.click_coro
 @api_exc
@@ -275,6 +311,7 @@ async def addressbook_address_key_get(ctx_obj, address_key, city):
 )
 @click.option("--city", help="The city of this address", type=str, required=False)
 @click.option("--country", help="The country of this address", type=str, required=False)
+@click.option("--is-valid", help="Address is valid or not", type=bool, required=False)
 @click.option(
     "--people", help="A list of people's names living there", type=cli.StrList, required=False
 )
@@ -292,7 +329,7 @@ async def addressbook_address_key_get(ctx_obj, address_key, city):
 @firestone_utils.click_coro
 @api_exc
 async def addressbook_address_key_put(
-    ctx_obj, address_key, addrtype, city, country, people, person, state, street
+    ctx_obj, address_key, addrtype, city, country, is_valid, people, person, state, street
 ):
     """Update an existing address in this addressbook, with the given address key."""
     api_obj = ctx_obj["api_obj"]
@@ -300,6 +337,7 @@ async def addressbook_address_key_put(
         "addrtype": addrtype,
         "city": city,
         "country": country,
+        "is_valid": is_valid,
         "people": people,
         "person": person,
         "state": state,
@@ -318,19 +356,28 @@ async def addressbook_address_key_put(
 
 
 @main.group()
+@firestone_utils.click_coro
 @click.pass_obj
-def persons(ctx_obj):
+async def persons(ctx_obj):
     """High level command for an persons."""
     _LOGGER.debug(f"ctx_obj: {ctx_obj}")
-    ctx_obj["api_obj"] = persons_api.PersonsApi(api_client=ctx_obj["api_client"])
+    config = ctx_obj["api_client_config"]
+    aclient = api_client.ApiClient(configuration=config)
+    ctx_obj["api_obj"] = persons_api.PersonsApi(api_client=aclient)
 
 
 # pylint: disable=redefined-builtin
 @persons.command("create")
-@click.option("--age", help="The person's age", type=int, required=False)
-@click.option("--first-name", help="The person's first name", type=str, required=False)
-@click.option("--hobbies", help="The person's hobbies", type=cli.StrList, required=False)
-@click.option("--last-name", help="The person's last name", type=str, required=False)
+@click.option("--age", help="The person's age", type=int, show_default=True, required=False)
+@click.option(
+    "--first-name", help="The person's first name", type=str, show_default=True, required=False
+)
+@click.option(
+    "--hobbies", help="The person's hobbies", type=cli.StrList, show_default=True, required=False
+)
+@click.option(
+    "--last-name", help="The person's last name", type=str, show_default=True, required=False
+)
 @click.pass_obj
 @firestone_utils.click_coro
 @api_exc
@@ -359,9 +406,23 @@ async def persons_post(ctx_obj, age, first_name, hobbies, last_name):
 
 
 @persons.command("list")
-@click.option("--last-name", help="Filter by last name", type=str, required=False)
-@click.option("--limit", help="Limit the number of responses back", type=int, required=False)
-@click.option("--offset", help="The offset to start returning resources", type=int, required=False)
+@click.option(
+    "--last-name", help="Filter by last name", type=str, show_default=True, required=False
+)
+@click.option(
+    "--limit",
+    help="Limit the number of responses back",
+    type=int,
+    show_default=True,
+    required=False,
+)
+@click.option(
+    "--offset",
+    help="The offset to start returning resources",
+    type=int,
+    show_default=True,
+    required=False,
+)
 @click.pass_obj
 @firestone_utils.click_coro
 @api_exc
@@ -462,16 +523,21 @@ async def persons_uuid_put(ctx_obj, age, first_name, hobbies, last_name, uuid):
 
 
 @main.group()
+@firestone_utils.click_coro
 @click.pass_obj
-def postal_codes(ctx_obj):
+async def postal_codes(ctx_obj):
     """High level command for an postal_codes."""
     _LOGGER.debug(f"ctx_obj: {ctx_obj}")
-    ctx_obj["api_obj"] = postal_codes_api.PostalCodesApi(api_client=ctx_obj["api_client"])
+    config = ctx_obj["api_client_config"]
+    aclient = api_client.ApiClient(configuration=config)
+    ctx_obj["api_obj"] = postal_codes_api.PostalCodesApi(api_client=aclient)
 
 
 # pylint: disable=redefined-builtin
 @postal_codes.command("create")
-@click.option("--name", help="The postal code's name/id", type=str, required=False)
+@click.option(
+    "--name", help="The postal code's name/id", type=str, show_default=True, required=False
+)
 @click.pass_obj
 @firestone_utils.click_coro
 @api_exc
@@ -497,9 +563,21 @@ async def postal_codes_post(ctx_obj, name):
 
 
 @postal_codes.command("list")
-@click.option("--limit", help="Limit the number of responses back", type=int, required=False)
-@click.option("--name", help="Filter by name", type=str, required=False)
-@click.option("--offset", help="The offset to start returning resources", type=int, required=False)
+@click.option(
+    "--limit",
+    help="Limit the number of responses back",
+    type=int,
+    show_default=True,
+    required=False,
+)
+@click.option("--name", help="Filter by name", type=str, show_default=True, required=False)
+@click.option(
+    "--offset",
+    help="The offset to start returning resources",
+    type=int,
+    show_default=True,
+    required=False,
+)
 @click.pass_obj
 @firestone_utils.click_coro
 @api_exc
