@@ -130,6 +130,36 @@ class BaseAddressbookApi:
         """Determine the existence and size of this address."""
         ...
 
+    def addressbook_address_key_is_valid_delete(
+        self,
+        address_key: str,
+    ) -> bool:
+        """delete operation for /addressbook/{address_key}/is_valid"""
+        ...
+
+    def addressbook_address_key_is_valid_get(
+        self,
+        address_key: str,
+        city: str,
+    ) -> bool:
+        """get operation for /addressbook/{address_key}/is_valid"""
+        ...
+
+    def addressbook_address_key_is_valid_head(
+        self,
+        address_key: str,
+    ) -> None:
+        """head operation for /addressbook/{address_key}/is_valid"""
+        ...
+
+    def addressbook_address_key_is_valid_put(
+        self,
+        address_key: str,
+        body: bool,
+    ) -> bool:
+        """put operation for /addressbook/{address_key}/is_valid"""
+        ...
+
     def addressbook_address_key_people_delete(
         self,
         address_key: str,

@@ -10,6 +10,7 @@ from firestone.spec import openapi as spec_openapi
 PARAM_TYPE_TO_ATTR_TYPE = {
     "string": "str",
     "integer": "int",
+    "boolean": "bool",
 }
 
 _LOGGER = logging.getLogger(__name__)
