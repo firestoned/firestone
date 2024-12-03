@@ -1,7 +1,9 @@
-name: postal_codes
-description: An example of a postal code resource
-version: 1.0
-version_in_path: false
+# Meta data: start
+kind: postal_codes
+apiVersion: v1
+metadata:
+  description: An example of a postal code resource
+versionInPath: false
 default_query_params:
   - name: limit
     description: Limit the number of responses back

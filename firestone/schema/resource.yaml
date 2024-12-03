@@ -1,17 +1,59 @@
 type: object
 properties:
-  name:
-    description: The name of the resource
+  kind:
+    description: The "kind" or type of resource
     type: string
-  description:
-    description: The description of the resource
-    type: string
-  version:
+  apiVersion:
     description: The version of the resource
-    type: number
-  version_in_path:
+    type: string
+  versionInPath:
     description: Whether to prepend to all paths version to the path, e.g. /v1.0
     type: boolean
+  metadata:
+    type: object
+    properties:
+      name:
+        description: The name of the resource
+        type: string
+      description:
+        description: The description of the resource
+        type: string
+  asyncapi:
+    type: object
+    description: Configuration for asyncapi generation
+    properties:
+      servers:
+        description: A dictionary of servers by environment
+        type: object
+      channels:
+        description: A dictionary of channels
+        type: object
+    additionalProperties: false
+  default_query_params:
+    type: array
+    description: A list dictionaries
+  descriptions:
+    type: object
+    description: A dictionary of resource type, their HTTP methods and their descriptions
+  methods:
+    type: object
+    description: A dictionary of resource type and their HTTP methods
+    properties:
+      resource: &http_methods
+        description: A list of methods to expose, else all for this level of resource exposure
+        type: array
+        items:
+          type: string
+          enum:
+            - delete
+            - get
+            - head
+            - options
+            - patch
+            - post
+            - put
+      instance: *http_methods
+      instance_attrs: *http_methods
   schema:
     description: The schema of the resource
     type: object
@@ -19,7 +61,7 @@ properties:
       key:
         description: The unique identifier for the resource
         type: object
-      quary_params:
+      query_params:
         description: Query params to be added to select HTTP methods
         type: array
         items:
@@ -27,19 +69,11 @@ properties:
           properties:
             name:
               type: string
-            descrioption:
+            description:
               type: string
             schema:
               type: object
-            methods:
-              description: a list of mehtods to expose, else all for this level of resource exposure
-              type: string
-              enum:
-                - delete
-                - get
-                - head
-                - patch
-                - post
+            methods: *http_methods
       descriptions:
         description: An overrideble dictionary of descriptions, per HTTP method, for the resource
         type: object
@@ -68,7 +102,7 @@ properties:
               post:
                 type: string
           properties:
-            description: a list of properties this resource has
+            description: A list of properties this resource has
             type: object
           additionalProperties: true
         required:
@@ -78,9 +112,8 @@ properties:
       - key
       - items
     additionalProperties: true
-
 required:
-  - name
-  - version
+  - kind
+  - apiVersion
   - schema
-additionalProperties: true
+additionalProperties: false

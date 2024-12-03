@@ -679,9 +679,9 @@ class TestOpenAPIGenerate(unittest.TestCase):
         spec = openapi.generate(
             [
                 {
-                    "name": "foo",
+                    "kind": "foo",
                     "description": "Some foo resource",
-                    "version": "1.0",
+                    "apiVersion": "1.0",
                     "schema": {
                         "type": "array",
                         "key": {"name": "foo_key", "schema": {"type": "string"}},
@@ -708,10 +708,10 @@ class TestOpenAPIGenerate(unittest.TestCase):
         spec = openapi.generate(
             [
                 {
-                    "name": "foo",
+                    "kind": "foo",
                     "description": "Some foo resource",
-                    "version": "1.0",
-                    "version_in_path": True,
+                    "apiVersion": "1.0",
+                    "versionInPath": True,
                     "schema": {
                         "type": "array",
                         "key": {"name": "foo_key", "schema": {"type": "string"}},
@@ -735,9 +735,9 @@ class TestOpenAPIGenerate(unittest.TestCase):
         spec = openapi.generate(
             [
                 {
-                    "name": "foo",
+                    "kind": "foo",
                     "description": "Some foo resource",
-                    "version": "1.0",
+                    "apiVersion": "1.0",
                     "descriptions": {
                         "resource": {
                             "get": "The get method is fabulous",

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "firestoned"
-version = "0.4.2"
+version = "0.5.0"
 description = "Build OpenAPI and AsyncAPI specs based off one or more resource json schema files"
 authors = ["Erick Bourgeois <erick@jeb.ca>"]
 license = "Apache 2.0"
