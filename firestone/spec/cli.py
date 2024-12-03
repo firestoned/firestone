@@ -229,7 +229,7 @@ def get_ops(
     default_query_params: dict = None,
 ):
     """Get the operations for this resource."""
-    rsrc_name = rsrc["name"]
+    rsrc_name = rsrc["kind"]
     schema = rsrc["schema"]
     methods = rsrc.get("methods", {})
     descs = rsrc.get("descriptions", {})
@@ -284,10 +284,10 @@ def generate(
     """Generate a Click based CLI script based on the resource data sent and other meta data."""
     rsrcs = []
     for rsrc in rsrc_data:
-        rsrc_name = rsrc["name"]
+        rsrc_name = rsrc["kind"]
         baseurl = "/"
-        if "version_in_path" in rsrc and rsrc["version_in_path"]:
-            baseurl += f"v{rsrc['version']}/"
+        if rsrc.get("versionInPath", False):
+            baseurl += f"v{rsrc['apiVersion']}/"
         baseurl += rsrc_name
         _LOGGER.debug(f"baseurl: {baseurl}")
 

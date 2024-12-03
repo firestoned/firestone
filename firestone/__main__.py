@@ -53,7 +53,7 @@ def main(debug):
 @click.option(
     "--version",
     "-v",
-    help="The overal version of this spec",
+    help="The overall version of this spec",
     required=True,
 )
 @click.pass_context
@@ -70,7 +70,7 @@ def generate(ctx, description, resources, summary, title, version):
         _LOGGER.debug(f"rsrc: {rsrc}")
         rsrc_data = firestone_rsrc.get_resource_schema(rsrc)
         _LOGGER.debug(f"rsrc_data: {rsrc_data}")
-        _LOGGER.info(f"Validating resource {rsrc_data['name']} against firestone JSON schema.")
+        _LOGGER.info(f"Validating resource {rsrc_data['kind']} against firestone JSON schema.")
         firestone_rsrc.validate(rsrc_data)
 
         ctx.obj["data"].append(rsrc_data)

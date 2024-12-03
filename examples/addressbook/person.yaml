@@ -1,7 +1,8 @@
-name: persons
-description: An example of a persons resource
-version: 1.0
-version_in_path: false
+kind: persons
+apiVersion: v1
+versionInPath: false
+metadata:
+  description: An example of a persons resource
 default_query_params:
   - name: limit
     description: Limit the number of responses back

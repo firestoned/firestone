@@ -432,10 +432,10 @@ def generate(rsrc_data: list, title: str, desc: str, summary: str, version: str)
     all_channels = {}
     servers = {}
     for rsrc in rsrc_data:
-        rsrc_name = rsrc["name"]
+        rsrc_name = rsrc["kind"]
         baseurl = "/"
-        if "version_in_path" in rsrc and rsrc["version_in_path"]:
-            baseurl += f"v{rsrc['version']}/"
+        if rsrc.get("versionInPath", False):
+            baseurl += f"v{rsrc['apiVersion']}/"
         baseurl += rsrc_name
         _LOGGER.debug(f"baseurl: {baseurl}")
 
