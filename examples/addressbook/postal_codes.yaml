@@ -15,17 +15,6 @@ default_query_params:
     in: query
     schema:
       type: integer
-methods:
-  resource:
-    - get
-    - post
-  instance:
-    - delete
-    - get
-    - head
-  instance_attrs:
-    - delete
-    - get
 descriptions:
   resource:
     get: List all postal codes in this collection
@@ -37,6 +26,31 @@ descriptions:
     head: Determine the existence and size of this postal code
     patch: Patch this postal code in the collection
     put: Put a new postal code in this collection, with the given UUId key
+methods:
+  resource:
+    - get
+    - post
+  instance:
+    - delete
+    - get
+    - head
+  instance_attrs:
+    - delete
+    - get
+security:
+  scheme:
+    bearer_auth:
+      scheme: bearer
+      type: http
+      bearerFormat: JWT
+  resource:
+    - post
+  instance:
+    - delete
+    - put
+  instance_attrs:
+    - delete
+    - put
 schema:
   type: array
   key:

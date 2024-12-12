@@ -296,7 +296,7 @@ class PersonsApi:
         _header_params["Accept"] = self.api_client.select_header_accept(["application/json"])
 
         # authentication setting
-        _auth_settings: List[str] = ["bearer_auth"]
+        _auth_settings: List[str] = []
 
         return self.api_client.param_serialize(
             method="GET",
@@ -800,7 +800,7 @@ class PersonsApi:
         _header_params["Accept"] = self.api_client.select_header_accept(["application/json"])
 
         # authentication setting
-        _auth_settings: List[str] = ["bearer_auth"]
+        _auth_settings: List[str] = []
 
         return self.api_client.param_serialize(
             method="DELETE",
@@ -1042,7 +1042,7 @@ class PersonsApi:
         _header_params["Accept"] = self.api_client.select_header_accept(["application/json"])
 
         # authentication setting
-        _auth_settings: List[str] = ["bearer_auth"]
+        _auth_settings: List[str] = []
 
         return self.api_client.param_serialize(
             method="GET",
@@ -1258,7 +1258,7 @@ class PersonsApi:
         # process the body parameter
 
         # authentication setting
-        _auth_settings: List[str] = ["bearer_auth"]
+        _auth_settings: List[str] = []
 
         return self.api_client.param_serialize(
             method="HEAD",
@@ -1506,7 +1506,7 @@ class PersonsApi:
                 _header_params["Content-Type"] = _default_content_type
 
         # authentication setting
-        _auth_settings: List[str] = ["bearer_auth"]
+        _auth_settings: List[str] = []
 
         return self.api_client.param_serialize(
             method="PUT",
@@ -1956,7 +1956,7 @@ class PersonsApi:
         _header_params["Accept"] = self.api_client.select_header_accept(["application/json"])
 
         # authentication setting
-        _auth_settings: List[str] = ["bearer_auth"]
+        _auth_settings: List[str] = []
 
         return self.api_client.param_serialize(
             method="DELETE",
@@ -2198,7 +2198,7 @@ class PersonsApi:
         _header_params["Accept"] = self.api_client.select_header_accept(["application/json"])
 
         # authentication setting
-        _auth_settings: List[str] = ["bearer_auth"]
+        _auth_settings: List[str] = []
 
         return self.api_client.param_serialize(
             method="GET",
@@ -2414,7 +2414,7 @@ class PersonsApi:
         # process the body parameter
 
         # authentication setting
-        _auth_settings: List[str] = ["bearer_auth"]
+        _auth_settings: List[str] = []
 
         return self.api_client.param_serialize(
             method="HEAD",
@@ -2668,7 +2668,7 @@ class PersonsApi:
                 _header_params["Content-Type"] = _default_content_type
 
         # authentication setting
-        _auth_settings: List[str] = ["bearer_auth"]
+        _auth_settings: List[str] = []
 
         return self.api_client.param_serialize(
             method="PUT",
@@ -2910,7 +2910,7 @@ class PersonsApi:
         _header_params["Accept"] = self.api_client.select_header_accept(["application/json"])
 
         # authentication setting
-        _auth_settings: List[str] = ["bearer_auth"]
+        _auth_settings: List[str] = []
 
         return self.api_client.param_serialize(
             method="GET",
@@ -3126,7 +3126,7 @@ class PersonsApi:
         # process the body parameter
 
         # authentication setting
-        _auth_settings: List[str] = ["bearer_auth"]
+        _auth_settings: List[str] = []
 
         return self.api_client.param_serialize(
             method="HEAD",
@@ -3351,7 +3351,7 @@ class PersonsApi:
         _header_params["Accept"] = self.api_client.select_header_accept(["application/json"])
 
         # authentication setting
-        _auth_settings: List[str] = ["bearer_auth"]
+        _auth_settings: List[str] = []
 
         return self.api_client.param_serialize(
             method="DELETE",
@@ -3593,7 +3593,7 @@ class PersonsApi:
         _header_params["Accept"] = self.api_client.select_header_accept(["application/json"])
 
         # authentication setting
-        _auth_settings: List[str] = ["bearer_auth"]
+        _auth_settings: List[str] = []
 
         return self.api_client.param_serialize(
             method="GET",
@@ -3809,7 +3809,7 @@ class PersonsApi:
         # process the body parameter
 
         # authentication setting
-        _auth_settings: List[str] = ["bearer_auth"]
+        _auth_settings: List[str] = []
 
         return self.api_client.param_serialize(
             method="HEAD",
@@ -4065,7 +4065,7 @@ class PersonsApi:
                 _header_params["Content-Type"] = _default_content_type
 
         # authentication setting
-        _auth_settings: List[str] = ["bearer_auth"]
+        _auth_settings: List[str] = []
 
         return self.api_client.param_serialize(
             method="PUT",
@@ -4290,7 +4290,7 @@ class PersonsApi:
         _header_params["Accept"] = self.api_client.select_header_accept(["application/json"])
 
         # authentication setting
-        _auth_settings: List[str] = ["bearer_auth"]
+        _auth_settings: List[str] = []
 
         return self.api_client.param_serialize(
             method="DELETE",
@@ -4532,7 +4532,7 @@ class PersonsApi:
         _header_params["Accept"] = self.api_client.select_header_accept(["application/json"])
 
         # authentication setting
-        _auth_settings: List[str] = ["bearer_auth"]
+        _auth_settings: List[str] = []
 
         return self.api_client.param_serialize(
             method="GET",
@@ -4748,7 +4748,7 @@ class PersonsApi:
         # process the body parameter
 
         # authentication setting
-        _auth_settings: List[str] = ["bearer_auth"]
+        _auth_settings: List[str] = []
 
         return self.api_client.param_serialize(
             method="HEAD",
@@ -5002,7 +5002,7 @@ class PersonsApi:
                 _header_params["Content-Type"] = _default_content_type
 
         # authentication setting
-        _auth_settings: List[str] = ["bearer_auth"]
+        _auth_settings: List[str] = []
 
         return self.api_client.param_serialize(
             method="PUT",

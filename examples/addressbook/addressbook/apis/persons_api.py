@@ -48,7 +48,6 @@ async def persons_get(
     offset: int = Query(
         None, description="The offset to start returning resources", alias="offset"
     ),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> List[Person]:
     """List all persons in this collection"""
     return BasePersonsApi.subclasses[0]().persons_get(last_name, limit, offset)
@@ -84,7 +83,6 @@ async def persons_post(
 )
 async def persons_uuid_age_delete(
     uuid: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> int:
     """delete operation for /persons/{uuid}/age"""
     return BasePersonsApi.subclasses[0]().persons_uuid_age_delete(uuid)
@@ -101,7 +99,6 @@ async def persons_uuid_age_delete(
 async def persons_uuid_age_get(
     uuid: str = Path(..., description=""),
     last_name: str = Query(None, description="Filter by last name", alias="last_name"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> int:
     """get operation for /persons/{uuid}/age"""
     return BasePersonsApi.subclasses[0]().persons_uuid_age_get(uuid, last_name)
@@ -117,7 +114,6 @@ async def persons_uuid_age_get(
 )
 async def persons_uuid_age_head(
     uuid: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """head operation for /persons/{uuid}/age"""
     return BasePersonsApi.subclasses[0]().persons_uuid_age_head(uuid)
@@ -134,7 +130,6 @@ async def persons_uuid_age_head(
 async def persons_uuid_age_put(
     uuid: str = Path(..., description=""),
     body: int = Body(None, description="The request body for /persons/{uuid}/age"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> int:
     """put operation for /persons/{uuid}/age"""
     return BasePersonsApi.subclasses[0]().persons_uuid_age_put(uuid, body)
@@ -166,7 +161,6 @@ async def persons_uuid_delete(
 )
 async def persons_uuid_first_name_delete(
     uuid: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """delete operation for /persons/{uuid}/first_name"""
     return BasePersonsApi.subclasses[0]().persons_uuid_first_name_delete(uuid)
@@ -183,7 +177,6 @@ async def persons_uuid_first_name_delete(
 async def persons_uuid_first_name_get(
     uuid: str = Path(..., description=""),
     last_name: str = Query(None, description="Filter by last name", alias="last_name"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """get operation for /persons/{uuid}/first_name"""
     return BasePersonsApi.subclasses[0]().persons_uuid_first_name_get(uuid, last_name)
@@ -199,7 +192,6 @@ async def persons_uuid_first_name_get(
 )
 async def persons_uuid_first_name_head(
     uuid: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """head operation for /persons/{uuid}/first_name"""
     return BasePersonsApi.subclasses[0]().persons_uuid_first_name_head(uuid)
@@ -216,7 +208,6 @@ async def persons_uuid_first_name_head(
 async def persons_uuid_first_name_put(
     uuid: str = Path(..., description=""),
     body: str = Body(None, description="The request body for /persons/{uuid}/first_name"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /persons/{uuid}/first_name"""
     return BasePersonsApi.subclasses[0]().persons_uuid_first_name_put(uuid, body)
@@ -233,7 +224,6 @@ async def persons_uuid_first_name_put(
 async def persons_uuid_get(
     uuid: str = Path(..., description=""),
     last_name: str = Query(None, description="Filter by last name", alias="last_name"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> Person:
     """Get a specific person from this collection"""
     return BasePersonsApi.subclasses[0]().persons_uuid_get(uuid, last_name)
@@ -249,7 +239,6 @@ async def persons_uuid_get(
 )
 async def persons_uuid_head(
     uuid: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """Determine the existence and size of this person"""
     return BasePersonsApi.subclasses[0]().persons_uuid_head(uuid)
@@ -265,7 +254,6 @@ async def persons_uuid_head(
 )
 async def persons_uuid_hobbies_delete(
     uuid: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> List[str]:
     """delete operation for /persons/{uuid}/hobbies"""
     return BasePersonsApi.subclasses[0]().persons_uuid_hobbies_delete(uuid)
@@ -282,7 +270,6 @@ async def persons_uuid_hobbies_delete(
 async def persons_uuid_hobbies_get(
     uuid: str = Path(..., description=""),
     last_name: str = Query(None, description="Filter by last name", alias="last_name"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> List[str]:
     """get operation for /persons/{uuid}/hobbies"""
     return BasePersonsApi.subclasses[0]().persons_uuid_hobbies_get(uuid, last_name)
@@ -298,7 +285,6 @@ async def persons_uuid_hobbies_get(
 )
 async def persons_uuid_hobbies_head(
     uuid: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """head operation for /persons/{uuid}/hobbies"""
     return BasePersonsApi.subclasses[0]().persons_uuid_hobbies_head(uuid)
@@ -317,7 +303,6 @@ async def persons_uuid_hobbies_put(
     request_body: List[str] = Body(
         None, description="The request body for /persons/{uuid}/hobbies"
     ),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> List[str]:
     """put operation for /persons/{uuid}/hobbies"""
     return BasePersonsApi.subclasses[0]().persons_uuid_hobbies_put(uuid, request_body)
@@ -333,7 +318,6 @@ async def persons_uuid_hobbies_put(
 )
 async def persons_uuid_last_name_delete(
     uuid: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """delete operation for /persons/{uuid}/last_name"""
     return BasePersonsApi.subclasses[0]().persons_uuid_last_name_delete(uuid)
@@ -350,7 +334,6 @@ async def persons_uuid_last_name_delete(
 async def persons_uuid_last_name_get(
     uuid: str = Path(..., description=""),
     last_name: str = Query(None, description="Filter by last name", alias="last_name"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """get operation for /persons/{uuid}/last_name"""
     return BasePersonsApi.subclasses[0]().persons_uuid_last_name_get(uuid, last_name)
@@ -366,7 +349,6 @@ async def persons_uuid_last_name_get(
 )
 async def persons_uuid_last_name_head(
     uuid: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """head operation for /persons/{uuid}/last_name"""
     return BasePersonsApi.subclasses[0]().persons_uuid_last_name_head(uuid)
@@ -383,7 +365,6 @@ async def persons_uuid_last_name_head(
 async def persons_uuid_last_name_put(
     uuid: str = Path(..., description=""),
     body: str = Body(None, description="The request body for /persons/{uuid}/last_name"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /persons/{uuid}/last_name"""
     return BasePersonsApi.subclasses[0]().persons_uuid_last_name_put(uuid, body)

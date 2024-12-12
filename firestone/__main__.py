@@ -95,21 +95,13 @@ def generate(ctx, description, resources, summary, title, version):
     help="A prefix to all URLs, this will add a 'servers' section to the openapi spec doc",
 )
 @click.option(
-    "--security",
-    help=(
-        "Add security scheme to schema; e.g.: "
-        '{"name": "bearer_auth", "scheme": "bearer", "type": "http", "bearerFormat": "JWT"}'
-    ),
-    type=firestone_cli.StrDict,
-)
-@click.option(
     "--version",
     help="Set the OpenAPI spec version",
     show_default=True,
     default=firestone_spec.openapi.DEFAULT_VERSION,
 )
 @click.pass_obj
-def openapi(rsrc_data, output, ui_server, prefix, security, version):
+def openapi(rsrc_data, output, ui_server, prefix, version):
     """Generate an OpenAPI specification for the given resource data."""
 
     openapi_spec = firestone_spec.openapi.generate(
@@ -119,7 +111,6 @@ def openapi(rsrc_data, output, ui_server, prefix, security, version):
         rsrc_data["summary"],
         rsrc_data["version"],
         prefix=prefix,
-        security=security,
         openapi_version=version,
     )
     print(openapi_spec, file=output)

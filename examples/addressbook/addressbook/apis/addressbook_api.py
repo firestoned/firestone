@@ -47,7 +47,6 @@ for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
 )
 async def addressbook_address_key_addrtype_delete(
     address_key: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """delete operation for /addressbook/{address_key}/addrtype"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_addrtype_delete(address_key)
@@ -64,7 +63,6 @@ async def addressbook_address_key_addrtype_delete(
 async def addressbook_address_key_addrtype_get(
     address_key: str = Path(..., description=""),
     city: str = Query(None, description="Filter by city name", alias="city"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """get operation for /addressbook/{address_key}/addrtype"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_addrtype_get(
@@ -82,7 +80,6 @@ async def addressbook_address_key_addrtype_get(
 )
 async def addressbook_address_key_addrtype_head(
     address_key: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """head operation for /addressbook/{address_key}/addrtype"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_addrtype_head(address_key)
@@ -99,7 +96,6 @@ async def addressbook_address_key_addrtype_head(
 async def addressbook_address_key_addrtype_put(
     address_key: str = Path(..., description=""),
     body: str = Body(None, description="The request body for /addressbook/{address_key}/addrtype"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /addressbook/{address_key}/addrtype"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_addrtype_put(
@@ -117,7 +113,6 @@ async def addressbook_address_key_addrtype_put(
 )
 async def addressbook_address_key_city_delete(
     address_key: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """delete operation for /addressbook/{address_key}/city"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_city_delete(address_key)
@@ -134,7 +129,6 @@ async def addressbook_address_key_city_delete(
 async def addressbook_address_key_city_get(
     address_key: str = Path(..., description=""),
     city: str = Query(None, description="Filter by city name", alias="city"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """get operation for /addressbook/{address_key}/city"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_city_get(address_key, city)
@@ -150,7 +144,6 @@ async def addressbook_address_key_city_get(
 )
 async def addressbook_address_key_city_head(
     address_key: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """head operation for /addressbook/{address_key}/city"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_city_head(address_key)
@@ -167,7 +160,6 @@ async def addressbook_address_key_city_head(
 async def addressbook_address_key_city_put(
     address_key: str = Path(..., description=""),
     body: str = Body(None, description="The request body for /addressbook/{address_key}/city"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /addressbook/{address_key}/city"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_city_put(address_key, body)
@@ -183,7 +175,6 @@ async def addressbook_address_key_city_put(
 )
 async def addressbook_address_key_country_delete(
     address_key: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """delete operation for /addressbook/{address_key}/country"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_country_delete(address_key)
@@ -200,7 +191,6 @@ async def addressbook_address_key_country_delete(
 async def addressbook_address_key_country_get(
     address_key: str = Path(..., description=""),
     city: str = Query(None, description="Filter by city name", alias="city"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """get operation for /addressbook/{address_key}/country"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_country_get(address_key, city)
@@ -216,7 +206,6 @@ async def addressbook_address_key_country_get(
 )
 async def addressbook_address_key_country_head(
     address_key: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """head operation for /addressbook/{address_key}/country"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_country_head(address_key)
@@ -233,7 +222,6 @@ async def addressbook_address_key_country_head(
 async def addressbook_address_key_country_put(
     address_key: str = Path(..., description=""),
     body: str = Body(None, description="The request body for /addressbook/{address_key}/country"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /addressbook/{address_key}/country"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_country_put(address_key, body)
@@ -266,7 +254,6 @@ async def addressbook_address_key_delete(
 async def addressbook_address_key_get(
     address_key: str = Path(..., description=""),
     city: str = Query(None, description="Filter by city name", alias="city"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> Addressbook:
     """Get a specific address from this addressbook."""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_get(address_key, city)
@@ -282,7 +269,6 @@ async def addressbook_address_key_get(
 )
 async def addressbook_address_key_head(
     address_key: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """Determine the existence and size of this address."""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_head(address_key)
@@ -298,7 +284,6 @@ async def addressbook_address_key_head(
 )
 async def addressbook_address_key_is_valid_delete(
     address_key: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> bool:
     """delete operation for /addressbook/{address_key}/is_valid"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_is_valid_delete(address_key)
@@ -315,7 +300,6 @@ async def addressbook_address_key_is_valid_delete(
 async def addressbook_address_key_is_valid_get(
     address_key: str = Path(..., description=""),
     city: str = Query(None, description="Filter by city name", alias="city"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> bool:
     """get operation for /addressbook/{address_key}/is_valid"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_is_valid_get(
@@ -333,7 +317,6 @@ async def addressbook_address_key_is_valid_get(
 )
 async def addressbook_address_key_is_valid_head(
     address_key: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """head operation for /addressbook/{address_key}/is_valid"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_is_valid_head(address_key)
@@ -350,7 +333,6 @@ async def addressbook_address_key_is_valid_head(
 async def addressbook_address_key_is_valid_put(
     address_key: str = Path(..., description=""),
     body: bool = Body(None, description="The request body for /addressbook/{address_key}/is_valid"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> bool:
     """put operation for /addressbook/{address_key}/is_valid"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_is_valid_put(
@@ -368,7 +350,6 @@ async def addressbook_address_key_is_valid_put(
 )
 async def addressbook_address_key_people_delete(
     address_key: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> List[str]:
     """delete operation for /addressbook/{address_key}/people"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_people_delete(address_key)
@@ -385,7 +366,6 @@ async def addressbook_address_key_people_delete(
 async def addressbook_address_key_people_get(
     address_key: str = Path(..., description=""),
     city: str = Query(None, description="Filter by city name", alias="city"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> List[str]:
     """get operation for /addressbook/{address_key}/people"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_people_get(address_key, city)
@@ -401,7 +381,6 @@ async def addressbook_address_key_people_get(
 )
 async def addressbook_address_key_people_head(
     address_key: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """head operation for /addressbook/{address_key}/people"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_people_head(address_key)
@@ -420,7 +399,6 @@ async def addressbook_address_key_people_put(
     request_body: List[str] = Body(
         None, description="The request body for /addressbook/{address_key}/people"
     ),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> List[str]:
     """put operation for /addressbook/{address_key}/people"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_people_put(
@@ -442,7 +420,6 @@ async def addressbook_address_key_person_delete(
     offset: int = Query(
         None, description="The offset to start returning resources", alias="offset"
     ),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> Person:
     """delete operation for /addressbook/{address_key}/person"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_delete(
@@ -465,7 +442,6 @@ async def addressbook_address_key_person_get(
     offset: int = Query(
         None, description="The offset to start returning resources", alias="offset"
     ),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> List[Person]:
     """get operation for /addressbook/{address_key}/person"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_get(
@@ -487,7 +463,6 @@ async def addressbook_address_key_person_head(
     offset: int = Query(
         None, description="The offset to start returning resources", alias="offset"
     ),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """head operation for /addressbook/{address_key}/person"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_head(
@@ -509,7 +484,6 @@ async def addressbook_address_key_person_patch(
     offset: int = Query(
         None, description="The offset to start returning resources", alias="offset"
     ),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> Person:
     """patch operation for /addressbook/{address_key}/person"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_patch(
@@ -553,7 +527,6 @@ async def addressbook_address_key_person_post(
 async def addressbook_address_key_person_uuid_age_delete(
     address_key: str = Path(..., description=""),
     uuid: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> int:
     """delete operation for /addressbook/{address_key}/person/{uuid}/age"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_age_delete(
@@ -573,7 +546,6 @@ async def addressbook_address_key_person_uuid_age_get(
     address_key: str = Path(..., description=""),
     uuid: str = Path(..., description=""),
     last_name: str = Query(None, description="Filter by last name", alias="last_name"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> int:
     """get operation for /addressbook/{address_key}/person/{uuid}/age"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_age_get(
@@ -592,7 +564,6 @@ async def addressbook_address_key_person_uuid_age_get(
 async def addressbook_address_key_person_uuid_age_head(
     address_key: str = Path(..., description=""),
     uuid: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """head operation for /addressbook/{address_key}/person/{uuid}/age"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_age_head(
@@ -614,7 +585,6 @@ async def addressbook_address_key_person_uuid_age_put(
     body: int = Body(
         None, description="The request body for /addressbook/{address_key}/person/{uuid}/age"
     ),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> int:
     """put operation for /addressbook/{address_key}/person/{uuid}/age"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_age_put(
@@ -652,7 +622,6 @@ async def addressbook_address_key_person_uuid_delete(
 async def addressbook_address_key_person_uuid_first_name_delete(
     address_key: str = Path(..., description=""),
     uuid: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """delete operation for /addressbook/{address_key}/person/{uuid}/first_name"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_first_name_delete(
@@ -672,7 +641,6 @@ async def addressbook_address_key_person_uuid_first_name_get(
     address_key: str = Path(..., description=""),
     uuid: str = Path(..., description=""),
     last_name: str = Query(None, description="Filter by last name", alias="last_name"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """get operation for /addressbook/{address_key}/person/{uuid}/first_name"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_first_name_get(
@@ -691,7 +659,6 @@ async def addressbook_address_key_person_uuid_first_name_get(
 async def addressbook_address_key_person_uuid_first_name_head(
     address_key: str = Path(..., description=""),
     uuid: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """head operation for /addressbook/{address_key}/person/{uuid}/first_name"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_first_name_head(
@@ -713,7 +680,6 @@ async def addressbook_address_key_person_uuid_first_name_put(
     body: str = Body(
         None, description="The request body for /addressbook/{address_key}/person/{uuid}/first_name"
     ),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /addressbook/{address_key}/person/{uuid}/first_name"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_first_name_put(
@@ -733,7 +699,6 @@ async def addressbook_address_key_person_uuid_get(
     address_key: str = Path(..., description=""),
     uuid: str = Path(..., description=""),
     last_name: str = Query(None, description="Filter by last name", alias="last_name"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> Person:
     """get operation for /addressbook/{address_key}/person/{uuid}"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_get(
@@ -752,7 +717,6 @@ async def addressbook_address_key_person_uuid_get(
 async def addressbook_address_key_person_uuid_head(
     address_key: str = Path(..., description=""),
     uuid: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """head operation for /addressbook/{address_key}/person/{uuid}"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_head(
@@ -771,7 +735,6 @@ async def addressbook_address_key_person_uuid_head(
 async def addressbook_address_key_person_uuid_hobbies_delete(
     address_key: str = Path(..., description=""),
     uuid: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> List[str]:
     """delete operation for /addressbook/{address_key}/person/{uuid}/hobbies"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_hobbies_delete(
@@ -791,7 +754,6 @@ async def addressbook_address_key_person_uuid_hobbies_get(
     address_key: str = Path(..., description=""),
     uuid: str = Path(..., description=""),
     last_name: str = Query(None, description="Filter by last name", alias="last_name"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> List[str]:
     """get operation for /addressbook/{address_key}/person/{uuid}/hobbies"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_hobbies_get(
@@ -810,7 +772,6 @@ async def addressbook_address_key_person_uuid_hobbies_get(
 async def addressbook_address_key_person_uuid_hobbies_head(
     address_key: str = Path(..., description=""),
     uuid: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """head operation for /addressbook/{address_key}/person/{uuid}/hobbies"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_hobbies_head(
@@ -832,7 +793,6 @@ async def addressbook_address_key_person_uuid_hobbies_put(
     request_body: List[str] = Body(
         None, description="The request body for /addressbook/{address_key}/person/{uuid}/hobbies"
     ),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> List[str]:
     """put operation for /addressbook/{address_key}/person/{uuid}/hobbies"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_hobbies_put(
@@ -851,7 +811,6 @@ async def addressbook_address_key_person_uuid_hobbies_put(
 async def addressbook_address_key_person_uuid_last_name_delete(
     address_key: str = Path(..., description=""),
     uuid: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """delete operation for /addressbook/{address_key}/person/{uuid}/last_name"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_last_name_delete(
@@ -871,7 +830,6 @@ async def addressbook_address_key_person_uuid_last_name_get(
     address_key: str = Path(..., description=""),
     uuid: str = Path(..., description=""),
     last_name: str = Query(None, description="Filter by last name", alias="last_name"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """get operation for /addressbook/{address_key}/person/{uuid}/last_name"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_last_name_get(
@@ -890,7 +848,6 @@ async def addressbook_address_key_person_uuid_last_name_get(
 async def addressbook_address_key_person_uuid_last_name_head(
     address_key: str = Path(..., description=""),
     uuid: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """head operation for /addressbook/{address_key}/person/{uuid}/last_name"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_last_name_head(
@@ -912,7 +869,6 @@ async def addressbook_address_key_person_uuid_last_name_put(
     body: str = Body(
         None, description="The request body for /addressbook/{address_key}/person/{uuid}/last_name"
     ),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /addressbook/{address_key}/person/{uuid}/last_name"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_last_name_put(
@@ -931,7 +887,6 @@ async def addressbook_address_key_person_uuid_last_name_put(
 async def addressbook_address_key_person_uuid_patch(
     address_key: str = Path(..., description=""),
     uuid: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> Person:
     """patch operation for /addressbook/{address_key}/person/{uuid}"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_patch(
@@ -992,7 +947,6 @@ async def addressbook_address_key_put(
 )
 async def addressbook_address_key_state_delete(
     address_key: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """delete operation for /addressbook/{address_key}/state"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_state_delete(address_key)
@@ -1009,7 +963,6 @@ async def addressbook_address_key_state_delete(
 async def addressbook_address_key_state_get(
     address_key: str = Path(..., description=""),
     city: str = Query(None, description="Filter by city name", alias="city"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """get operation for /addressbook/{address_key}/state"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_state_get(address_key, city)
@@ -1025,7 +978,6 @@ async def addressbook_address_key_state_get(
 )
 async def addressbook_address_key_state_head(
     address_key: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """head operation for /addressbook/{address_key}/state"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_state_head(address_key)
@@ -1042,7 +994,6 @@ async def addressbook_address_key_state_head(
 async def addressbook_address_key_state_put(
     address_key: str = Path(..., description=""),
     body: str = Body(None, description="The request body for /addressbook/{address_key}/state"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /addressbook/{address_key}/state"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_state_put(address_key, body)
@@ -1058,7 +1009,6 @@ async def addressbook_address_key_state_put(
 )
 async def addressbook_address_key_street_delete(
     address_key: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """delete operation for /addressbook/{address_key}/street"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_street_delete(address_key)
@@ -1075,7 +1025,6 @@ async def addressbook_address_key_street_delete(
 async def addressbook_address_key_street_get(
     address_key: str = Path(..., description=""),
     city: str = Query(None, description="Filter by city name", alias="city"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """get operation for /addressbook/{address_key}/street"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_street_get(address_key, city)
@@ -1091,7 +1040,6 @@ async def addressbook_address_key_street_get(
 )
 async def addressbook_address_key_street_head(
     address_key: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """head operation for /addressbook/{address_key}/street"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_street_head(address_key)
@@ -1108,7 +1056,6 @@ async def addressbook_address_key_street_head(
 async def addressbook_address_key_street_put(
     address_key: str = Path(..., description=""),
     body: str = Body(None, description="The request body for /addressbook/{address_key}/street"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /addressbook/{address_key}/street"""
     return BaseAddressbookApi.subclasses[0]().addressbook_address_key_street_put(address_key, body)
@@ -1128,7 +1075,6 @@ async def addressbook_get(
     offset: int = Query(
         None, description="The offset to start returning resources", alias="offset"
     ),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> List[Addressbook]:
     """List all addresses in this addressbook."""
     return BaseAddressbookApi.subclasses[0]().addressbook_get(city, limit, offset)
