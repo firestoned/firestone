@@ -54,6 +54,33 @@ properties:
             - put
       instance: *http_methods
       instance_attrs: *http_methods
+  security:
+    type: object
+    description: A dictionary of resource type, their HTTP methods, and authentication method
+    properties:
+      scheme:
+        type: object
+        patternProperties:
+          ^.*$:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                  - apiKey
+                  - http
+                  - oauth2
+                  - openIdConnect
+              scheme:
+                type: string
+                enum:
+                  - basic
+                  - bearer
+        additionalProperties: false
+      resource: *http_methods
+      instance: *http_methods
+      instance_attrs: *http_methods
+      additionalProperties: false
   schema:
     description: The schema of the resource
     type: object

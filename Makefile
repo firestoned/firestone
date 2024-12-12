@@ -32,7 +32,6 @@ gen-openapi: ${FIRESTONE}
 		--version 1.0 \
 		openapi \
 		--version 3.1.0 \
-		--security '{"name": "bearer_auth", "scheme": "bearer", "type": "http", "bearerFormat": "JWT"}' \
 		> ${OPENAPI_DOC}
 
 gen-server: $(OPENAPI_GEN) \

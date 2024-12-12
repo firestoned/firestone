@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "firestoned"
-version = "0.5.0"
+version = "0.6.0"
 description = "Build OpenAPI and AsyncAPI specs based off one or more resource json schema files"
 authors = ["Erick Bourgeois <erick@jeb.ca>"]
 license = "Apache 2.0"
@@ -44,6 +44,7 @@ pytest-cov = ">=4.0.0"
 swagger-ui-py = ">=22.7.13"
 aiohttp-retry = "^2.8.3"
 #firestone-lib = { path = "../firestone-lib/", develop = true }
+toml = "^0.10.2"
 
 [tool.poetry.extras]
 caching = ["quart", "asyncapi", "requests", "websockets", "typer", "uvicorn", "apidaora"]

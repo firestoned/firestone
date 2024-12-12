@@ -25,6 +25,19 @@ asyncapi:
     resources: true
     instances: true
     instance_attrs: true
+descriptions:
+  resource:
+    get: List all addresses in this addressbook.
+    head: Determine the existence and size of addresses in this addressbook.
+    patch: Patch one or more addresses in this addressbook.
+    post: Create a new address in this addressbook, a new address key will be created.
+    delete: Delete all addresses from this addressbook.
+  instance:
+    get: Get a specific address from this addressbook.
+    head: Determine the existence and size of this address.
+    patch: Patch this address in the addressbook.
+    put: Update an existing address in this addressbook, with the given address key.
+    delete: Delete an address from this addressbook.
 # You can limit the overall HTTP methods for the high level resource endpoint
 methods:
   resource:
@@ -40,20 +53,21 @@ methods:
     - get
     - head
     - put
-descriptions:
+security:
+  scheme:
+    bearer_auth:
+      scheme: bearer
+      type: http
+      bearerFormat: JWT
   resource:
-    get: List all addresses in this addressbook.
-    head: Determine the existence and size of addresses in this addressbook.
-    patch: Patch one or more addresses in this addressbook.
-    post: Create a new address in this addressbook, a new address key will be created.
-    delete: Delete all addresses from this addressbook.
+    - post
   instance:
-    get: Get a specific address from this addressbook.
-    head: Determine the existence and size of this address.
-    patch: Patch this address in the addressbook.
-    put: Update an existing address in this addressbook, with the given address key.
-    delete: Delete an address from this addressbook.
-# Meta data: end
+    - delete
+    - put
+  instance_attrs:
+    - delete
+    - put
+# Metadata: end
 schema:
   type: array
   key:

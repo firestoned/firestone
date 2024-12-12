@@ -668,6 +668,7 @@ class TestOpenAPIGetPaths(unittest.TestCase):
             default_query_params=None,
             components=None,
             orig_rsrc_name=None,
+            security=None,
         )
 
 

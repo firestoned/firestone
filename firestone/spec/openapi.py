@@ -235,6 +235,7 @@ def add_resource_methods(
     keys: list = None,
     default_query_params: dict = None,
     orig_rsrc_name: str = None,
+    security: dict = None,
 ):
     """Add resource level methods to the paths.
 
@@ -271,6 +272,11 @@ def add_resource_methods(
         )
         paths[baseurl][method]["tags"] = [orig_rsrc_name or rsrc_name]
 
+        # Add security if required
+        if security and method in security.get("resource", []):
+            security_scheme = list(security["scheme"].keys())[0]
+            paths[baseurl][method]["security"] = [{security_scheme: []}]
+
         # Add parameters
         params = get_params(baseurl, method, schema, keys=keys)
         if default_query_params:
@@ -291,6 +297,7 @@ def add_instance_methods(
     descs: dict = None,
     keys: list = None,
     orig_rsrc_name: str = None,
+    security: dict = None,
 ):
     """Add the instance methods to the paths.
 
@@ -324,6 +331,11 @@ def add_instance_methods(
             comp_name=comp_name,
         )
 
+        # Add security if required
+        if security and method in security.get("instance", []):
+            security_scheme = list(security["scheme"].keys())[0]
+            paths[baseurl][method]["security"] = [{security_scheme: []}]
+
         # Add parameters
         params = get_params(baseurl, method, schema, keys=keys)
         _LOGGER.debug(f"params: {params}")
@@ -345,6 +357,7 @@ def add_instance_attr_methods(
     default_query_params: dict = None,
     components: dict = None,
     orig_rsrc_name: str = None,
+    security: dict = None,
 ):
     """Add the instance attr methods to the paths.
 
@@ -377,6 +390,12 @@ def add_instance_attr_methods(
             inst_attr_op = get_method_op(
                 path, method, prop_schema, comp_name=comp_name, attr_name=prop
             )
+
+            # Add security if required
+            if security and method in security.get("instance_attrs", []):
+                security_scheme = list(security["scheme"].keys())[0]
+                inst_attr_op["security"] = [{security_scheme: []}]
+
             _LOGGER.debug(f"inst_attr_op: {inst_attr_op}")
 
             paths[path][method] = inst_attr_op
@@ -398,7 +417,9 @@ def add_instance_attr_methods(
                 if "descriptions" in prop_schema["schema"]["items"]:
                     del prop_schema["schema"]["items"]["descriptions"]
 
-                components = add_rsrc_components(components, prop, methods, prop_schema["schema"])
+                components = add_rsrc_components(
+                    components, prop, methods, prop_schema["schema"], security
+                )
                 components["schemas"][prop] = prop_schema["schema"]["items"]
 
                 if (
@@ -418,6 +439,7 @@ def add_instance_attr_methods(
                     default_query_params=default_query_params,
                     components=components,
                     orig_rsrc_name=orig_rsrc_name,
+                    security=security,
                 )
 
 
@@ -430,6 +452,7 @@ def get_paths(
     default_query_params: dict = None,
     components: dict = None,
     orig_rsrc_name: str = None,
+    security: dict = None,
 ):
     """Get the paths for resource."""
     # Extract and set high-level resource component schema
@@ -463,6 +486,7 @@ def get_paths(
         keys=keys,
         default_query_params=default_query_params,
         orig_rsrc_name=orig_rsrc_name,
+        security=security,
     )
     _LOGGER.debug(f"paths[{baseurl}]: {paths[baseurl]}")
 
@@ -479,6 +503,7 @@ def get_paths(
         descs=descs.get("instance", {}),
         keys=keys,
         orig_rsrc_name=orig_rsrc_name,
+        security=security,
     )
 
     # 3. Add attribute path for instance of this resource
@@ -492,12 +517,15 @@ def get_paths(
         default_query_params=default_query_params,
         components=components,
         orig_rsrc_name=orig_rsrc_name,
+        security=security,
     )
 
     return paths
 
 
-def add_rsrc_components(components: dict, rsrc_name: str, methods: dict, schema: dict):
+def add_rsrc_components(
+    components: dict, rsrc_name: str, methods: dict, schema: dict, security: dict
+):
     """Get the components for this resource."""
     comp_name = rsrc_name if not rsrc_name.endswith("s") else rsrc_name[:-1]
 
@@ -516,6 +544,9 @@ def add_rsrc_components(components: dict, rsrc_name: str, methods: dict, schema:
     rscr_inst_methods = methods.get("instance", [])
     _LOGGER.debug(f"rscr_methods: {rscr_methods}")
     _LOGGER.debug(f"rscr_inst_methods: {rscr_inst_methods}")
+
+    if security and "scheme" in security:
+        components["securitySchemes"] = security.get("scheme", {})
 
     # Create resource model
     if "post" in rscr_methods or "post" in rscr_inst_methods:
@@ -553,10 +584,9 @@ def generate(
     summary: str,
     version: str,
     prefix: str = None,
-    security: str = None,
     openapi_version: str = None,
 ):
-    """Generate an OpenAPI spec based ont he resource data sent and other meta data."""
+    """Generate an OpenAPI spec based on the resource data sent and other meta data."""
     components = {"schemas": {}}
     all_paths = {}
     for rsrc in rsrc_data:
@@ -567,10 +597,21 @@ def generate(
         baseurl += rsrc_name
         _LOGGER.debug(f"baseurl: {baseurl}")
 
+        # Extract authc or security from the header
+        security = rsrc.get("security", {})
+
         # Extract and set high-level resource component schema
         methods = rsrc.get("methods", {})
-        components = add_rsrc_components(components, rsrc_name, methods, rsrc["schema"])
+        components = add_rsrc_components(components, rsrc_name, methods, rsrc["schema"], security)
         _LOGGER.debug(f"components: {components['schemas']}")
+        if (
+            security
+            and "resource" not in security
+            and "instance" not in security
+            and "instance_attrs" not in security
+        ):
+            security_scheme = list(security["scheme"].keys())[0]
+            rsrc["security"] = [{security_scheme: []}]
 
         default_query_params = rsrc.get("default_query_params", [])
         _LOGGER.debug(f"default_query_params: {default_query_params}")
@@ -584,6 +625,7 @@ def generate(
             default_query_params=default_query_params,
             components=components,
             orig_rsrc_name=rsrc_name,
+            security=security,
         )
         _LOGGER.debug(f"paths: {paths}")
         all_paths.update(paths)
@@ -591,13 +633,6 @@ def generate(
     servers = []
     if prefix:
         servers.append({"url": prefix})
-
-    security_name = None
-    if security:
-        security_name = security["name"]
-        del security["name"]
-        components["securitySchemes"] = {}
-        components["securitySchemes"][security_name] = security
 
     tmpl = spec_base.JINJA_ENV.get_template("openapi.jinja2")
     return tmpl.render(
@@ -608,6 +643,5 @@ def generate(
         components=components,
         paths=all_paths,
         servers=servers,
-        security_name=security_name,
         openapi_version=openapi_version,
     )

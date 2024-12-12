@@ -47,7 +47,6 @@ async def postal_codes_get(
     offset: int = Query(
         None, description="The offset to start returning resources", alias="offset"
     ),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> List[PostalCode]:
     """List all postal codes in this collection"""
     return BasePostalCodesApi.subclasses[0]().postal_codes_get(name, limit, offset)
@@ -102,7 +101,6 @@ async def postal_codes_uuid_delete(
 async def postal_codes_uuid_get(
     uuid: str = Path(..., description=""),
     name: str = Query(None, description="Filter by name", alias="name"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> PostalCode:
     """Get a specific postal code from this collection"""
     return BasePostalCodesApi.subclasses[0]().postal_codes_uuid_get(uuid, name)
@@ -118,7 +116,6 @@ async def postal_codes_uuid_get(
 )
 async def postal_codes_uuid_head(
     uuid: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> None:
     """Determine the existence and size of this postal code"""
     return BasePostalCodesApi.subclasses[0]().postal_codes_uuid_head(uuid)
@@ -134,7 +131,6 @@ async def postal_codes_uuid_head(
 )
 async def postal_codes_uuid_name_delete(
     uuid: str = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """delete operation for /postal_codes/{uuid}/name"""
     return BasePostalCodesApi.subclasses[0]().postal_codes_uuid_name_delete(uuid)
@@ -151,7 +147,6 @@ async def postal_codes_uuid_name_delete(
 async def postal_codes_uuid_name_get(
     uuid: str = Path(..., description=""),
     name: str = Query(None, description="Filter by name", alias="name"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """get operation for /postal_codes/{uuid}/name"""
     return BasePostalCodesApi.subclasses[0]().postal_codes_uuid_name_get(uuid, name)
