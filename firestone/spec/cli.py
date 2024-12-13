@@ -279,7 +279,14 @@ def get_ops(
 
 # pylint: disable=too-many-locals
 def generate(
-    pkg: str, client_pkg: str, rsrc_data: list, title: str, desc: str, summary: str, version: str
+    pkg: str,
+    client_pkg: str,
+    rsrc_data: list,
+    title: str,
+    desc: str,
+    summary: str,
+    version: str,
+    as_modules: bool = False,
 ):
     """Generate a Click based CLI script based on the resource data sent and other meta data."""
     rsrcs = []
@@ -310,13 +317,31 @@ def generate(
         )
 
     _LOGGER.info(f"rsrcs: {rsrcs}")
-    tmpl = spec_base.JINJA_ENV.get_template("main.py.jinja2")
-    return tmpl.render(
-        title=title,
-        summary=summary,
-        description=desc,
-        version=version,
-        pkg=pkg,
-        client_pkg=client_pkg,
-        rsrcs=rsrcs,
-    )
+
+    if not as_modules:
+        tmpl = spec_base.JINJA_ENV.get_template("main.py.jinja2")
+        return tmpl.render(
+            title=title,
+            summary=summary,
+            description=desc,
+            version=version,
+            pkg=pkg,
+            client_pkg=client_pkg,
+            rsrcs=rsrcs,
+        )
+
+    rendered_rsrcs = {}
+    for rsrc in rsrcs:
+        tmpl = spec_base.JINJA_ENV.get_template("cli_module.py.jinja2")
+        rendered = tmpl.render(
+            title=title,
+            summary=summary,
+            description=desc,
+            version=version,
+            pkg=pkg,
+            client_pkg=client_pkg,
+            rsrc=rsrc,
+        )
+        rendered_rsrcs[rsrc["name"]] = rendered
+
+    return rendered_rsrcs

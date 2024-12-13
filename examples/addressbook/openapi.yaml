@@ -258,6 +258,8 @@ paths:
                 - home
                 type: string
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - addressbook
     get:
@@ -323,6 +325,8 @@ paths:
             application/json:
               schema: *id004
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - addressbook
   /addressbook/{address_key}/city:
@@ -343,6 +347,8 @@ paths:
                 description: The city of this address
                 type: string
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - addressbook
     get:
@@ -405,6 +411,8 @@ paths:
             application/json:
               schema: *id005
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - addressbook
   /addressbook/{address_key}/country:
@@ -425,6 +433,8 @@ paths:
                 description: The country of this address
                 type: string
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - addressbook
     get:
@@ -487,6 +497,8 @@ paths:
             application/json:
               schema: *id006
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - addressbook
   /addressbook/{address_key}/is_valid:
@@ -507,6 +519,8 @@ paths:
                 description: Address is valid or not
                 type: boolean
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - addressbook
     get:
@@ -569,6 +583,8 @@ paths:
             application/json:
               schema: *id007
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - addressbook
   /addressbook/{address_key}/people:
@@ -591,6 +607,8 @@ paths:
                   type: string
                 type: array
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - addressbook
     get:
@@ -655,6 +673,8 @@ paths:
             application/json:
               schema: *id008
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - addressbook
   /addressbook/{address_key}/person:
@@ -922,6 +942,8 @@ paths:
                 description: The person's age
                 type: integer
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - addressbook
     get:
@@ -999,6 +1021,8 @@ paths:
             application/json:
               schema: *id010
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - addressbook
   /addressbook/{address_key}/person/{uuid}/first_name:
@@ -1024,6 +1048,8 @@ paths:
                 description: The person's first name
                 type: string
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - addressbook
     get:
@@ -1101,6 +1127,8 @@ paths:
             application/json:
               schema: *id011
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - addressbook
   /addressbook/{address_key}/person/{uuid}/hobbies:
@@ -1128,6 +1156,8 @@ paths:
                   type: string
                 type: array
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - addressbook
     get:
@@ -1207,6 +1237,8 @@ paths:
             application/json:
               schema: *id012
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - addressbook
   /addressbook/{address_key}/person/{uuid}/last_name:
@@ -1232,6 +1264,8 @@ paths:
                 description: The person's last name
                 type: string
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - addressbook
     get:
@@ -1309,6 +1343,8 @@ paths:
             application/json:
               schema: *id013
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - addressbook
   /addressbook/{address_key}/state:
@@ -1329,6 +1365,8 @@ paths:
                 description: The state of this address
                 type: string
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - addressbook
     get:
@@ -1391,6 +1429,8 @@ paths:
             application/json:
               schema: *id014
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - addressbook
   /addressbook/{address_key}/street:
@@ -1411,6 +1451,8 @@ paths:
                 description: The street and civic number of this address
                 type: string
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - addressbook
     get:
@@ -1473,6 +1515,8 @@ paths:
             application/json:
               schema: *id015
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - addressbook
   /persons:
@@ -1636,6 +1680,8 @@ paths:
                 description: The person's age
                 type: integer
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - persons
     get:
@@ -1698,6 +1744,8 @@ paths:
             application/json:
               schema: *id019
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - persons
   /persons/{uuid}/first_name:
@@ -1718,6 +1766,8 @@ paths:
                 description: The person's first name
                 type: string
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - persons
     get:
@@ -1780,6 +1830,8 @@ paths:
             application/json:
               schema: *id020
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - persons
   /persons/{uuid}/hobbies:
@@ -1802,6 +1854,8 @@ paths:
                   type: string
                 type: array
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - persons
     get:
@@ -1866,6 +1920,8 @@ paths:
             application/json:
               schema: *id021
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - persons
   /persons/{uuid}/last_name:
@@ -1886,6 +1942,8 @@ paths:
                 description: The person's last name
                 type: string
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - persons
     get:
@@ -1948,6 +2006,8 @@ paths:
             application/json:
               schema: *id022
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - persons
   /postal_codes:
@@ -2085,6 +2145,8 @@ paths:
                 description: The postal code's name/id
                 type: string
           description: Response for OK
+      security:
+      - bearer_auth: []
       tags:
       - postal_codes
     get:

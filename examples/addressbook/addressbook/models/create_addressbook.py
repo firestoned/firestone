@@ -37,7 +37,7 @@ class CreateAddressbook(BaseModel):
     city: StrictStr = Field(description="The city of this address")
     country: StrictStr = Field(description="The country of this address")
     is_valid: Optional[StrictBool] = Field(default=None, description="Address is valid or not")
-    people: Optional[List[Any]] = Field(
+    people: Optional[List[StrictStr]] = Field(
         default=None, description="A list of people's names living there"
     )
     person: Optional[Person] = None
@@ -57,7 +57,10 @@ class CreateAddressbook(BaseModel):
     @field_validator("addrtype")
     def addrtype_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in ("work", "home"):
+        if value not in (
+            "work",
+            "home",
+        ):
             raise ValueError("must be one of enum values ('work', 'home')")
         return value
 
