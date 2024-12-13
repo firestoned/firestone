@@ -78,3 +78,14 @@ gen-cli: $(FIRESTONE)
 		 cli \
 		 --pkg ${PKG} \
 		 --client-pkg ${CLIENT_PKG} > ${MAIN_FILE}
+
+	${FIRESTONE} generate \
+		--title 'Addressbook CLI' \
+		--description 'This is the CLI for the example Addressbook' \
+		--resources ${RESOURCES} \
+		--version 1.0 \
+		 cli \
+		 --pkg ${PKG} \
+		 --client-pkg ${CLIENT_PKG} \
+		 --output-dir ${ADDRESSBOOK_DIR}/addressbook/cli \
+		 --as-modules

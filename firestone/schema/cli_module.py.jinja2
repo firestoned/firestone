@@ -1,0 +1,196 @@
+#!/usr/bin/env python
+"""
+Firestone CLI module for {{ rsrc["name"] }}
+"""
+import functools
+import json
+import logging
+import os
+import sys
+
+import click
+from firestone_lib import cli
+from firestone_lib import utils as firestone_utils
+
+from {{ client_pkg }} import api_client
+from {{ client_pkg }} import configuration
+from {{ client_pkg }} import exceptions
+
+{% set ns = namespace(has_create=False, has_update=False) -%}
+{% for op in rsrc["operations"]["resource"] -%}
+{% if op["name"] == "create" -%}
+{% set ns.has_create = True -%}
+{% break -%}
+{% endif -%}
+{% endfor -%}
+
+{% for op in rsrc["operations"]["instance"] -%}
+{% if op["name"] == "update" -%}
+{% set ns.has_update = True -%}
+{% break -%}
+{% endif -%}
+{% endfor -%}
+
+{% set comp_name = rsrc["name"] if not rsrc["name"].endswith("s") else rsrc["name"][:-1] %}
+from {{ client_pkg }}.api import {{ rsrc["name"] }}_api
+from {{ client_pkg }}.models import {{ comp_name }} as {{ comp_name }}_model
+{% if ns.has_create -%}
+from {{ client_pkg }}.models import create_{{ comp_name }} as create_{{ comp_name }}_model
+{% endif -%}
+{% if ns.has_update -%}
+from {{ client_pkg }}.models import update_{{ comp_name }} as update_{{ comp_name }}_model
+{% endif -%}
+
+_LOGGER = logging.getLogger(__name__)
+
+
+def api_exc(func):
+    """Handle ApiExceptions in all functions."""
+    async def wrapper(*args, **kwargs):
+        resp = None
+        try:
+            return await func(*args, **kwargs)
+        except exceptions.ApiException as apie:
+            if apie.body:
+                click.echo(apie.body)
+            else:
+                click.echo(apie.reason)
+
+            api_obj = args[0].get("api_obj")
+            if api_obj:
+                await api_obj.api_client.close()
+        sys.exit(-1)
+
+    return functools.update_wrapper(wrapper, func)
+
+
+def init():
+    """Initialize {{ rsrc["name"] }} resource CLI."""
+
+    @click.group()
+    @firestone_utils.click_coro
+    @click.pass_obj
+    async def {{ rsrc["name"] }}(ctx_obj):
+        """High level command for an {{ rsrc["name"] }}."""
+        _LOGGER.debug(f"ctx_obj: {ctx_obj}")
+        {% set clazz_name = rsrc["name"].capitalize() -%}
+        {% if "_" in clazz_name -%}
+        {% set new_clazz_name = [] -%}
+        {% for part in  clazz_name.split("_") -%}
+            {% set _ = new_clazz_name.append(part.capitalize()) -%}
+        {% endfor -%}
+        {% set clazz_name = "".join(new_clazz_name) -%}
+        {% endif -%}
+        config = ctx_obj["api_client_config"]
+        aclient = api_client.ApiClient(configuration=config)
+        ctx_obj["api_obj"] = {{ rsrc["name"] }}_api.{{ clazz_name }}Api(api_client=aclient)
+
+
+    # pylint: disable=redefined-builtin
+    {# high-level resource operations -#}
+    {% for op in rsrc["operations"]["resource"]|sort(attribute='name') -%}
+    @{{ rsrc["name"] }}.command("{{ op["name"] }}")
+    {% for attr in op["attrs"]|sort(attribute='name') -%}
+    @click.option("--{{ attr["name"].replace("_", "-") }}{%-
+        if attr["type"] == "bool" -%}
+        /--no-{{ attr["name"].replace("_", "-") }}
+        {%- endif -%}
+    ", help="{{ attr["description"] }}", {%-
+        if attr["type"] == "bool" -%}
+        is_flag=True, {% else %} type={{ attr["type"] }}, {% endif -%} show_default=True, required={{ attr["required"] }})
+    {% endfor -%}
+    @click.pass_obj
+    @firestone_utils.click_coro
+    @api_exc
+    async def {{ op["id"] }}(ctx_obj{% for attr in op["attrs"]|sort(attribute='name') -%}{{ ", " + attr["name"].replace("-", "_") }}{% endfor -%}):
+        """{{ op["description"] }}"""
+        api_obj = ctx_obj["api_obj"]
+        params = {
+            {% for attr in op["attrs"]|sort(attribute='name') -%}
+            "{{ attr["name"] }}":  {{ attr["name"].replace("-", "_") }},
+            {% endfor %}
+        }
+        {% set comp_name = rsrc["name"] if not rsrc["name"].endswith("s") else rsrc["name"][:-1] -%}
+        {% if op["name"] == "create" -%}
+
+        {% set clazz_name = comp_name.capitalize() -%}
+        {% if "_" in clazz_name -%}
+        {% set new_clazz_name = [] -%}
+        {% for part in  clazz_name.split("_") -%}
+            {% set _ = new_clazz_name.append(part.capitalize()) -%}
+        {% endfor -%}
+        {% set clazz_name = "".join(new_clazz_name) -%}
+        {% endif -%}
+
+        req_body = create_{{ comp_name }}_model.Create{{ clazz_name }}(**params)
+        resp = await api_obj.{{ op["id"] }}(req_body)
+        {% else %}
+        resp = await api_obj.{{ op["id"] }}(**params)
+        {% endif -%}
+        _LOGGER.debug(f"resp: {resp}")
+
+        if isinstance(resp, list):
+            click.echo(json.dumps([obj.to_dict() for obj in resp]))
+            return
+
+        if resp:
+            click.echo(json.dumps(resp.to_dict()))
+            return
+
+        click.echo("No data returned")
+
+    {% endfor -%}
+
+
+    {# high-level resource instance operations -#}
+    {% for op in rsrc["operations"]["instance"]|sort(attribute='name') -%}
+    @{{ rsrc["name"] }}.command("{{ op["name"] }}")
+    {% for attr in op["attrs"]|sort(attribute='name') -%}
+    {% if attr.get("argument") -%}
+    @click.argument("{{ attr["name"] }}", type={{ attr["type"] }})
+    {% else -%}
+    @click.option("--{{ attr["name"].replace("_", "-") }}", help="{{ attr["description"] }}", type={{ attr["type"] }}, required={{ attr["required"] }})
+    {% endif -%}
+    {% endfor -%}
+    @click.pass_obj
+    @firestone_utils.click_coro
+    @api_exc
+    async def {{ op["id"] }}(ctx_obj{% for attr in op["attrs"]|sort(attribute='name') -%}{{ ", " + attr["name"].replace("-", "_") }}{% endfor -%}):
+        """{{ op["description"] }}"""
+        api_obj = ctx_obj["api_obj"]
+        params = {
+            {% for attr in op["attrs"]|sort(attribute='name') -%}
+            {% if not attr.get("argument") -%}
+            "{{ attr["name"] }}":  {{ attr["name"].replace("-", "_") }},
+            {% endif -%}
+            {% endfor %}
+        }
+        {% set comp_name = rsrc["name"] if not rsrc["name"].endswith("s") else rsrc["name"][:-1] %}
+        {% if op["name"] == "create" %}
+        req_body = create_{{ comp_name }}_model.{{ comp_name.capitalize(**params) }}()
+        {% elif op["name"] == "update" %}
+        req_body = update_{{ comp_name }}_model.Update{{ comp_name.capitalize() }}(**params)
+        resp = await api_obj.{{ op["id"] }}(
+            {% for attr in op["attrs"]|sort(attribute='name') -%}
+                {% if attr.get("argument") -%}{{ attr["name"] }}, {% endif -%}
+            {% endfor -%}
+            req_body
+        )
+        {% else %}
+        resp = await api_obj.{{ op["id"] }}(
+            {% for attr in op["attrs"]|sort(attribute='name') -%}
+                {% if attr.get("argument") -%}{{ attr["name"] }}, {% endif -%}
+            {% endfor -%}
+            **params
+        )
+        {% endif -%}
+        _LOGGER.debug(f"resp: {resp}")
+
+        if isinstance(resp, list):
+            print(json.dumps([obj.to_dict() for obj in resp]))
+            return
+
+        print(json.dumps(resp.to_dict()) if resp else "None")
+    {% endfor -%}
+
+    return {{ rsrc["name"] }}

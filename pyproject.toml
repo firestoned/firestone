@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "firestoned"
-version = "0.6.0"
+version = "0.7.0"
 description = "Build OpenAPI and AsyncAPI specs based off one or more resource json schema files"
 authors = ["Erick Bourgeois <erick@jeb.ca>"]
 license = "Apache 2.0"
@@ -58,7 +58,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 line-length = 100
-target-version = ["py37", "py310"]
+target-version = ["py310", "py311", "py312"]
 
 [tool.pylint.'MESSAGES CONTROL']
 max-line-length = 150
@@ -67,6 +67,7 @@ good-names = [
     "op"
 ]
 max-args = 8
+max-positional-argument = 10
 disable = """
     logging-fstring-interpolation,
     fixme

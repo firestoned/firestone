@@ -64,7 +64,10 @@ class Addressbook(BaseModel):
         if value is None:
             return value
 
-        if value not in ("work", "home"):
+        if value not in (
+            "work",
+            "home",
+        ):
             raise ValueError("must be one of enum values ('work', 'home')")
         return value
 

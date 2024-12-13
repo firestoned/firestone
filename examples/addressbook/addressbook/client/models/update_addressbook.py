@@ -35,7 +35,7 @@ class UpdateAddressbook(BaseModel):
     city: Optional[StrictStr] = Field(default=None, description="The city of this address")
     country: Optional[StrictStr] = Field(default=None, description="The country of this address")
     is_valid: Optional[StrictBool] = Field(default=None, description="Address is valid or not")
-    people: Optional[List[Any]] = Field(
+    people: Optional[List[StrictStr]] = Field(
         default=None, description="A list of people's names living there"
     )
     person: Optional[Person] = None

@@ -2,7 +2,9 @@
 The main entry point for firestone.
 """
 
+import io
 import logging
+import os
 
 import click
 
@@ -160,6 +162,17 @@ def asyncapi(rsrc_data, output):
     show_default=True,
 )
 @click.option(
+    "--output-dir",
+    "-o",
+    help="Location of the directory to output the CLI generated module files",
+    type=click.Path(file_okay=False, dir_okay=True, writable=True),
+)
+@click.option(
+    "--as-modules",
+    help="Output each resource as a module",
+    is_flag=True,
+)
+@click.option(
     "--pkg",
     help="The package where the OpenAPI client code is.",
     required=True,
@@ -170,7 +183,7 @@ def asyncapi(rsrc_data, output):
     required=True,
 )
 @click.pass_obj
-def cli(rsrc_data, pkg, client_pkg, output):
+def cli(rsrc_data, pkg, client_pkg, output, output_dir, as_modules):
     """Generate python, Click-based CLI script.
 
     This generated script can be used as standalone or added to console scripts."""
@@ -182,8 +195,22 @@ def cli(rsrc_data, pkg, client_pkg, output):
         rsrc_data["desc"],
         rsrc_data["summary"],
         rsrc_data["version"],
+        as_modules,
     )
-    print(cli_spec, file=output)
+    if not as_modules:
+        return print(cli_spec, file=output)
+
+    if not output_dir:
+        raise click.UsageError("You must supply an --output-dir when using --as-modules")
+
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    for rsrc in cli_spec:
+        with io.open(os.path.join(output_dir, f"{rsrc}.py"), "w", encoding="utf-8") as fh:
+            fh.write(cli_spec[rsrc])
+
+    return None
 
 
 if __name__ == "main":

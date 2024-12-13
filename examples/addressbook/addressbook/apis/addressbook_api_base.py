@@ -2,6 +2,9 @@
 
 from typing import ClassVar, Dict, List, Tuple  # noqa: F401
 
+from pydantic import Field, StrictBool, StrictInt, StrictStr, field_validator
+from typing import Any, List, Optional
+from typing_extensions import Annotated
 from addressbook.models.addressbook import Addressbook
 from addressbook.models.create_addressbook import CreateAddressbook
 from addressbook.models.create_person import CreatePerson
@@ -18,485 +21,557 @@ class BaseAddressbookApi:
         super().__init_subclass__(**kwargs)
         BaseAddressbookApi.subclasses = BaseAddressbookApi.subclasses + (cls,)
 
-    def addressbook_address_key_addrtype_delete(
+    async def addressbook_address_key_addrtype_delete(
         self,
-        address_key: str,
+        address_key: StrictStr,
     ) -> str:
         """delete operation for /addressbook/{address_key}/addrtype"""
         ...
 
-    def addressbook_address_key_addrtype_get(
+    async def addressbook_address_key_addrtype_get(
         self,
-        address_key: str,
-        city: str,
+        address_key: StrictStr,
+        city: Annotated[Optional[StrictStr], Field(description="Filter by city name")],
     ) -> str:
         """get operation for /addressbook/{address_key}/addrtype"""
         ...
 
-    def addressbook_address_key_addrtype_head(
+    async def addressbook_address_key_addrtype_head(
         self,
-        address_key: str,
+        address_key: StrictStr,
     ) -> None:
         """head operation for /addressbook/{address_key}/addrtype"""
         ...
 
-    def addressbook_address_key_addrtype_put(
+    async def addressbook_address_key_addrtype_put(
         self,
-        address_key: str,
-        body: str,
+        address_key: StrictStr,
+        body: Annotated[
+            StrictStr, Field(description="The request body for /addressbook/{address_key}/addrtype")
+        ],
     ) -> str:
         """put operation for /addressbook/{address_key}/addrtype"""
         ...
 
-    def addressbook_address_key_city_delete(
+    async def addressbook_address_key_city_delete(
         self,
-        address_key: str,
+        address_key: StrictStr,
     ) -> str:
         """delete operation for /addressbook/{address_key}/city"""
         ...
 
-    def addressbook_address_key_city_get(
+    async def addressbook_address_key_city_get(
         self,
-        address_key: str,
-        city: str,
+        address_key: StrictStr,
+        city: Annotated[Optional[StrictStr], Field(description="Filter by city name")],
     ) -> str:
         """get operation for /addressbook/{address_key}/city"""
         ...
 
-    def addressbook_address_key_city_head(
+    async def addressbook_address_key_city_head(
         self,
-        address_key: str,
+        address_key: StrictStr,
     ) -> None:
         """head operation for /addressbook/{address_key}/city"""
         ...
 
-    def addressbook_address_key_city_put(
+    async def addressbook_address_key_city_put(
         self,
-        address_key: str,
-        body: str,
+        address_key: StrictStr,
+        body: Annotated[
+            StrictStr, Field(description="The request body for /addressbook/{address_key}/city")
+        ],
     ) -> str:
         """put operation for /addressbook/{address_key}/city"""
         ...
 
-    def addressbook_address_key_country_delete(
+    async def addressbook_address_key_country_delete(
         self,
-        address_key: str,
+        address_key: StrictStr,
     ) -> str:
         """delete operation for /addressbook/{address_key}/country"""
         ...
 
-    def addressbook_address_key_country_get(
+    async def addressbook_address_key_country_get(
         self,
-        address_key: str,
-        city: str,
+        address_key: StrictStr,
+        city: Annotated[Optional[StrictStr], Field(description="Filter by city name")],
     ) -> str:
         """get operation for /addressbook/{address_key}/country"""
         ...
 
-    def addressbook_address_key_country_head(
+    async def addressbook_address_key_country_head(
         self,
-        address_key: str,
+        address_key: StrictStr,
     ) -> None:
         """head operation for /addressbook/{address_key}/country"""
         ...
 
-    def addressbook_address_key_country_put(
+    async def addressbook_address_key_country_put(
         self,
-        address_key: str,
-        body: str,
+        address_key: StrictStr,
+        body: Annotated[
+            StrictStr, Field(description="The request body for /addressbook/{address_key}/country")
+        ],
     ) -> str:
         """put operation for /addressbook/{address_key}/country"""
         ...
 
-    def addressbook_address_key_delete(
+    async def addressbook_address_key_delete(
         self,
-        address_key: str,
+        address_key: StrictStr,
     ) -> Addressbook:
         """Delete an address from this addressbook."""
         ...
 
-    def addressbook_address_key_get(
+    async def addressbook_address_key_get(
         self,
-        address_key: str,
-        city: str,
+        address_key: StrictStr,
+        city: Annotated[Optional[StrictStr], Field(description="Filter by city name")],
     ) -> Addressbook:
         """Get a specific address from this addressbook."""
         ...
 
-    def addressbook_address_key_head(
+    async def addressbook_address_key_head(
         self,
-        address_key: str,
+        address_key: StrictStr,
     ) -> None:
         """Determine the existence and size of this address."""
         ...
 
-    def addressbook_address_key_is_valid_delete(
+    async def addressbook_address_key_is_valid_delete(
         self,
-        address_key: str,
+        address_key: StrictStr,
     ) -> bool:
         """delete operation for /addressbook/{address_key}/is_valid"""
         ...
 
-    def addressbook_address_key_is_valid_get(
+    async def addressbook_address_key_is_valid_get(
         self,
-        address_key: str,
-        city: str,
+        address_key: StrictStr,
+        city: Annotated[Optional[StrictStr], Field(description="Filter by city name")],
     ) -> bool:
         """get operation for /addressbook/{address_key}/is_valid"""
         ...
 
-    def addressbook_address_key_is_valid_head(
+    async def addressbook_address_key_is_valid_head(
         self,
-        address_key: str,
+        address_key: StrictStr,
     ) -> None:
         """head operation for /addressbook/{address_key}/is_valid"""
         ...
 
-    def addressbook_address_key_is_valid_put(
+    async def addressbook_address_key_is_valid_put(
         self,
-        address_key: str,
-        body: bool,
+        address_key: StrictStr,
+        body: Annotated[
+            StrictBool,
+            Field(description="The request body for /addressbook/{address_key}/is_valid"),
+        ],
     ) -> bool:
         """put operation for /addressbook/{address_key}/is_valid"""
         ...
 
-    def addressbook_address_key_people_delete(
+    async def addressbook_address_key_people_delete(
         self,
-        address_key: str,
+        address_key: StrictStr,
     ) -> List[str]:
         """delete operation for /addressbook/{address_key}/people"""
         ...
 
-    def addressbook_address_key_people_get(
+    async def addressbook_address_key_people_get(
         self,
-        address_key: str,
-        city: str,
+        address_key: StrictStr,
+        city: Annotated[Optional[StrictStr], Field(description="Filter by city name")],
     ) -> List[str]:
         """get operation for /addressbook/{address_key}/people"""
         ...
 
-    def addressbook_address_key_people_head(
+    async def addressbook_address_key_people_head(
         self,
-        address_key: str,
+        address_key: StrictStr,
     ) -> None:
         """head operation for /addressbook/{address_key}/people"""
         ...
 
-    def addressbook_address_key_people_put(
+    async def addressbook_address_key_people_put(
         self,
-        address_key: str,
-        request_body: List[str],
+        address_key: StrictStr,
+        request_body: Annotated[
+            List[StrictStr],
+            Field(description="The request body for /addressbook/{address_key}/people"),
+        ],
     ) -> List[str]:
         """put operation for /addressbook/{address_key}/people"""
         ...
 
-    def addressbook_address_key_person_delete(
+    async def addressbook_address_key_person_delete(
         self,
-        address_key: str,
-        limit: int,
-        offset: int,
+        address_key: StrictStr,
+        limit: Annotated[
+            Optional[StrictInt], Field(description="Limit the number of responses back")
+        ],
+        offset: Annotated[
+            Optional[StrictInt], Field(description="The offset to start returning resources")
+        ],
     ) -> Person:
         """delete operation for /addressbook/{address_key}/person"""
         ...
 
-    def addressbook_address_key_person_get(
+    async def addressbook_address_key_person_get(
         self,
-        address_key: str,
-        last_name: str,
-        limit: int,
-        offset: int,
+        address_key: StrictStr,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")],
+        limit: Annotated[
+            Optional[StrictInt], Field(description="Limit the number of responses back")
+        ],
+        offset: Annotated[
+            Optional[StrictInt], Field(description="The offset to start returning resources")
+        ],
     ) -> List[Person]:
         """get operation for /addressbook/{address_key}/person"""
         ...
 
-    def addressbook_address_key_person_head(
+    async def addressbook_address_key_person_head(
         self,
-        address_key: str,
-        limit: int,
-        offset: int,
+        address_key: StrictStr,
+        limit: Annotated[
+            Optional[StrictInt], Field(description="Limit the number of responses back")
+        ],
+        offset: Annotated[
+            Optional[StrictInt], Field(description="The offset to start returning resources")
+        ],
     ) -> None:
         """head operation for /addressbook/{address_key}/person"""
         ...
 
-    def addressbook_address_key_person_patch(
+    async def addressbook_address_key_person_patch(
         self,
-        address_key: str,
-        limit: int,
-        offset: int,
+        address_key: StrictStr,
+        limit: Annotated[
+            Optional[StrictInt], Field(description="Limit the number of responses back")
+        ],
+        offset: Annotated[
+            Optional[StrictInt], Field(description="The offset to start returning resources")
+        ],
     ) -> Person:
         """patch operation for /addressbook/{address_key}/person"""
         ...
 
-    def addressbook_address_key_person_post(
+    async def addressbook_address_key_person_post(
         self,
-        address_key: str,
-        create_person: CreatePerson,
-        limit: int,
-        offset: int,
+        address_key: StrictStr,
+        create_person: Annotated[
+            CreatePerson,
+            Field(description="The request body for /addressbook/{address_key}/person"),
+        ],
+        limit: Annotated[
+            Optional[StrictInt], Field(description="Limit the number of responses back")
+        ],
+        offset: Annotated[
+            Optional[StrictInt], Field(description="The offset to start returning resources")
+        ],
     ) -> CreatePerson:
         """post operation for /addressbook/{address_key}/person"""
         ...
 
-    def addressbook_address_key_person_uuid_age_delete(
+    async def addressbook_address_key_person_uuid_age_delete(
         self,
-        address_key: str,
-        uuid: str,
+        address_key: StrictStr,
+        uuid: StrictStr,
     ) -> int:
         """delete operation for /addressbook/{address_key}/person/{uuid}/age"""
         ...
 
-    def addressbook_address_key_person_uuid_age_get(
+    async def addressbook_address_key_person_uuid_age_get(
         self,
-        address_key: str,
-        uuid: str,
-        last_name: str,
+        address_key: StrictStr,
+        uuid: StrictStr,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")],
     ) -> int:
         """get operation for /addressbook/{address_key}/person/{uuid}/age"""
         ...
 
-    def addressbook_address_key_person_uuid_age_head(
+    async def addressbook_address_key_person_uuid_age_head(
         self,
-        address_key: str,
-        uuid: str,
+        address_key: StrictStr,
+        uuid: StrictStr,
     ) -> None:
         """head operation for /addressbook/{address_key}/person/{uuid}/age"""
         ...
 
-    def addressbook_address_key_person_uuid_age_put(
+    async def addressbook_address_key_person_uuid_age_put(
         self,
-        address_key: str,
-        uuid: str,
-        body: int,
+        address_key: StrictStr,
+        uuid: StrictStr,
+        body: Annotated[
+            StrictInt,
+            Field(description="The request body for /addressbook/{address_key}/person/{uuid}/age"),
+        ],
     ) -> int:
         """put operation for /addressbook/{address_key}/person/{uuid}/age"""
         ...
 
-    def addressbook_address_key_person_uuid_delete(
+    async def addressbook_address_key_person_uuid_delete(
         self,
-        address_key: str,
-        uuid: str,
+        address_key: StrictStr,
+        uuid: StrictStr,
     ) -> Person:
         """delete operation for /addressbook/{address_key}/person/{uuid}"""
         ...
 
-    def addressbook_address_key_person_uuid_first_name_delete(
+    async def addressbook_address_key_person_uuid_first_name_delete(
         self,
-        address_key: str,
-        uuid: str,
+        address_key: StrictStr,
+        uuid: StrictStr,
     ) -> str:
         """delete operation for /addressbook/{address_key}/person/{uuid}/first_name"""
         ...
 
-    def addressbook_address_key_person_uuid_first_name_get(
+    async def addressbook_address_key_person_uuid_first_name_get(
         self,
-        address_key: str,
-        uuid: str,
-        last_name: str,
+        address_key: StrictStr,
+        uuid: StrictStr,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")],
     ) -> str:
         """get operation for /addressbook/{address_key}/person/{uuid}/first_name"""
         ...
 
-    def addressbook_address_key_person_uuid_first_name_head(
+    async def addressbook_address_key_person_uuid_first_name_head(
         self,
-        address_key: str,
-        uuid: str,
+        address_key: StrictStr,
+        uuid: StrictStr,
     ) -> None:
         """head operation for /addressbook/{address_key}/person/{uuid}/first_name"""
         ...
 
-    def addressbook_address_key_person_uuid_first_name_put(
+    async def addressbook_address_key_person_uuid_first_name_put(
         self,
-        address_key: str,
-        uuid: str,
-        body: str,
+        address_key: StrictStr,
+        uuid: StrictStr,
+        body: Annotated[
+            StrictStr,
+            Field(
+                description="The request body for /addressbook/{address_key}/person/{uuid}/first_name"
+            ),
+        ],
     ) -> str:
         """put operation for /addressbook/{address_key}/person/{uuid}/first_name"""
         ...
 
-    def addressbook_address_key_person_uuid_get(
+    async def addressbook_address_key_person_uuid_get(
         self,
-        address_key: str,
-        uuid: str,
-        last_name: str,
+        address_key: StrictStr,
+        uuid: StrictStr,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")],
     ) -> Person:
         """get operation for /addressbook/{address_key}/person/{uuid}"""
         ...
 
-    def addressbook_address_key_person_uuid_head(
+    async def addressbook_address_key_person_uuid_head(
         self,
-        address_key: str,
-        uuid: str,
+        address_key: StrictStr,
+        uuid: StrictStr,
     ) -> None:
         """head operation for /addressbook/{address_key}/person/{uuid}"""
         ...
 
-    def addressbook_address_key_person_uuid_hobbies_delete(
+    async def addressbook_address_key_person_uuid_hobbies_delete(
         self,
-        address_key: str,
-        uuid: str,
+        address_key: StrictStr,
+        uuid: StrictStr,
     ) -> List[str]:
         """delete operation for /addressbook/{address_key}/person/{uuid}/hobbies"""
         ...
 
-    def addressbook_address_key_person_uuid_hobbies_get(
+    async def addressbook_address_key_person_uuid_hobbies_get(
         self,
-        address_key: str,
-        uuid: str,
-        last_name: str,
+        address_key: StrictStr,
+        uuid: StrictStr,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")],
     ) -> List[str]:
         """get operation for /addressbook/{address_key}/person/{uuid}/hobbies"""
         ...
 
-    def addressbook_address_key_person_uuid_hobbies_head(
+    async def addressbook_address_key_person_uuid_hobbies_head(
         self,
-        address_key: str,
-        uuid: str,
+        address_key: StrictStr,
+        uuid: StrictStr,
     ) -> None:
         """head operation for /addressbook/{address_key}/person/{uuid}/hobbies"""
         ...
 
-    def addressbook_address_key_person_uuid_hobbies_put(
+    async def addressbook_address_key_person_uuid_hobbies_put(
         self,
-        address_key: str,
-        uuid: str,
-        request_body: List[str],
+        address_key: StrictStr,
+        uuid: StrictStr,
+        request_body: Annotated[
+            List[StrictStr],
+            Field(
+                description="The request body for /addressbook/{address_key}/person/{uuid}/hobbies"
+            ),
+        ],
     ) -> List[str]:
         """put operation for /addressbook/{address_key}/person/{uuid}/hobbies"""
         ...
 
-    def addressbook_address_key_person_uuid_last_name_delete(
+    async def addressbook_address_key_person_uuid_last_name_delete(
         self,
-        address_key: str,
-        uuid: str,
+        address_key: StrictStr,
+        uuid: StrictStr,
     ) -> str:
         """delete operation for /addressbook/{address_key}/person/{uuid}/last_name"""
         ...
 
-    def addressbook_address_key_person_uuid_last_name_get(
+    async def addressbook_address_key_person_uuid_last_name_get(
         self,
-        address_key: str,
-        uuid: str,
-        last_name: str,
+        address_key: StrictStr,
+        uuid: StrictStr,
+        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")],
     ) -> str:
         """get operation for /addressbook/{address_key}/person/{uuid}/last_name"""
         ...
 
-    def addressbook_address_key_person_uuid_last_name_head(
+    async def addressbook_address_key_person_uuid_last_name_head(
         self,
-        address_key: str,
-        uuid: str,
+        address_key: StrictStr,
+        uuid: StrictStr,
     ) -> None:
         """head operation for /addressbook/{address_key}/person/{uuid}/last_name"""
         ...
 
-    def addressbook_address_key_person_uuid_last_name_put(
+    async def addressbook_address_key_person_uuid_last_name_put(
         self,
-        address_key: str,
-        uuid: str,
-        body: str,
+        address_key: StrictStr,
+        uuid: StrictStr,
+        body: Annotated[
+            StrictStr,
+            Field(
+                description="The request body for /addressbook/{address_key}/person/{uuid}/last_name"
+            ),
+        ],
     ) -> str:
         """put operation for /addressbook/{address_key}/person/{uuid}/last_name"""
         ...
 
-    def addressbook_address_key_person_uuid_patch(
+    async def addressbook_address_key_person_uuid_patch(
         self,
-        address_key: str,
-        uuid: str,
+        address_key: StrictStr,
+        uuid: StrictStr,
     ) -> Person:
         """patch operation for /addressbook/{address_key}/person/{uuid}"""
         ...
 
-    def addressbook_address_key_person_uuid_put(
+    async def addressbook_address_key_person_uuid_put(
         self,
-        address_key: str,
-        uuid: str,
-        update_person: UpdatePerson,
+        address_key: StrictStr,
+        uuid: StrictStr,
+        update_person: Annotated[
+            UpdatePerson,
+            Field(description="The request body for /addressbook/{address_key}/person/{uuid}"),
+        ],
     ) -> UpdatePerson:
         """put operation for /addressbook/{address_key}/person/{uuid}"""
         ...
 
-    def addressbook_address_key_put(
+    async def addressbook_address_key_put(
         self,
-        address_key: str,
-        update_addressbook: UpdateAddressbook,
+        address_key: StrictStr,
+        update_addressbook: Annotated[
+            UpdateAddressbook, Field(description="The request body for /addressbook/{address_key}")
+        ],
     ) -> UpdateAddressbook:
         """Update an existing address in this addressbook, with the given address key."""
         ...
 
-    def addressbook_address_key_state_delete(
+    async def addressbook_address_key_state_delete(
         self,
-        address_key: str,
+        address_key: StrictStr,
     ) -> str:
         """delete operation for /addressbook/{address_key}/state"""
         ...
 
-    def addressbook_address_key_state_get(
+    async def addressbook_address_key_state_get(
         self,
-        address_key: str,
-        city: str,
+        address_key: StrictStr,
+        city: Annotated[Optional[StrictStr], Field(description="Filter by city name")],
     ) -> str:
         """get operation for /addressbook/{address_key}/state"""
         ...
 
-    def addressbook_address_key_state_head(
+    async def addressbook_address_key_state_head(
         self,
-        address_key: str,
+        address_key: StrictStr,
     ) -> None:
         """head operation for /addressbook/{address_key}/state"""
         ...
 
-    def addressbook_address_key_state_put(
+    async def addressbook_address_key_state_put(
         self,
-        address_key: str,
-        body: str,
+        address_key: StrictStr,
+        body: Annotated[
+            StrictStr, Field(description="The request body for /addressbook/{address_key}/state")
+        ],
     ) -> str:
         """put operation for /addressbook/{address_key}/state"""
         ...
 
-    def addressbook_address_key_street_delete(
+    async def addressbook_address_key_street_delete(
         self,
-        address_key: str,
+        address_key: StrictStr,
     ) -> str:
         """delete operation for /addressbook/{address_key}/street"""
         ...
 
-    def addressbook_address_key_street_get(
+    async def addressbook_address_key_street_get(
         self,
-        address_key: str,
-        city: str,
+        address_key: StrictStr,
+        city: Annotated[Optional[StrictStr], Field(description="Filter by city name")],
     ) -> str:
         """get operation for /addressbook/{address_key}/street"""
         ...
 
-    def addressbook_address_key_street_head(
+    async def addressbook_address_key_street_head(
         self,
-        address_key: str,
+        address_key: StrictStr,
     ) -> None:
         """head operation for /addressbook/{address_key}/street"""
         ...
 
-    def addressbook_address_key_street_put(
+    async def addressbook_address_key_street_put(
         self,
-        address_key: str,
-        body: str,
+        address_key: StrictStr,
+        body: Annotated[
+            StrictStr, Field(description="The request body for /addressbook/{address_key}/street")
+        ],
     ) -> str:
         """put operation for /addressbook/{address_key}/street"""
         ...
 
-    def addressbook_get(
+    async def addressbook_get(
         self,
-        city: str,
-        limit: int,
-        offset: int,
+        city: Annotated[Optional[StrictStr], Field(description="Filter by city name")],
+        limit: Annotated[
+            Optional[StrictInt], Field(description="Limit the number of responses back")
+        ],
+        offset: Annotated[
+            Optional[StrictInt], Field(description="The offset to start returning resources")
+        ],
     ) -> List[Addressbook]:
         """List all addresses in this addressbook."""
         ...
 
-    def addressbook_post(
+    async def addressbook_post(
         self,
-        create_addressbook: CreateAddressbook,
-        limit: int,
-        offset: int,
+        create_addressbook: Annotated[
+            CreateAddressbook, Field(description="The request body for /addressbook")
+        ],
+        limit: Annotated[
+            Optional[StrictInt], Field(description="Limit the number of responses back")
+        ],
+        offset: Annotated[
+            Optional[StrictInt], Field(description="The offset to start returning resources")
+        ],
     ) -> CreateAddressbook:
         """Create a new address in this addressbook, a new address key will be created."""
         ...

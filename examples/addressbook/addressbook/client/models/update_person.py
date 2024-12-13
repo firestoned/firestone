@@ -30,7 +30,7 @@ class UpdatePerson(BaseModel):
 
     age: Optional[StrictInt] = Field(default=None, description="The person's age")
     first_name: Optional[StrictStr] = Field(default=None, description="The person's first name")
-    hobbies: Optional[List[Any]] = Field(default=None, description="The person's hobbies")
+    hobbies: Optional[List[StrictStr]] = Field(default=None, description="The person's hobbies")
     last_name: Optional[StrictStr] = Field(default=None, description="The person's last name")
     __properties: ClassVar[List[str]] = ["age", "first_name", "hobbies", "last_name"]
 
