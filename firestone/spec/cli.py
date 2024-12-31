@@ -2,7 +2,11 @@
 Generate python Click based CLI from one or more resource schemas.
 """
 
+import io
 import logging
+import os
+
+import jinja2
 
 from firestone.spec import _base as spec_base
 from firestone.spec import openapi as spec_openapi
@@ -277,7 +281,7 @@ def get_ops(
     return ops
 
 
-# pylint: disable=too-many-locals
+# pylint: disable=too-many-locals,too-many-arguments
 def generate(
     pkg: str,
     client_pkg: str,
@@ -287,6 +291,7 @@ def generate(
     summary: str,
     version: str,
     as_modules: bool = False,
+    template: str = None,
 ):
     """Generate a Click based CLI script based on the resource data sent and other meta data."""
     rsrcs = []
@@ -318,8 +323,21 @@ def generate(
 
     _LOGGER.info(f"rsrcs: {rsrcs}")
 
+    tmpl = None
+    if template and os.path.exists(template):
+        _LOGGER.info(f"Using custom template from {template}")
+        tmpl_str = ""
+        with io.open(template, "r", encoding="utf-8") as fh:
+            tmpl_str = "".join(fh.readlines())
+
+        tmpl = jinja2.Environment(
+            loader=jinja2.BaseLoader,
+            extensions=["jinja2.ext.loopcontrols"],
+        ).from_string(tmpl_str)
+
     if not as_modules:
-        tmpl = spec_base.JINJA_ENV.get_template("main.py.jinja2")
+        if not tmpl:
+            tmpl = spec_base.JINJA_ENV.get_template("main.py.jinja2")
         return tmpl.render(
             title=title,
             summary=summary,
@@ -332,7 +350,8 @@ def generate(
 
     rendered_rsrcs = {}
     for rsrc in rsrcs:
-        tmpl = spec_base.JINJA_ENV.get_template("cli_module.py.jinja2")
+        if not tmpl:
+            tmpl = spec_base.JINJA_ENV.get_template("cli_module.py.jinja2")
         rendered = tmpl.render(
             title=title,
             summary=summary,
