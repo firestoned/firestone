@@ -182,11 +182,18 @@ def asyncapi(rsrc_data, output):
     help="The package where the OpenAPI client code is.",
     required=True,
 )
+@click.option(
+    "--template",
+    "-T",
+    help="The location of a custom template to render the resources for CLI",
+    type=str,
+)
 @click.pass_obj
-def cli(rsrc_data, pkg, client_pkg, output, output_dir, as_modules):
+def cli(rsrc_data, pkg, client_pkg, output, output_dir, as_modules, template):
     """Generate python, Click-based CLI script.
 
-    This generated script can be used as standalone or added to console scripts."""
+    This generated script can be used as standalone or added to console scripts.
+    """
     cli_spec = firestone_spec.cli.generate(
         pkg,
         client_pkg,
@@ -196,6 +203,7 @@ def cli(rsrc_data, pkg, client_pkg, output, output_dir, as_modules):
         rsrc_data["summary"],
         rsrc_data["version"],
         as_modules,
+        template=template,
     )
     if not as_modules:
         return print(cli_spec, file=output)
