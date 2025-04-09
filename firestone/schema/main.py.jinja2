@@ -166,7 +166,7 @@ async def {{ rsrc["name"] }}(ctx_obj):
 {% for attr in op["attrs"]|sort(attribute='name') -%}
 @click.option("--{{ attr["name"].replace("_", "-") }}{%-
     if attr["type"] == "bool" -%}
-    /--no-{{ attr["name"].replace("_", "-") }}
+    --no-{{ attr["name"].replace("_", "-") }}
     {%- endif -%}
 ", help="{{ attr["description"] }}", {%-
     if attr["type"] == "bool" -%}

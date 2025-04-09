@@ -34,11 +34,11 @@ methods:
     - get
     - head
     - put
-  instance_attrs:
-    - delete
-    - get
-    - head
-    - put
+  instance_attrs: []
+#   - delete
+#   - get
+#   - head
+#   - put
 security:
   scheme:
     bearer_auth:
@@ -50,9 +50,9 @@ security:
   instance:
     - delete
     - put
-  instance_attrs:
-    - delete
-    - put
+  instance_attrs: []
+#   - delete
+#   - put
 schema:
   type: array
   key:

@@ -644,6 +644,7 @@ class TestOpenAPIGetPaths(unittest.TestCase):
         paths = openapi.get_paths(
             "foo",
             {
+                "methods": {"resource": ["get"], "instance": ["get"], "instance_attrs": ["get"]},
                 "type": "array",
                 "key": {"name": "foo_key", "schema": {"type": "string"}},
                 "items": {"type": "object", "properties": {"bar": {"type": "string"}}},
@@ -657,13 +658,14 @@ class TestOpenAPIGetPaths(unittest.TestCase):
         inst_attr_meth_mock.assert_called_with(
             "foo",
             {
+                "methods": {"resource": ["get"], "instance": ["get"], "instance_attrs": ["get"]},
                 "type": "array",
                 "key": {"name": "foo_key", "schema": {"type": "string"}},
                 "items": {"type": "object", "properties": {"bar": {"type": "string"}}},
             },
             "/foo/{foo_key}",
             mock.ANY,
-            methods={},
+            methods={"resource": ["get"], "instance": ["get"], "instance_attrs": ["get"]},
             keys=[{"name": "foo_key", "schema": {"type": "string"}}],
             default_query_params=None,
             components=None,
@@ -683,6 +685,11 @@ class TestOpenAPIGenerate(unittest.TestCase):
                     "kind": "foo",
                     "description": "Some foo resource",
                     "apiVersion": "1.0",
+                    "methods": {
+                        "resource": ["get"],
+                        "instance": ["get"],
+                        "instance_attrs": ["get"],
+                    },
                     "schema": {
                         "type": "array",
                         "key": {"name": "foo_key", "schema": {"type": "string"}},
@@ -713,6 +720,11 @@ class TestOpenAPIGenerate(unittest.TestCase):
                     "description": "Some foo resource",
                     "apiVersion": "1.0",
                     "versionInPath": True,
+                    "methods": {
+                        "resource": ["get"],
+                        "instance": ["get"],
+                        "instance_attrs": ["get"],
+                    },
                     "schema": {
                         "type": "array",
                         "key": {"name": "foo_key", "schema": {"type": "string"}},
@@ -743,6 +755,11 @@ class TestOpenAPIGenerate(unittest.TestCase):
                         "resource": {
                             "get": "The get method is fabulous",
                         },
+                    },
+                    "methods": {
+                        "resource": ["get"],
+                        "instance": ["get"],
+                        "instance_attrs": ["get"],
                     },
                     "schema": {
                         "type": "array",

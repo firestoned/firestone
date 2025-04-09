@@ -146,8 +146,6 @@ paths:
             application/json:
               schema: *id003
           description: Response for CREATED
-      security:
-      - bearer_auth: []
       tags:
       - addressbook
   /addressbook/{address_key}:
@@ -167,8 +165,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/addressbook'
           description: Response for OK
-      security:
-      - bearer_auth: []
       tags:
       - addressbook
     get:
@@ -233,8 +229,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/UpdateAddressbook'
           description: Response for OK
-      security:
-      - bearer_auth: []
       tags:
       - addressbook
   /addressbook/{address_key}/addrtype:
@@ -258,8 +252,6 @@ paths:
                 - home
                 type: string
           description: Response for OK
-      security:
-      - bearer_auth: []
       tags:
       - addressbook
     get:
@@ -325,8 +317,6 @@ paths:
             application/json:
               schema: *id004
           description: Response for OK
-      security:
-      - bearer_auth: []
       tags:
       - addressbook
   /addressbook/{address_key}/city:
@@ -347,8 +337,6 @@ paths:
                 description: The city of this address
                 type: string
           description: Response for OK
-      security:
-      - bearer_auth: []
       tags:
       - addressbook
     get:
@@ -411,8 +399,6 @@ paths:
             application/json:
               schema: *id005
           description: Response for OK
-      security:
-      - bearer_auth: []
       tags:
       - addressbook
   /addressbook/{address_key}/country:
@@ -433,8 +419,6 @@ paths:
                 description: The country of this address
                 type: string
           description: Response for OK
-      security:
-      - bearer_auth: []
       tags:
       - addressbook
     get:
@@ -497,8 +481,6 @@ paths:
             application/json:
               schema: *id006
           description: Response for OK
-      security:
-      - bearer_auth: []
       tags:
       - addressbook
   /addressbook/{address_key}/is_valid:
@@ -519,8 +501,6 @@ paths:
                 description: Address is valid or not
                 type: boolean
           description: Response for OK
-      security:
-      - bearer_auth: []
       tags:
       - addressbook
     get:
@@ -583,8 +563,6 @@ paths:
             application/json:
               schema: *id007
           description: Response for OK
-      security:
-      - bearer_auth: []
       tags:
       - addressbook
   /addressbook/{address_key}/people:
@@ -607,8 +585,6 @@ paths:
                   type: string
                 type: array
           description: Response for OK
-      security:
-      - bearer_auth: []
       tags:
       - addressbook
     get:
@@ -673,8 +649,6 @@ paths:
             application/json:
               schema: *id008
           description: Response for OK
-      security:
-      - bearer_auth: []
       tags:
       - addressbook
   /addressbook/{address_key}/person:
@@ -786,565 +760,6 @@ paths:
             application/json:
               schema: *id009
           description: Response for CREATED
-      security:
-      - bearer_auth: []
-      tags:
-      - addressbook
-  /addressbook/{address_key}/person/{uuid}:
-    delete:
-      description: delete operation for /addressbook/{address_key}/person/{uuid}
-      operationId: addressbook_address_key_person_uuid_delete
-      parameters:
-      - in: path
-        name: address_key
-        required: true
-        schema:
-          type: string
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/person'
-          description: Response for OK
-      security:
-      - bearer_auth: []
-      tags:
-      - addressbook
-    get:
-      description: get operation for /addressbook/{address_key}/person/{uuid}
-      operationId: addressbook_address_key_person_uuid_get
-      parameters:
-      - description: Filter by last name
-        in: query
-        name: last_name
-        required: false
-        schema:
-          type: string
-      - in: path
-        name: address_key
-        required: true
-        schema:
-          type: string
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/person'
-          description: Response for OK
-      tags:
-      - addressbook
-    head:
-      description: head operation for /addressbook/{address_key}/person/{uuid}
-      operationId: addressbook_address_key_person_uuid_head
-      parameters:
-      - in: path
-        name: address_key
-        required: true
-        schema:
-          type: string
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        default:
-          description: Default HEAD response
-      tags:
-      - addressbook
-    patch:
-      description: patch operation for /addressbook/{address_key}/person/{uuid}
-      operationId: addressbook_address_key_person_uuid_patch
-      parameters:
-      - in: path
-        name: address_key
-        required: true
-        schema:
-          type: string
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/person'
-          description: Response for OK
-      tags:
-      - addressbook
-    put:
-      description: put operation for /addressbook/{address_key}/person/{uuid}
-      operationId: addressbook_address_key_person_uuid_put
-      parameters:
-      - in: path
-        name: address_key
-        required: true
-        schema:
-          type: string
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdatePerson'
-        description: The request body for /addressbook/{address_key}/person/{uuid}
-        required: true
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UpdatePerson'
-          description: Response for OK
-      security:
-      - bearer_auth: []
-      tags:
-      - addressbook
-  /addressbook/{address_key}/person/{uuid}/age:
-    delete:
-      description: delete operation for /addressbook/{address_key}/person/{uuid}/age
-      operationId: addressbook_address_key_person_uuid_age_delete
-      parameters:
-      - in: path
-        name: address_key
-        required: true
-        schema:
-          type: string
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema: &id010
-                description: The person's age
-                type: integer
-          description: Response for OK
-      security:
-      - bearer_auth: []
-      tags:
-      - addressbook
-    get:
-      description: get operation for /addressbook/{address_key}/person/{uuid}/age
-      operationId: addressbook_address_key_person_uuid_age_get
-      parameters:
-      - description: Filter by last name
-        in: query
-        name: last_name
-        required: false
-        schema:
-          type: string
-      - in: path
-        name: address_key
-        required: true
-        schema:
-          type: string
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema: *id010
-          description: Response for OK
-      tags:
-      - addressbook
-    head:
-      description: head operation for /addressbook/{address_key}/person/{uuid}/age
-      operationId: addressbook_address_key_person_uuid_age_head
-      parameters:
-      - in: path
-        name: address_key
-        required: true
-        schema:
-          type: string
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        default:
-          description: Default HEAD response
-      tags:
-      - addressbook
-    put:
-      description: put operation for /addressbook/{address_key}/person/{uuid}/age
-      operationId: addressbook_address_key_person_uuid_age_put
-      parameters:
-      - in: path
-        name: address_key
-        required: true
-        schema:
-          type: string
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              description: The person's age
-              type: integer
-        description: The request body for /addressbook/{address_key}/person/{uuid}/age
-        required: true
-      responses:
-        200:
-          content:
-            application/json:
-              schema: *id010
-          description: Response for OK
-      security:
-      - bearer_auth: []
-      tags:
-      - addressbook
-  /addressbook/{address_key}/person/{uuid}/first_name:
-    delete:
-      description: delete operation for /addressbook/{address_key}/person/{uuid}/first_name
-      operationId: addressbook_address_key_person_uuid_first_name_delete
-      parameters:
-      - in: path
-        name: address_key
-        required: true
-        schema:
-          type: string
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema: &id011
-                description: The person's first name
-                type: string
-          description: Response for OK
-      security:
-      - bearer_auth: []
-      tags:
-      - addressbook
-    get:
-      description: get operation for /addressbook/{address_key}/person/{uuid}/first_name
-      operationId: addressbook_address_key_person_uuid_first_name_get
-      parameters:
-      - description: Filter by last name
-        in: query
-        name: last_name
-        required: false
-        schema:
-          type: string
-      - in: path
-        name: address_key
-        required: true
-        schema:
-          type: string
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema: *id011
-          description: Response for OK
-      tags:
-      - addressbook
-    head:
-      description: head operation for /addressbook/{address_key}/person/{uuid}/first_name
-      operationId: addressbook_address_key_person_uuid_first_name_head
-      parameters:
-      - in: path
-        name: address_key
-        required: true
-        schema:
-          type: string
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        default:
-          description: Default HEAD response
-      tags:
-      - addressbook
-    put:
-      description: put operation for /addressbook/{address_key}/person/{uuid}/first_name
-      operationId: addressbook_address_key_person_uuid_first_name_put
-      parameters:
-      - in: path
-        name: address_key
-        required: true
-        schema:
-          type: string
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              description: The person's first name
-              type: string
-        description: The request body for /addressbook/{address_key}/person/{uuid}/first_name
-        required: true
-      responses:
-        200:
-          content:
-            application/json:
-              schema: *id011
-          description: Response for OK
-      security:
-      - bearer_auth: []
-      tags:
-      - addressbook
-  /addressbook/{address_key}/person/{uuid}/hobbies:
-    delete:
-      description: delete operation for /addressbook/{address_key}/person/{uuid}/hobbies
-      operationId: addressbook_address_key_person_uuid_hobbies_delete
-      parameters:
-      - in: path
-        name: address_key
-        required: true
-        schema:
-          type: string
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema: &id012
-                description: The person's hobbies
-                items:
-                  type: string
-                type: array
-          description: Response for OK
-      security:
-      - bearer_auth: []
-      tags:
-      - addressbook
-    get:
-      description: get operation for /addressbook/{address_key}/person/{uuid}/hobbies
-      operationId: addressbook_address_key_person_uuid_hobbies_get
-      parameters:
-      - description: Filter by last name
-        in: query
-        name: last_name
-        required: false
-        schema:
-          type: string
-      - in: path
-        name: address_key
-        required: true
-        schema:
-          type: string
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema: *id012
-          description: Response for OK
-      tags:
-      - addressbook
-    head:
-      description: head operation for /addressbook/{address_key}/person/{uuid}/hobbies
-      operationId: addressbook_address_key_person_uuid_hobbies_head
-      parameters:
-      - in: path
-        name: address_key
-        required: true
-        schema:
-          type: string
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        default:
-          description: Default HEAD response
-      tags:
-      - addressbook
-    put:
-      description: put operation for /addressbook/{address_key}/person/{uuid}/hobbies
-      operationId: addressbook_address_key_person_uuid_hobbies_put
-      parameters:
-      - in: path
-        name: address_key
-        required: true
-        schema:
-          type: string
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              description: The person's hobbies
-              items:
-                type: string
-              type: array
-        description: The request body for /addressbook/{address_key}/person/{uuid}/hobbies
-        required: true
-      responses:
-        200:
-          content:
-            application/json:
-              schema: *id012
-          description: Response for OK
-      security:
-      - bearer_auth: []
-      tags:
-      - addressbook
-  /addressbook/{address_key}/person/{uuid}/last_name:
-    delete:
-      description: delete operation for /addressbook/{address_key}/person/{uuid}/last_name
-      operationId: addressbook_address_key_person_uuid_last_name_delete
-      parameters:
-      - in: path
-        name: address_key
-        required: true
-        schema:
-          type: string
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema: &id013
-                description: The person's last name
-                type: string
-          description: Response for OK
-      security:
-      - bearer_auth: []
-      tags:
-      - addressbook
-    get:
-      description: get operation for /addressbook/{address_key}/person/{uuid}/last_name
-      operationId: addressbook_address_key_person_uuid_last_name_get
-      parameters:
-      - description: Filter by last name
-        in: query
-        name: last_name
-        required: false
-        schema:
-          type: string
-      - in: path
-        name: address_key
-        required: true
-        schema:
-          type: string
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema: *id013
-          description: Response for OK
-      tags:
-      - addressbook
-    head:
-      description: head operation for /addressbook/{address_key}/person/{uuid}/last_name
-      operationId: addressbook_address_key_person_uuid_last_name_head
-      parameters:
-      - in: path
-        name: address_key
-        required: true
-        schema:
-          type: string
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        default:
-          description: Default HEAD response
-      tags:
-      - addressbook
-    put:
-      description: put operation for /addressbook/{address_key}/person/{uuid}/last_name
-      operationId: addressbook_address_key_person_uuid_last_name_put
-      parameters:
-      - in: path
-        name: address_key
-        required: true
-        schema:
-          type: string
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              description: The person's last name
-              type: string
-        description: The request body for /addressbook/{address_key}/person/{uuid}/last_name
-        required: true
-      responses:
-        200:
-          content:
-            application/json:
-              schema: *id013
-          description: Response for OK
-      security:
-      - bearer_auth: []
       tags:
       - addressbook
   /addressbook/{address_key}/state:
@@ -1361,12 +776,10 @@ paths:
         200:
           content:
             application/json:
-              schema: &id014
+              schema: &id010
                 description: The state of this address
                 type: string
           description: Response for OK
-      security:
-      - bearer_auth: []
       tags:
       - addressbook
     get:
@@ -1388,7 +801,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id014
+              schema: *id010
           description: Response for OK
       tags:
       - addressbook
@@ -1427,10 +840,8 @@ paths:
         200:
           content:
             application/json:
-              schema: *id014
+              schema: *id010
           description: Response for OK
-      security:
-      - bearer_auth: []
       tags:
       - addressbook
   /addressbook/{address_key}/street:
@@ -1447,12 +858,10 @@ paths:
         200:
           content:
             application/json:
-              schema: &id015
+              schema: &id011
                 description: The street and civic number of this address
                 type: string
           description: Response for OK
-      security:
-      - bearer_auth: []
       tags:
       - addressbook
     get:
@@ -1474,7 +883,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id015
+              schema: *id011
           description: Response for OK
       tags:
       - addressbook
@@ -1513,10 +922,8 @@ paths:
         200:
           content:
             application/json:
-              schema: *id015
+              schema: *id011
           description: Response for OK
-      security:
-      - bearer_auth: []
       tags:
       - addressbook
   /persons:
@@ -1530,13 +937,13 @@ paths:
         required: false
         schema:
           type: string
-      - &id016
+      - &id012
         description: Limit the number of responses back
         in: query
         name: limit
         schema:
           type: integer
-      - &id017
+      - &id013
         description: The offset to start returning resources
         in: query
         name: offset
@@ -1557,12 +964,12 @@ paths:
       description: Create a new person in this collection, a new UUID key will be created
       operationId: persons_post
       parameters:
-      - *id016
-      - *id017
+      - *id012
+      - *id013
       requestBody:
         content:
           application/json:
-            schema: &id018
+            schema: &id014
               $ref: '#/components/schemas/CreatePerson'
         description: The request body for /persons
         required: true
@@ -1570,7 +977,7 @@ paths:
         201:
           content:
             application/json:
-              schema: *id018
+              schema: *id014
           description: Response for CREATED
       security:
       - bearer_auth: []
@@ -1662,354 +1069,6 @@ paths:
       - bearer_auth: []
       tags:
       - persons
-  /persons/{uuid}/age:
-    delete:
-      description: delete operation for /persons/{uuid}/age
-      operationId: persons_uuid_age_delete
-      parameters:
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema: &id019
-                description: The person's age
-                type: integer
-          description: Response for OK
-      security:
-      - bearer_auth: []
-      tags:
-      - persons
-    get:
-      description: get operation for /persons/{uuid}/age
-      operationId: persons_uuid_age_get
-      parameters:
-      - description: Filter by last name
-        in: query
-        name: last_name
-        required: false
-        schema:
-          type: string
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema: *id019
-          description: Response for OK
-      tags:
-      - persons
-    head:
-      description: head operation for /persons/{uuid}/age
-      operationId: persons_uuid_age_head
-      parameters:
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        default:
-          description: Default HEAD response
-      tags:
-      - persons
-    put:
-      description: put operation for /persons/{uuid}/age
-      operationId: persons_uuid_age_put
-      parameters:
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              description: The person's age
-              type: integer
-        description: The request body for /persons/{uuid}/age
-        required: true
-      responses:
-        200:
-          content:
-            application/json:
-              schema: *id019
-          description: Response for OK
-      security:
-      - bearer_auth: []
-      tags:
-      - persons
-  /persons/{uuid}/first_name:
-    delete:
-      description: delete operation for /persons/{uuid}/first_name
-      operationId: persons_uuid_first_name_delete
-      parameters:
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema: &id020
-                description: The person's first name
-                type: string
-          description: Response for OK
-      security:
-      - bearer_auth: []
-      tags:
-      - persons
-    get:
-      description: get operation for /persons/{uuid}/first_name
-      operationId: persons_uuid_first_name_get
-      parameters:
-      - description: Filter by last name
-        in: query
-        name: last_name
-        required: false
-        schema:
-          type: string
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema: *id020
-          description: Response for OK
-      tags:
-      - persons
-    head:
-      description: head operation for /persons/{uuid}/first_name
-      operationId: persons_uuid_first_name_head
-      parameters:
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        default:
-          description: Default HEAD response
-      tags:
-      - persons
-    put:
-      description: put operation for /persons/{uuid}/first_name
-      operationId: persons_uuid_first_name_put
-      parameters:
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              description: The person's first name
-              type: string
-        description: The request body for /persons/{uuid}/first_name
-        required: true
-      responses:
-        200:
-          content:
-            application/json:
-              schema: *id020
-          description: Response for OK
-      security:
-      - bearer_auth: []
-      tags:
-      - persons
-  /persons/{uuid}/hobbies:
-    delete:
-      description: delete operation for /persons/{uuid}/hobbies
-      operationId: persons_uuid_hobbies_delete
-      parameters:
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema: &id021
-                description: The person's hobbies
-                items:
-                  type: string
-                type: array
-          description: Response for OK
-      security:
-      - bearer_auth: []
-      tags:
-      - persons
-    get:
-      description: get operation for /persons/{uuid}/hobbies
-      operationId: persons_uuid_hobbies_get
-      parameters:
-      - description: Filter by last name
-        in: query
-        name: last_name
-        required: false
-        schema:
-          type: string
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema: *id021
-          description: Response for OK
-      tags:
-      - persons
-    head:
-      description: head operation for /persons/{uuid}/hobbies
-      operationId: persons_uuid_hobbies_head
-      parameters:
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        default:
-          description: Default HEAD response
-      tags:
-      - persons
-    put:
-      description: put operation for /persons/{uuid}/hobbies
-      operationId: persons_uuid_hobbies_put
-      parameters:
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              description: The person's hobbies
-              items:
-                type: string
-              type: array
-        description: The request body for /persons/{uuid}/hobbies
-        required: true
-      responses:
-        200:
-          content:
-            application/json:
-              schema: *id021
-          description: Response for OK
-      security:
-      - bearer_auth: []
-      tags:
-      - persons
-  /persons/{uuid}/last_name:
-    delete:
-      description: delete operation for /persons/{uuid}/last_name
-      operationId: persons_uuid_last_name_delete
-      parameters:
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema: &id022
-                description: The person's last name
-                type: string
-          description: Response for OK
-      security:
-      - bearer_auth: []
-      tags:
-      - persons
-    get:
-      description: get operation for /persons/{uuid}/last_name
-      operationId: persons_uuid_last_name_get
-      parameters:
-      - description: Filter by last name
-        in: query
-        name: last_name
-        required: false
-        schema:
-          type: string
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          content:
-            application/json:
-              schema: *id022
-          description: Response for OK
-      tags:
-      - persons
-    head:
-      description: head operation for /persons/{uuid}/last_name
-      operationId: persons_uuid_last_name_head
-      parameters:
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      responses:
-        default:
-          description: Default HEAD response
-      tags:
-      - persons
-    put:
-      description: put operation for /persons/{uuid}/last_name
-      operationId: persons_uuid_last_name_put
-      parameters:
-      - in: path
-        name: uuid
-        required: true
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              description: The person's last name
-              type: string
-        description: The request body for /persons/{uuid}/last_name
-        required: true
-      responses:
-        200:
-          content:
-            application/json:
-              schema: *id022
-          description: Response for OK
-      security:
-      - bearer_auth: []
-      tags:
-      - persons
   /postal_codes:
     get:
       description: List all postal codes in this collection
@@ -2021,13 +1080,13 @@ paths:
         required: false
         schema:
           type: string
-      - &id023
+      - &id015
         description: Limit the number of responses back
         in: query
         name: limit
         schema:
           type: integer
-      - &id024
+      - &id016
         description: The offset to start returning resources
         in: query
         name: offset
@@ -2049,12 +1108,12 @@ paths:
         be created
       operationId: postal_codes_post
       parameters:
-      - *id023
-      - *id024
+      - *id015
+      - *id016
       requestBody:
         content:
           application/json:
-            schema: &id025
+            schema: &id017
               $ref: '#/components/schemas/CreatePostal_code'
         description: The request body for /postal_codes
         required: true
@@ -2062,7 +1121,7 @@ paths:
         201:
           content:
             application/json:
-              schema: *id025
+              schema: *id017
           description: Response for CREATED
       security:
       - bearer_auth: []
@@ -2141,7 +1200,7 @@ paths:
         200:
           content:
             application/json:
-              schema: &id026
+              schema: &id018
                 description: The postal code's name/id
                 type: string
           description: Response for OK
@@ -2168,7 +1227,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id026
+              schema: *id018
           description: Response for OK
       tags:
       - postal_codes
