@@ -58,9 +58,10 @@ jobs:
           echo "Coverage Color - ${{ steps.coverageComment.outputs.color }}"
           echo "Coverage Html - ${{ steps.coverageComment.outputs.coverageHtml }}"
           sed -i '/<!-- Pytest Coverage Comment:Begin -->/,/<!-- Pytest Coverage Comment:End -->/c\<!-- Pytest Coverage Comment:Begin -->\n\${{ steps.coverageComment.outputs.coverageHtml }}\n<!-- Pytest Coverage Comment:End -->' ./README.md
-      - name: Commit & Push changes to README
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: actions-js/push@master
-        with:
-          message: Update coverage on README
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      #- name: Commit & Push changes to README
+      # if: ${{ github.ref == 'refs/heads/main' }}
+      # uses: actions-js/push@master
+      # with:
+      #   message: Update coverage on README
+      #   github_token: ${{ secrets.GITHUB_TOKEN }}
