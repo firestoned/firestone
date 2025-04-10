@@ -15,6 +15,7 @@ OPENAPI_DOC := ${ADDRESSBOOK_DIR}/openapi.yaml
 PKG := addressbook
 CLIENT_PKG := addressbook.client
 MAIN_FILE := ${ADDRESSBOOK_DIR}/main.py
+STREAMLIT_FILE := ${ADDRESSBOOK_DIR}/addressbook/webui/pages.py
 
 .PHONY: gen-openapi gen-server gen-client gen-cli
 
@@ -48,10 +49,11 @@ gen-server: $(OPENAPI_GEN) \
 	${MKDIR} -pv ${ADDRESSBOOK_DIR}/addressbook/models
 	${CP} -rv ${SERVER_CLIENT_OUTDIR}/src/addressbook/models/[a-z]* ${ADDRESSBOOK_DIR}/addressbook/models
 
-	${RM} -f ${ADDRESSBOOK_DIR}/addressbook/models/extra_models*
+	#${RM} -f ${ADDRESSBOOK_DIR}/addressbook/models/extra_models*
 
 	@echo "Copying api files from temp dir to ${ADDRESSBOOK_DIR}"
 	${MKDIR} -pv ${ADDRESSBOOK_DIR}/addressbook/apis
+	${CP} -rv ${SERVER_CLIENT_OUTDIR}/src/addressbook/security_api.py ${ADDRESSBOOK_DIR}/addressbook
 	${CP} -rv ${SERVER_CLIENT_OUTDIR}/src/addressbook/apis/* ${ADDRESSBOOK_DIR}/addressbook/apis
 
 gen-client: $(OPENAPI_GEN) \
@@ -89,3 +91,15 @@ gen-cli: $(FIRESTONE)
 		 --client-pkg ${CLIENT_PKG} \
 		 --output-dir ${ADDRESSBOOK_DIR}/addressbook/cli \
 		 --as-modules
+
+gen-streamlit: $(FIRESTONE)
+	@echo "Creating directory for ${STREAMLIT_FILE}"
+	${MKDIR} -pv $(shell ${DIRNAME} ${STREAMLIT_FILE})
+
+	${FIRESTONE} generate \
+		--title 'Addressbook CLI' \
+		--description 'This is the streamlit module for the example Addressbook' \
+		--resources ${RESOURCES} \
+		--version 1.0 \
+		 streamlit \
+		 --base-url "http://localhost:8080" > ${STREAMLIT_FILE}

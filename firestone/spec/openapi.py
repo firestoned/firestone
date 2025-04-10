@@ -494,31 +494,33 @@ def get_paths(
     _LOGGER.debug(f"instance_baseurl: {instance_baseurl}")
 
     # 2. Add paths for each attribute
-    add_instance_methods(
-        rsrc_name,
-        schema,
-        instance_baseurl,
-        paths,
-        methods=methods.get("instance", {}),
-        descs=descs.get("instance", {}),
-        keys=keys,
-        orig_rsrc_name=orig_rsrc_name,
-        security=security,
-    )
+    if methods.get("instance"):
+        add_instance_methods(
+            rsrc_name,
+            schema,
+            instance_baseurl,
+            paths,
+            methods=methods.get("instance", {}),
+            descs=descs.get("instance", {}),
+            keys=keys,
+            orig_rsrc_name=orig_rsrc_name,
+            security=security,
+        )
 
     # 3. Add attribute path for instance of this resource
-    add_instance_attr_methods(
-        rsrc_name,
-        schema,
-        instance_baseurl,
-        paths,
-        methods=methods,
-        keys=keys,
-        default_query_params=default_query_params,
-        components=components,
-        orig_rsrc_name=orig_rsrc_name,
-        security=security,
-    )
+    if methods.get("instance_attrs"):
+        add_instance_attr_methods(
+            rsrc_name,
+            schema,
+            instance_baseurl,
+            paths,
+            methods=methods,
+            keys=keys,
+            default_query_params=default_query_params,
+            components=components,
+            orig_rsrc_name=orig_rsrc_name,
+            security=security,
+        )
 
     return paths
 

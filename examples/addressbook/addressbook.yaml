@@ -53,20 +53,20 @@ methods:
     - get
     - head
     - put
-security:
-  scheme:
-    bearer_auth:
-      scheme: bearer
-      type: http
-      bearerFormat: JWT
-  resource:
-    - post
-  instance:
-    - delete
-    - put
-  instance_attrs:
-    - delete
-    - put
+#security:
+#  scheme:
+#    bearer_auth:
+#      scheme: bearer
+#      type: http
+#      bearerFormat: JWT
+#  resource:
+#    - post
+#  instance:
+#    - delete
+#    - put
+#  instance_attrs:
+#    - delete
+#    - put
 # Metadata: end
 schema:
   type: array

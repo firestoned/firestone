@@ -153,7 +153,7 @@ async def addressbook(ctx_obj):
     "--country", help="The country of this address", type=str, show_default=True, required=True
 )
 @click.option(
-    "--is-valid/--no-is-valid",
+    "--is-valid--no-is-valid",
     help="Address is valid or not",
     is_flag=True,
     show_default=True,

@@ -1,21 +1,27 @@
 # pylint: disable=duplicate-code
 """
-Generate python Click based CLI from one or more resource schemas.
+Generate python streamlit WebUI from one or more resource schemas.
 """
 
 import io
+import json
 import logging
 import os
 
 import jinja2
 
+from firestone_lib import utils
+
 from firestone.spec import _base as spec_base
 from firestone.spec import openapi as spec_openapi
 
 PARAM_TYPE_TO_ATTR_TYPE = {
-    "string": "str",
-    "integer": "int",
-    "boolean": "bool",
+    "string": "TextColumn",
+    "integer": "NumberColumn",
+    "boolean": "CheckboxColumn",
+    "object": "JsonColumn",
+    "array": "ListColumn",
+    "enum": "SelectboxColumn",
 }
 
 _LOGGER = logging.getLogger(__name__)
@@ -49,42 +55,39 @@ def params_to_attrs(params: list, required: list = None, key_names: list = None)
     for param in params:
         _LOGGER.debug(f"param: {param}")
         param_schema = param.get("schema", param)
+        _LOGGER.debug(f"param_schema: {param_schema}")
+        # Determine if this is an embeded object using `$ref`
+        if "key" in param_schema and param_schema["type"] == "array":
+            param_schema = param_schema["items"]
         param_type = param_schema.get("type", "string")
-        cli_type = "str"
+        _LOGGER.info(
+            f"{param['name']} is of type: {param_type}, looking up type in PARAM_TYPE_TO_ATTR_TYPE"
+        )
+        col_type = PARAM_TYPE_TO_ATTR_TYPE.get(param_type, PARAM_TYPE_TO_ATTR_TYPE["string"])
+        _LOGGER.debug(f"param_type: {param_type}")
 
         # this means that this param/attribute is another object
-        if param_type in ["object", "array"]:
-            _LOGGER.info(f"{param['name']} is of type '{param_type}', processing special CLI type.")
-            cli_type = "cli.FromJsonOrYaml()"
-            items_type = param_schema.get("items", {}).get("type", "string")
-            _LOGGER.debug(f"cli_type: {cli_type}")
-            _LOGGER.debug(f"items_type: {items_type}")
-            if param_type == "array" and items_type != "object":
-                _LOGGER.info(
-                    f"{param['name']} has items of type '{items_type}', setting click option to cli.StrList"
-                )
-                cli_type = "cli.StrList"
-        elif "enum" in param_schema:
+        attr_data = None
+        if "enum" in param_schema:
             _LOGGER.info(f"{param['name']} is of type '{param_type}', creating click.Choice()")
-            enums = '","'.join(param_schema["enum"])
-            cli_type = f'click.Choice(["{enums}"])'
-        else:
-            _LOGGER.info(
-                f"{param['name']} is of type: {param_type}, looking up type in PARAM_TYPE_TO_ATTR_TYPE"
-            )
-            cli_type = PARAM_TYPE_TO_ATTR_TYPE.get(param_type)
+            attr_data = json.dumps(param_schema["enum"])
+            col_type = PARAM_TYPE_TO_ATTR_TYPE["enum"]
 
         param_name = param["name"]
-        required_val = param_name in required
+        is_required = param_name in required
         _LOGGER.debug(f"param_name: {param_name}")
         _LOGGER.debug(f"key_names: {key_names}")
+
         attrs.append(
             {
-                "argument": param_name in key_names,
                 "name": param_name,
+                "pretty_name": utils.split_capitalize(param_name),
                 "description": param.get("description"),
-                "type": cli_type,
-                "required": param.get("required", required_val),
+                "type": col_type,
+                "data": attr_data,
+                "required": param.get("required", is_required),
+                # TODO: support different formatting
+                # "format": formatted_str,
             }
         )
     return attrs
@@ -141,7 +144,7 @@ def get_instance_ops(
         op_name = _get_op_name(method, top_level)
         if not op_name:
             continue
-        _LOGGER.info(f"Getting CLI attributes for {op_name}")
+        _LOGGER.info(f"Getting streamlit attributes for {op_name}")
 
         op = {}
         op["name"] = op_name
@@ -174,7 +177,6 @@ def get_resource_ops(
     methods: list = None,
     descs: list = None,
     keys: list = None,
-    default_query_params: dict = None,
 ):
     """Add resource level methods to the ops.
 
@@ -183,7 +185,6 @@ def get_resource_ops(
     :param str baseurl: the baseurl to use for ops
     :param list methods: optional set of methods to create for
     :param list keys: the keys for the instance of this resource
-    :param dict default_query_params: the ops
     """
     _LOGGER.debug(f"keys: {keys}")
     ops = []
@@ -207,11 +208,7 @@ def get_resource_ops(
         op["description"] = descs.get(method, f"{op_name.capitalize()} operation for {rsrc_name}")
 
         # Add params and attributes
-        params = spec_openapi.get_params(baseurl, method, schema, keys=keys)
-        if default_query_params:
-            params.extend(default_query_params)
-        _LOGGER.debug(f"params: {params}")
-
+        params = []
         attrs = params_to_attrs(params)
 
         if op_name == "create":
@@ -231,7 +228,6 @@ def get_ops(
     baseurl: str,
     ops: dict = None,
     keys: list = None,
-    default_query_params: dict = None,
 ):
     """Get the operations for this resource."""
     rsrc_name = rsrc["kind"]
@@ -263,7 +259,6 @@ def get_ops(
         methods=methods.get("resource", {}),
         descs=descs.get("resource", {}),
         keys=keys,
-        default_query_params=default_query_params,
     )
 
     instance_baseurl = "/".join([baseurl, f"{{{key['name']}}}"])
@@ -284,17 +279,15 @@ def get_ops(
 
 # pylint: disable=too-many-locals,too-many-arguments
 def generate(
-    pkg: str,
-    client_pkg: str,
     rsrc_data: list,
     title: str,
     desc: str,
     summary: str,
     version: str,
-    as_modules: bool = False,
+    base_url: str = None,
     template: str = None,
 ):
-    """Generate a Click based CLI script based on the resource data sent and other meta data."""
+    """Generate a streamlit based WebUI script based on the resource data sent and other meta data."""
     rsrcs = []
     for rsrc in rsrc_data:
         rsrc_name = rsrc["kind"]
@@ -304,20 +297,17 @@ def generate(
         baseurl += rsrc_name
         _LOGGER.debug(f"baseurl: {baseurl}")
 
-        default_query_params = rsrc.get("default_query_params", [])
-        _LOGGER.debug(f"default_query_params: {default_query_params}")
-
         ops = get_ops(
             rsrc,
             baseurl,
             ops={},
             keys=[],
-            default_query_params=default_query_params,
         )
         _LOGGER.debug(f"ops: {ops}")
         rsrcs.append(
             {
                 "name": rsrc_name,
+                "baseurl": baseurl,
                 "operations": ops,
             }
         )
@@ -327,41 +317,22 @@ def generate(
     tmpl = None
     if template and os.path.exists(template):
         _LOGGER.info(f"Using custom template from {template}")
-        tmpl_str = ""
         with io.open(template, "r", encoding="utf-8") as fh:
             tmpl_str = "".join(fh.readlines())
 
-        tmpl = jinja2.Environment(
-            loader=jinja2.BaseLoader,
-            extensions=["jinja2.ext.loopcontrols"],
-        ).from_string(tmpl_str)
+            tmpl = jinja2.Environment(
+                loader=jinja2.BaseLoader,
+                extensions=["jinja2.ext.loopcontrols"],
+            ).from_string(tmpl_str)
 
-    if not as_modules:
-        if not tmpl:
-            tmpl = spec_base.JINJA_ENV.get_template("main.py.jinja2")
-        return tmpl.render(
-            title=title,
-            summary=summary,
-            description=desc,
-            version=version,
-            pkg=pkg,
-            client_pkg=client_pkg,
-            rsrcs=rsrcs,
-        )
+    if not tmpl:
+        tmpl = spec_base.JINJA_ENV.get_template("streamlit.py.jinja2")
 
-    rendered_rsrcs = {}
-    for rsrc in rsrcs:
-        if not tmpl:
-            tmpl = spec_base.JINJA_ENV.get_template("cli_module.py.jinja2")
-        rendered = tmpl.render(
-            title=title,
-            summary=summary,
-            description=desc,
-            version=version,
-            pkg=pkg,
-            client_pkg=client_pkg,
-            rsrc=rsrc,
-        )
-        rendered_rsrcs[rsrc["name"]] = rendered
-
-    return rendered_rsrcs
+    return tmpl.render(
+        title=title,
+        summary=summary,
+        description=desc,
+        version=version,
+        rsrcs=rsrcs,
+        base_url=base_url,
+    )

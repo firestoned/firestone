@@ -31,8 +31,7 @@ from addressbook.models.create_addressbook import CreateAddressbook
 from addressbook.models.create_person import CreatePerson
 from addressbook.models.person import Person
 from addressbook.models.update_addressbook import UpdateAddressbook
-from addressbook.models.update_person import UpdatePerson
-from addressbook.security_api import get_token_bearer_auth
+
 
 router = APIRouter()
 
@@ -51,7 +50,6 @@ for _, name, _ in pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + "."):
 )
 async def addressbook_address_key_addrtype_delete(
     address_key: StrictStr = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """delete operation for /addressbook/{address_key}/addrtype"""
     if not BaseAddressbookApi.subclasses:
@@ -115,7 +113,6 @@ async def addressbook_address_key_addrtype_put(
     body: Annotated[
         StrictStr, Field(description="The request body for /addressbook/{address_key}/addrtype")
     ] = Body(None, description="The request body for /addressbook/{address_key}/addrtype"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /addressbook/{address_key}/addrtype"""
     if not BaseAddressbookApi.subclasses:
@@ -135,7 +132,6 @@ async def addressbook_address_key_addrtype_put(
 )
 async def addressbook_address_key_city_delete(
     address_key: StrictStr = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """delete operation for /addressbook/{address_key}/city"""
     if not BaseAddressbookApi.subclasses:
@@ -195,7 +191,6 @@ async def addressbook_address_key_city_put(
     body: Annotated[
         StrictStr, Field(description="The request body for /addressbook/{address_key}/city")
     ] = Body(None, description="The request body for /addressbook/{address_key}/city"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /addressbook/{address_key}/city"""
     if not BaseAddressbookApi.subclasses:
@@ -215,7 +210,6 @@ async def addressbook_address_key_city_put(
 )
 async def addressbook_address_key_country_delete(
     address_key: StrictStr = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """delete operation for /addressbook/{address_key}/country"""
     if not BaseAddressbookApi.subclasses:
@@ -279,7 +273,6 @@ async def addressbook_address_key_country_put(
     body: Annotated[
         StrictStr, Field(description="The request body for /addressbook/{address_key}/country")
     ] = Body(None, description="The request body for /addressbook/{address_key}/country"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /addressbook/{address_key}/country"""
     if not BaseAddressbookApi.subclasses:
@@ -299,7 +292,6 @@ async def addressbook_address_key_country_put(
 )
 async def addressbook_address_key_delete(
     address_key: StrictStr = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> Addressbook:
     """Delete an address from this addressbook."""
     if not BaseAddressbookApi.subclasses:
@@ -354,7 +346,6 @@ async def addressbook_address_key_head(
 )
 async def addressbook_address_key_is_valid_delete(
     address_key: StrictStr = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> bool:
     """delete operation for /addressbook/{address_key}/is_valid"""
     if not BaseAddressbookApi.subclasses:
@@ -418,7 +409,6 @@ async def addressbook_address_key_is_valid_put(
     body: Annotated[
         StrictBool, Field(description="The request body for /addressbook/{address_key}/is_valid")
     ] = Body(None, description="The request body for /addressbook/{address_key}/is_valid"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> bool:
     """put operation for /addressbook/{address_key}/is_valid"""
     if not BaseAddressbookApi.subclasses:
@@ -438,7 +428,6 @@ async def addressbook_address_key_is_valid_put(
 )
 async def addressbook_address_key_people_delete(
     address_key: StrictStr = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> List[str]:
     """delete operation for /addressbook/{address_key}/people"""
     if not BaseAddressbookApi.subclasses:
@@ -500,7 +489,6 @@ async def addressbook_address_key_people_put(
     request_body: Annotated[
         List[StrictStr], Field(description="The request body for /addressbook/{address_key}/people")
     ] = Body(None, description="The request body for /addressbook/{address_key}/people"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> List[str]:
     """put operation for /addressbook/{address_key}/people"""
     if not BaseAddressbookApi.subclasses:
@@ -632,488 +620,12 @@ async def addressbook_address_key_person_post(
     offset: Annotated[
         Optional[StrictInt], Field(description="The offset to start returning resources")
     ] = Query(None, description="The offset to start returning resources", alias="offset"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> CreatePerson:
     """post operation for /addressbook/{address_key}/person"""
     if not BaseAddressbookApi.subclasses:
         raise HTTPException(status_code=500, detail="Not implemented")
     return await BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_post(
         address_key, create_person, limit, offset
-    )
-
-
-@router.delete(
-    "/addressbook/{address_key}/person/{uuid}/age",
-    responses={
-        200: {"model": int, "description": "Response for OK"},
-    },
-    tags=["addressbook"],
-    response_model_by_alias=True,
-)
-async def addressbook_address_key_person_uuid_age_delete(
-    address_key: StrictStr = Path(..., description=""),
-    uuid: StrictStr = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> int:
-    """delete operation for /addressbook/{address_key}/person/{uuid}/age"""
-    if not BaseAddressbookApi.subclasses:
-        raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_age_delete(
-        address_key, uuid
-    )
-
-
-@router.get(
-    "/addressbook/{address_key}/person/{uuid}/age",
-    responses={
-        200: {"model": int, "description": "Response for OK"},
-    },
-    tags=["addressbook"],
-    response_model_by_alias=True,
-)
-async def addressbook_address_key_person_uuid_age_get(
-    address_key: StrictStr = Path(..., description=""),
-    uuid: StrictStr = Path(..., description=""),
-    last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")] = Query(
-        None, description="Filter by last name", alias="last_name"
-    ),
-) -> int:
-    """get operation for /addressbook/{address_key}/person/{uuid}/age"""
-    if not BaseAddressbookApi.subclasses:
-        raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_age_get(
-        address_key, uuid, last_name
-    )
-
-
-@router.head(
-    "/addressbook/{address_key}/person/{uuid}/age",
-    responses={
-        200: {"description": "Default HEAD response"},
-    },
-    tags=["addressbook"],
-    response_model_by_alias=True,
-)
-async def addressbook_address_key_person_uuid_age_head(
-    address_key: StrictStr = Path(..., description=""),
-    uuid: StrictStr = Path(..., description=""),
-) -> None:
-    """head operation for /addressbook/{address_key}/person/{uuid}/age"""
-    if not BaseAddressbookApi.subclasses:
-        raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_age_head(
-        address_key, uuid
-    )
-
-
-@router.put(
-    "/addressbook/{address_key}/person/{uuid}/age",
-    responses={
-        200: {"model": int, "description": "Response for OK"},
-    },
-    tags=["addressbook"],
-    response_model_by_alias=True,
-)
-async def addressbook_address_key_person_uuid_age_put(
-    address_key: StrictStr = Path(..., description=""),
-    uuid: StrictStr = Path(..., description=""),
-    body: Annotated[
-        StrictInt,
-        Field(description="The request body for /addressbook/{address_key}/person/{uuid}/age"),
-    ] = Body(None, description="The request body for /addressbook/{address_key}/person/{uuid}/age"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> int:
-    """put operation for /addressbook/{address_key}/person/{uuid}/age"""
-    if not BaseAddressbookApi.subclasses:
-        raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_age_put(
-        address_key, uuid, body
-    )
-
-
-@router.delete(
-    "/addressbook/{address_key}/person/{uuid}",
-    responses={
-        200: {"model": Person, "description": "Response for OK"},
-    },
-    tags=["addressbook"],
-    response_model_by_alias=True,
-)
-async def addressbook_address_key_person_uuid_delete(
-    address_key: StrictStr = Path(..., description=""),
-    uuid: StrictStr = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> Person:
-    """delete operation for /addressbook/{address_key}/person/{uuid}"""
-    if not BaseAddressbookApi.subclasses:
-        raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_delete(
-        address_key, uuid
-    )
-
-
-@router.delete(
-    "/addressbook/{address_key}/person/{uuid}/first_name",
-    responses={
-        200: {"model": str, "description": "Response for OK"},
-    },
-    tags=["addressbook"],
-    response_model_by_alias=True,
-)
-async def addressbook_address_key_person_uuid_first_name_delete(
-    address_key: StrictStr = Path(..., description=""),
-    uuid: StrictStr = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> str:
-    """delete operation for /addressbook/{address_key}/person/{uuid}/first_name"""
-    if not BaseAddressbookApi.subclasses:
-        raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseAddressbookApi.subclasses[
-        0
-    ]().addressbook_address_key_person_uuid_first_name_delete(address_key, uuid)
-
-
-@router.get(
-    "/addressbook/{address_key}/person/{uuid}/first_name",
-    responses={
-        200: {"model": str, "description": "Response for OK"},
-    },
-    tags=["addressbook"],
-    response_model_by_alias=True,
-)
-async def addressbook_address_key_person_uuid_first_name_get(
-    address_key: StrictStr = Path(..., description=""),
-    uuid: StrictStr = Path(..., description=""),
-    last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")] = Query(
-        None, description="Filter by last name", alias="last_name"
-    ),
-) -> str:
-    """get operation for /addressbook/{address_key}/person/{uuid}/first_name"""
-    if not BaseAddressbookApi.subclasses:
-        raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseAddressbookApi.subclasses[
-        0
-    ]().addressbook_address_key_person_uuid_first_name_get(address_key, uuid, last_name)
-
-
-@router.head(
-    "/addressbook/{address_key}/person/{uuid}/first_name",
-    responses={
-        200: {"description": "Default HEAD response"},
-    },
-    tags=["addressbook"],
-    response_model_by_alias=True,
-)
-async def addressbook_address_key_person_uuid_first_name_head(
-    address_key: StrictStr = Path(..., description=""),
-    uuid: StrictStr = Path(..., description=""),
-) -> None:
-    """head operation for /addressbook/{address_key}/person/{uuid}/first_name"""
-    if not BaseAddressbookApi.subclasses:
-        raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseAddressbookApi.subclasses[
-        0
-    ]().addressbook_address_key_person_uuid_first_name_head(address_key, uuid)
-
-
-@router.put(
-    "/addressbook/{address_key}/person/{uuid}/first_name",
-    responses={
-        200: {"model": str, "description": "Response for OK"},
-    },
-    tags=["addressbook"],
-    response_model_by_alias=True,
-)
-async def addressbook_address_key_person_uuid_first_name_put(
-    address_key: StrictStr = Path(..., description=""),
-    uuid: StrictStr = Path(..., description=""),
-    body: Annotated[
-        StrictStr,
-        Field(
-            description="The request body for /addressbook/{address_key}/person/{uuid}/first_name"
-        ),
-    ] = Body(
-        None, description="The request body for /addressbook/{address_key}/person/{uuid}/first_name"
-    ),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> str:
-    """put operation for /addressbook/{address_key}/person/{uuid}/first_name"""
-    if not BaseAddressbookApi.subclasses:
-        raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseAddressbookApi.subclasses[
-        0
-    ]().addressbook_address_key_person_uuid_first_name_put(address_key, uuid, body)
-
-
-@router.get(
-    "/addressbook/{address_key}/person/{uuid}",
-    responses={
-        200: {"model": Person, "description": "Response for OK"},
-    },
-    tags=["addressbook"],
-    response_model_by_alias=True,
-)
-async def addressbook_address_key_person_uuid_get(
-    address_key: StrictStr = Path(..., description=""),
-    uuid: StrictStr = Path(..., description=""),
-    last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")] = Query(
-        None, description="Filter by last name", alias="last_name"
-    ),
-) -> Person:
-    """get operation for /addressbook/{address_key}/person/{uuid}"""
-    if not BaseAddressbookApi.subclasses:
-        raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_get(
-        address_key, uuid, last_name
-    )
-
-
-@router.head(
-    "/addressbook/{address_key}/person/{uuid}",
-    responses={
-        200: {"description": "Default HEAD response"},
-    },
-    tags=["addressbook"],
-    response_model_by_alias=True,
-)
-async def addressbook_address_key_person_uuid_head(
-    address_key: StrictStr = Path(..., description=""),
-    uuid: StrictStr = Path(..., description=""),
-) -> None:
-    """head operation for /addressbook/{address_key}/person/{uuid}"""
-    if not BaseAddressbookApi.subclasses:
-        raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_head(
-        address_key, uuid
-    )
-
-
-@router.delete(
-    "/addressbook/{address_key}/person/{uuid}/hobbies",
-    responses={
-        200: {"model": List[str], "description": "Response for OK"},
-    },
-    tags=["addressbook"],
-    response_model_by_alias=True,
-)
-async def addressbook_address_key_person_uuid_hobbies_delete(
-    address_key: StrictStr = Path(..., description=""),
-    uuid: StrictStr = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> List[str]:
-    """delete operation for /addressbook/{address_key}/person/{uuid}/hobbies"""
-    if not BaseAddressbookApi.subclasses:
-        raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseAddressbookApi.subclasses[
-        0
-    ]().addressbook_address_key_person_uuid_hobbies_delete(address_key, uuid)
-
-
-@router.get(
-    "/addressbook/{address_key}/person/{uuid}/hobbies",
-    responses={
-        200: {"model": List[str], "description": "Response for OK"},
-    },
-    tags=["addressbook"],
-    response_model_by_alias=True,
-)
-async def addressbook_address_key_person_uuid_hobbies_get(
-    address_key: StrictStr = Path(..., description=""),
-    uuid: StrictStr = Path(..., description=""),
-    last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")] = Query(
-        None, description="Filter by last name", alias="last_name"
-    ),
-) -> List[str]:
-    """get operation for /addressbook/{address_key}/person/{uuid}/hobbies"""
-    if not BaseAddressbookApi.subclasses:
-        raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_hobbies_get(
-        address_key, uuid, last_name
-    )
-
-
-@router.head(
-    "/addressbook/{address_key}/person/{uuid}/hobbies",
-    responses={
-        200: {"description": "Default HEAD response"},
-    },
-    tags=["addressbook"],
-    response_model_by_alias=True,
-)
-async def addressbook_address_key_person_uuid_hobbies_head(
-    address_key: StrictStr = Path(..., description=""),
-    uuid: StrictStr = Path(..., description=""),
-) -> None:
-    """head operation for /addressbook/{address_key}/person/{uuid}/hobbies"""
-    if not BaseAddressbookApi.subclasses:
-        raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseAddressbookApi.subclasses[
-        0
-    ]().addressbook_address_key_person_uuid_hobbies_head(address_key, uuid)
-
-
-@router.put(
-    "/addressbook/{address_key}/person/{uuid}/hobbies",
-    responses={
-        200: {"model": List[str], "description": "Response for OK"},
-    },
-    tags=["addressbook"],
-    response_model_by_alias=True,
-)
-async def addressbook_address_key_person_uuid_hobbies_put(
-    address_key: StrictStr = Path(..., description=""),
-    uuid: StrictStr = Path(..., description=""),
-    request_body: Annotated[
-        List[StrictStr],
-        Field(description="The request body for /addressbook/{address_key}/person/{uuid}/hobbies"),
-    ] = Body(
-        None, description="The request body for /addressbook/{address_key}/person/{uuid}/hobbies"
-    ),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> List[str]:
-    """put operation for /addressbook/{address_key}/person/{uuid}/hobbies"""
-    if not BaseAddressbookApi.subclasses:
-        raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_hobbies_put(
-        address_key, uuid, request_body
-    )
-
-
-@router.delete(
-    "/addressbook/{address_key}/person/{uuid}/last_name",
-    responses={
-        200: {"model": str, "description": "Response for OK"},
-    },
-    tags=["addressbook"],
-    response_model_by_alias=True,
-)
-async def addressbook_address_key_person_uuid_last_name_delete(
-    address_key: StrictStr = Path(..., description=""),
-    uuid: StrictStr = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> str:
-    """delete operation for /addressbook/{address_key}/person/{uuid}/last_name"""
-    if not BaseAddressbookApi.subclasses:
-        raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseAddressbookApi.subclasses[
-        0
-    ]().addressbook_address_key_person_uuid_last_name_delete(address_key, uuid)
-
-
-@router.get(
-    "/addressbook/{address_key}/person/{uuid}/last_name",
-    responses={
-        200: {"model": str, "description": "Response for OK"},
-    },
-    tags=["addressbook"],
-    response_model_by_alias=True,
-)
-async def addressbook_address_key_person_uuid_last_name_get(
-    address_key: StrictStr = Path(..., description=""),
-    uuid: StrictStr = Path(..., description=""),
-    last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")] = Query(
-        None, description="Filter by last name", alias="last_name"
-    ),
-) -> str:
-    """get operation for /addressbook/{address_key}/person/{uuid}/last_name"""
-    if not BaseAddressbookApi.subclasses:
-        raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseAddressbookApi.subclasses[
-        0
-    ]().addressbook_address_key_person_uuid_last_name_get(address_key, uuid, last_name)
-
-
-@router.head(
-    "/addressbook/{address_key}/person/{uuid}/last_name",
-    responses={
-        200: {"description": "Default HEAD response"},
-    },
-    tags=["addressbook"],
-    response_model_by_alias=True,
-)
-async def addressbook_address_key_person_uuid_last_name_head(
-    address_key: StrictStr = Path(..., description=""),
-    uuid: StrictStr = Path(..., description=""),
-) -> None:
-    """head operation for /addressbook/{address_key}/person/{uuid}/last_name"""
-    if not BaseAddressbookApi.subclasses:
-        raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseAddressbookApi.subclasses[
-        0
-    ]().addressbook_address_key_person_uuid_last_name_head(address_key, uuid)
-
-
-@router.put(
-    "/addressbook/{address_key}/person/{uuid}/last_name",
-    responses={
-        200: {"model": str, "description": "Response for OK"},
-    },
-    tags=["addressbook"],
-    response_model_by_alias=True,
-)
-async def addressbook_address_key_person_uuid_last_name_put(
-    address_key: StrictStr = Path(..., description=""),
-    uuid: StrictStr = Path(..., description=""),
-    body: Annotated[
-        StrictStr,
-        Field(
-            description="The request body for /addressbook/{address_key}/person/{uuid}/last_name"
-        ),
-    ] = Body(
-        None, description="The request body for /addressbook/{address_key}/person/{uuid}/last_name"
-    ),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> str:
-    """put operation for /addressbook/{address_key}/person/{uuid}/last_name"""
-    if not BaseAddressbookApi.subclasses:
-        raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseAddressbookApi.subclasses[
-        0
-    ]().addressbook_address_key_person_uuid_last_name_put(address_key, uuid, body)
-
-
-@router.patch(
-    "/addressbook/{address_key}/person/{uuid}",
-    responses={
-        200: {"model": Person, "description": "Response for OK"},
-    },
-    tags=["addressbook"],
-    response_model_by_alias=True,
-)
-async def addressbook_address_key_person_uuid_patch(
-    address_key: StrictStr = Path(..., description=""),
-    uuid: StrictStr = Path(..., description=""),
-) -> Person:
-    """patch operation for /addressbook/{address_key}/person/{uuid}"""
-    if not BaseAddressbookApi.subclasses:
-        raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_patch(
-        address_key, uuid
-    )
-
-
-@router.put(
-    "/addressbook/{address_key}/person/{uuid}",
-    responses={
-        200: {"model": UpdatePerson, "description": "Response for OK"},
-    },
-    tags=["addressbook"],
-    response_model_by_alias=True,
-)
-async def addressbook_address_key_person_uuid_put(
-    address_key: StrictStr = Path(..., description=""),
-    uuid: StrictStr = Path(..., description=""),
-    update_person: Annotated[
-        UpdatePerson,
-        Field(description="The request body for /addressbook/{address_key}/person/{uuid}"),
-    ] = Body(None, description="The request body for /addressbook/{address_key}/person/{uuid}"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
-) -> UpdatePerson:
-    """put operation for /addressbook/{address_key}/person/{uuid}"""
-    if not BaseAddressbookApi.subclasses:
-        raise HTTPException(status_code=500, detail="Not implemented")
-    return await BaseAddressbookApi.subclasses[0]().addressbook_address_key_person_uuid_put(
-        address_key, uuid, update_person
     )
 
 
@@ -1130,7 +642,6 @@ async def addressbook_address_key_put(
     update_addressbook: Annotated[
         UpdateAddressbook, Field(description="The request body for /addressbook/{address_key}")
     ] = Body(None, description="The request body for /addressbook/{address_key}"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> UpdateAddressbook:
     """Update an existing address in this addressbook, with the given address key."""
     if not BaseAddressbookApi.subclasses:
@@ -1150,7 +661,6 @@ async def addressbook_address_key_put(
 )
 async def addressbook_address_key_state_delete(
     address_key: StrictStr = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """delete operation for /addressbook/{address_key}/state"""
     if not BaseAddressbookApi.subclasses:
@@ -1212,7 +722,6 @@ async def addressbook_address_key_state_put(
     body: Annotated[
         StrictStr, Field(description="The request body for /addressbook/{address_key}/state")
     ] = Body(None, description="The request body for /addressbook/{address_key}/state"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /addressbook/{address_key}/state"""
     if not BaseAddressbookApi.subclasses:
@@ -1232,7 +741,6 @@ async def addressbook_address_key_state_put(
 )
 async def addressbook_address_key_street_delete(
     address_key: StrictStr = Path(..., description=""),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """delete operation for /addressbook/{address_key}/street"""
     if not BaseAddressbookApi.subclasses:
@@ -1294,7 +802,6 @@ async def addressbook_address_key_street_put(
     body: Annotated[
         StrictStr, Field(description="The request body for /addressbook/{address_key}/street")
     ] = Body(None, description="The request body for /addressbook/{address_key}/street"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> str:
     """put operation for /addressbook/{address_key}/street"""
     if not BaseAddressbookApi.subclasses:
@@ -1347,7 +854,6 @@ async def addressbook_post(
     offset: Annotated[
         Optional[StrictInt], Field(description="The offset to start returning resources")
     ] = Query(None, description="The offset to start returning resources", alias="offset"),
-    token_bearer_auth: TokenModel = Security(get_token_bearer_auth),
 ) -> CreateAddressbook:
     """Create a new address in this addressbook, a new address key will be created."""
     if not BaseAddressbookApi.subclasses:

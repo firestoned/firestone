@@ -33,9 +33,20 @@ jobs:
           cache: 'poetry'
 
       - name: Install dependencies
+        env:
+          VERSION: ${{ github.ref_name }}
         run: |
+          echo "VERSION: $VERSION"
+
           python -m pip install --upgrade pip
           python -m pip install poetry
+
+          TEMPFILE=$(mktemp)
+
+          cat pyproject.toml | sed "s/^version = \".*\"/version = \"$VERSION\"/" > $TEMPFILE
+          mv $TEMPFILE pyproject.toml
+
+          poetry lock
           poetry install
 
       - name: Build package

@@ -221,6 +221,45 @@ def cli(rsrc_data, pkg, client_pkg, output, output_dir, as_modules, template):
     return None
 
 
+@generate.command()
+@click.option(
+    "--base-url",
+    help="The default base URL for API",
+    default="https://localhost",
+)
+@click.option(
+    "--output",
+    "-O",
+    help="Location of the main CLI generated file name, or `-` for stdout",
+    type=click.File("w"),
+    default="-",
+    show_default=True,
+)
+@click.option(
+    "--template",
+    "-T",
+    help="The location of a custom template to render the resources for CLI",
+    type=str,
+)
+@click.pass_obj
+def streamlit(rsrc_data, base_url, output, template):
+    """Generate python, Click-based CLI script.
+
+    This generated script can be used as standalone or added to console scripts.
+    """
+    cli_spec = firestone_spec.streamlit.generate(
+        rsrc_data["data"],
+        rsrc_data["title"],
+        rsrc_data["desc"],
+        rsrc_data["summary"],
+        rsrc_data["version"],
+        base_url=base_url,
+        template=template,
+    )
+
+    return print(cli_spec, file=output)
+
+
 if __name__ == "main":
     # pylint: disable=no-value-for-parameter
     main()

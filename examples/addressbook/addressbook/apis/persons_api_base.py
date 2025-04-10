@@ -44,73 +44,11 @@ class BasePersonsApi:
         """Create a new person in this collection, a new UUID key will be created"""
         ...
 
-    async def persons_uuid_age_delete(
-        self,
-        uuid: StrictStr,
-    ) -> int:
-        """delete operation for /persons/{uuid}/age"""
-        ...
-
-    async def persons_uuid_age_get(
-        self,
-        uuid: StrictStr,
-        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")],
-    ) -> int:
-        """get operation for /persons/{uuid}/age"""
-        ...
-
-    async def persons_uuid_age_head(
-        self,
-        uuid: StrictStr,
-    ) -> None:
-        """head operation for /persons/{uuid}/age"""
-        ...
-
-    async def persons_uuid_age_put(
-        self,
-        uuid: StrictStr,
-        body: Annotated[StrictInt, Field(description="The request body for /persons/{uuid}/age")],
-    ) -> int:
-        """put operation for /persons/{uuid}/age"""
-        ...
-
     async def persons_uuid_delete(
         self,
         uuid: StrictStr,
     ) -> Person:
         """delete operation for /persons/{uuid}"""
-        ...
-
-    async def persons_uuid_first_name_delete(
-        self,
-        uuid: StrictStr,
-    ) -> str:
-        """delete operation for /persons/{uuid}/first_name"""
-        ...
-
-    async def persons_uuid_first_name_get(
-        self,
-        uuid: StrictStr,
-        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")],
-    ) -> str:
-        """get operation for /persons/{uuid}/first_name"""
-        ...
-
-    async def persons_uuid_first_name_head(
-        self,
-        uuid: StrictStr,
-    ) -> None:
-        """head operation for /persons/{uuid}/first_name"""
-        ...
-
-    async def persons_uuid_first_name_put(
-        self,
-        uuid: StrictStr,
-        body: Annotated[
-            StrictStr, Field(description="The request body for /persons/{uuid}/first_name")
-        ],
-    ) -> str:
-        """put operation for /persons/{uuid}/first_name"""
         ...
 
     async def persons_uuid_get(
@@ -126,70 +64,6 @@ class BasePersonsApi:
         uuid: StrictStr,
     ) -> None:
         """Determine the existence and size of this person"""
-        ...
-
-    async def persons_uuid_hobbies_delete(
-        self,
-        uuid: StrictStr,
-    ) -> List[str]:
-        """delete operation for /persons/{uuid}/hobbies"""
-        ...
-
-    async def persons_uuid_hobbies_get(
-        self,
-        uuid: StrictStr,
-        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")],
-    ) -> List[str]:
-        """get operation for /persons/{uuid}/hobbies"""
-        ...
-
-    async def persons_uuid_hobbies_head(
-        self,
-        uuid: StrictStr,
-    ) -> None:
-        """head operation for /persons/{uuid}/hobbies"""
-        ...
-
-    async def persons_uuid_hobbies_put(
-        self,
-        uuid: StrictStr,
-        request_body: Annotated[
-            List[StrictStr], Field(description="The request body for /persons/{uuid}/hobbies")
-        ],
-    ) -> List[str]:
-        """put operation for /persons/{uuid}/hobbies"""
-        ...
-
-    async def persons_uuid_last_name_delete(
-        self,
-        uuid: StrictStr,
-    ) -> str:
-        """delete operation for /persons/{uuid}/last_name"""
-        ...
-
-    async def persons_uuid_last_name_get(
-        self,
-        uuid: StrictStr,
-        last_name: Annotated[Optional[StrictStr], Field(description="Filter by last name")],
-    ) -> str:
-        """get operation for /persons/{uuid}/last_name"""
-        ...
-
-    async def persons_uuid_last_name_head(
-        self,
-        uuid: StrictStr,
-    ) -> None:
-        """head operation for /persons/{uuid}/last_name"""
-        ...
-
-    async def persons_uuid_last_name_put(
-        self,
-        uuid: StrictStr,
-        body: Annotated[
-            StrictStr, Field(description="The request body for /persons/{uuid}/last_name")
-        ],
-    ) -> str:
-        """put operation for /persons/{uuid}/last_name"""
         ...
 
     async def persons_uuid_put(
