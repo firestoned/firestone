@@ -62,6 +62,13 @@ def init():
     # pylint: disable=redefined-builtin
     @addressbook.command("create")
     @click.option(
+        "--address-key",
+        help="A unique identifier for an addressbook entry.",
+        type=str,
+        show_default=True,
+        required=False,
+    )
+    @click.option(
         "--addrtype",
         help="The address type, e.g. work or home",
         type=click.Choice(["work", "home"]),
@@ -109,11 +116,12 @@ def init():
     @firestone_utils.click_coro
     @api_exc
     async def addressbook_post(
-        ctx_obj, addrtype, city, country, is_valid, people, person, state, street
+        ctx_obj, address_key, addrtype, city, country, is_valid, people, person, state, street
     ):
         """Create a new address in this addressbook, a new address key will be created."""
         api_obj = ctx_obj["api_obj"]
         params = {
+            "address_key": address_key,
             "addrtype": addrtype,
             "city": city,
             "country": country,
@@ -221,6 +229,7 @@ def init():
 
     @addressbook.command("update")
     @click.argument("address_key", type=str)
+    @click.argument("address_key", type=str)
     @click.option(
         "--addrtype",
         help="The address type, e.g. work or home",
@@ -247,7 +256,17 @@ def init():
     @firestone_utils.click_coro
     @api_exc
     async def addressbook_address_key_put(
-        ctx_obj, address_key, addrtype, city, country, is_valid, people, person, state, street
+        ctx_obj,
+        address_key,
+        address_key,
+        addrtype,
+        city,
+        country,
+        is_valid,
+        people,
+        person,
+        state,
+        street,
     ):
         """Update an existing address in this addressbook, with the given address key."""
         api_obj = ctx_obj["api_obj"]
@@ -263,7 +282,7 @@ def init():
         }
 
         req_body = update_addressbook_model.UpdateAddressbook(**params)
-        resp = await api_obj.addressbook_address_key_put(address_key, req_body)
+        resp = await api_obj.addressbook_address_key_put(address_key, address_key, req_body)
         _LOGGER.debug(f"resp: {resp}")
 
         if isinstance(resp, list):

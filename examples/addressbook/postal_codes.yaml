@@ -68,6 +68,11 @@ schema:
   items:
     type: object
     properties:
+      uuid:
+        expose: false
+        description: A UUID associated to this postal code
+        schema:
+          type: string
       name:
         description: The postal code's name/id
         type: string

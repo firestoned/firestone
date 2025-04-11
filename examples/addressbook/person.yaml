@@ -70,6 +70,11 @@ schema:
   items:
     type: object
     properties:
+      uuid:
+        expose: false
+        description: A UUID associated to this person
+        schema:
+          type: string
       first_name:
         description: The person's first name
         type: string

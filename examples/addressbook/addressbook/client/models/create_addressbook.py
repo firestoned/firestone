@@ -29,6 +29,7 @@ class CreateAddressbook(BaseModel):
     CreateAddressbook
     """  # noqa: E501
 
+    address_key: Optional[Any] = None
     addrtype: StrictStr = Field(description="The address type, e.g. work or home")
     city: StrictStr = Field(description="The city of this address")
     country: StrictStr = Field(description="The country of this address")
@@ -40,6 +41,7 @@ class CreateAddressbook(BaseModel):
     state: StrictStr = Field(description="The state of this address")
     street: StrictStr = Field(description="The street and civic number of this address")
     __properties: ClassVar[List[str]] = [
+        "address_key",
         "addrtype",
         "city",
         "country",
@@ -97,6 +99,11 @@ class CreateAddressbook(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of person
         if self.person:
             _dict["person"] = self.person.to_dict()
+        # set to None if address_key (nullable) is None
+        # and model_fields_set contains the field
+        if self.address_key is None and "address_key" in self.model_fields_set:
+            _dict["address_key"] = None
+
         return _dict
 
     @classmethod
@@ -110,6 +117,7 @@ class CreateAddressbook(BaseModel):
 
         _obj = cls.model_validate(
             {
+                "address_key": obj.get("address_key"),
                 "addrtype": obj.get("addrtype"),
                 "city": obj.get("city"),
                 "country": obj.get("country"),

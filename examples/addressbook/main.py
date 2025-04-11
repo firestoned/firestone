@@ -142,6 +142,13 @@ async def addressbook(ctx_obj):
 # pylint: disable=redefined-builtin
 @addressbook.command("create")
 @click.option(
+    "--address-key",
+    help="A unique identifier for an addressbook entry.",
+    type=str,
+    show_default=True,
+    required=False,
+)
+@click.option(
     "--addrtype",
     help="The address type, e.g. work or home",
     type=click.Choice(["work", "home"]),
@@ -187,11 +194,12 @@ async def addressbook(ctx_obj):
 @firestone_utils.click_coro
 @api_exc
 async def addressbook_post(
-    ctx_obj, addrtype, city, country, is_valid, people, person, state, street
+    ctx_obj, address_key, addrtype, city, country, is_valid, people, person, state, street
 ):
     """Create a new address in this addressbook, a new address key will be created."""
     api_obj = ctx_obj["api_obj"]
     params = {
+        "address_key": address_key,
         "addrtype": addrtype,
         "city": city,
         "country": country,
@@ -303,6 +311,7 @@ async def addressbook_address_key_get(ctx_obj, address_key, city):
 
 @addressbook.command("update")
 @click.argument("address_key", type=str)
+@click.argument("address_key", type=str)
 @click.option(
     "--addrtype",
     help="The address type, e.g. work or home",
@@ -329,7 +338,17 @@ async def addressbook_address_key_get(ctx_obj, address_key, city):
 @firestone_utils.click_coro
 @api_exc
 async def addressbook_address_key_put(
-    ctx_obj, address_key, addrtype, city, country, is_valid, people, person, state, street
+    ctx_obj,
+    address_key,
+    address_key,
+    addrtype,
+    city,
+    country,
+    is_valid,
+    people,
+    person,
+    state,
+    street,
 ):
     """Update an existing address in this addressbook, with the given address key."""
     api_obj = ctx_obj["api_obj"]
@@ -345,7 +364,7 @@ async def addressbook_address_key_put(
     }
 
     req_body = update_addressbook_model.UpdateAddressbook(**params)
-    resp = await api_obj.addressbook_address_key_put(address_key, req_body)
+    resp = await api_obj.addressbook_address_key_put(address_key, address_key, req_body)
     _LOGGER.debug(f"resp: {resp}")
 
     if isinstance(resp, list):
@@ -378,10 +397,13 @@ async def persons(ctx_obj):
 @click.option(
     "--last-name", help="The person's last name", type=str, show_default=True, required=False
 )
+@click.option(
+    "--uuid", help="A UUID associated to this person", type=str, show_default=True, required=False
+)
 @click.pass_obj
 @firestone_utils.click_coro
 @api_exc
-async def persons_post(ctx_obj, age, first_name, hobbies, last_name):
+async def persons_post(ctx_obj, age, first_name, hobbies, last_name, uuid):
     """Create a new person in this collection, a new UUID key will be created"""
     api_obj = ctx_obj["api_obj"]
     params = {
@@ -389,6 +411,7 @@ async def persons_post(ctx_obj, age, first_name, hobbies, last_name):
         "first_name": first_name,
         "hobbies": hobbies,
         "last_name": last_name,
+        "uuid": uuid,
     }
     req_body = create_person_model.CreatePerson(**params)
     resp = await api_obj.persons_post(req_body)
@@ -498,10 +521,11 @@ async def persons_uuid_get(ctx_obj, last_name, uuid):
 @click.option("--hobbies", help="The person's hobbies", type=cli.StrList, required=False)
 @click.option("--last-name", help="The person's last name", type=str, required=False)
 @click.argument("uuid", type=str)
+@click.argument("uuid", type=str)
 @click.pass_obj
 @firestone_utils.click_coro
 @api_exc
-async def persons_uuid_put(ctx_obj, age, first_name, hobbies, last_name, uuid):
+async def persons_uuid_put(ctx_obj, age, first_name, hobbies, last_name, uuid, uuid):
     """Put a new person in this collection, with the given UUId key"""
     api_obj = ctx_obj["api_obj"]
     params = {
@@ -512,7 +536,7 @@ async def persons_uuid_put(ctx_obj, age, first_name, hobbies, last_name, uuid):
     }
 
     req_body = update_person_model.UpdatePerson(**params)
-    resp = await api_obj.persons_uuid_put(uuid, req_body)
+    resp = await api_obj.persons_uuid_put(uuid, uuid, req_body)
     _LOGGER.debug(f"resp: {resp}")
 
     if isinstance(resp, list):
@@ -538,14 +562,22 @@ async def postal_codes(ctx_obj):
 @click.option(
     "--name", help="The postal code's name/id", type=str, show_default=True, required=False
 )
+@click.option(
+    "--uuid",
+    help="A UUID associated to this postal code",
+    type=str,
+    show_default=True,
+    required=False,
+)
 @click.pass_obj
 @firestone_utils.click_coro
 @api_exc
-async def postal_codes_post(ctx_obj, name):
+async def postal_codes_post(ctx_obj, name, uuid):
     """Create a new postal code in this collection, a new UUID key will be created"""
     api_obj = ctx_obj["api_obj"]
     params = {
         "name": name,
+        "uuid": uuid,
     }
     req_body = create_postal_code_model.CreatePostalCode(**params)
     resp = await api_obj.postal_codes_post(req_body)
