@@ -102,4 +102,7 @@ gen-streamlit: $(FIRESTONE)
 		--resources ${RESOURCES} \
 		--version 1.0 \
 		 streamlit \
-		 --base-url "http://localhost:8080" > ${STREAMLIT_FILE}
+		 --as-modules \
+		 --col-mappings '{"addressbook": ["addrtype", "street", "state", "country"]}' \
+		 --backend-url "http://localhost:8080" \
+		 --output-dir $(shell ${DIRNAME} ${STREAMLIT_FILE})

@@ -63,14 +63,22 @@ def init():
     @click.option(
         "--name", help="The postal code's name/id", type=str, show_default=True, required=False
     )
+    @click.option(
+        "--uuid",
+        help="A UUID associated to this postal code",
+        type=str,
+        show_default=True,
+        required=False,
+    )
     @click.pass_obj
     @firestone_utils.click_coro
     @api_exc
-    async def postal_codes_post(ctx_obj, name):
+    async def postal_codes_post(ctx_obj, name, uuid):
         """Create a new postal code in this collection, a new UUID key will be created"""
         api_obj = ctx_obj["api_obj"]
         params = {
             "name": name,
+            "uuid": uuid,
         }
         req_body = create_postal_code_model.CreatePostalCode(**params)
         resp = await api_obj.postal_codes_post(req_body)

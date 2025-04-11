@@ -49,22 +49,26 @@ class AddressBook(BaseAddressbookApi):
         """List all addresses in this addressbook."""
         return [
             {
+                "address_key": "bar",
                 "addrtype": "home",
                 "street": "400 foobar road",
                 "city": "foo",
                 "country": "ca",
                 "state": "ca",
+                "is_valid": True,
                 "person": {
                     "first_name": "foo",
                     "last_name": "bar",
                 },
             },
             {
+                "address_key": "foo",
                 "addrtype": "home",
                 "street": "500 foobar road",
                 "city": "foo",
                 "country": "ca",
                 "state": "ca",
+                "is_valid": False,
                 "person": {
                     "first_name": "bar",
                     "last_name": "foo",

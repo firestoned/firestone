@@ -29,7 +29,8 @@ class CreatePostalCode(BaseModel):
     """  # noqa: E501
 
     name: Optional[StrictStr] = Field(default=None, description="The postal code's name/id")
-    __properties: ClassVar[List[str]] = ["name"]
+    uuid: Optional[Any] = None
+    __properties: ClassVar[List[str]] = ["name", "uuid"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -68,6 +69,11 @@ class CreatePostalCode(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # set to None if uuid (nullable) is None
+        # and model_fields_set contains the field
+        if self.uuid is None and "uuid" in self.model_fields_set:
+            _dict["uuid"] = None
+
         return _dict
 
     @classmethod
@@ -79,5 +85,5 @@ class CreatePostalCode(BaseModel):
         if not isinstance(obj, dict):
             return cls.model_validate(obj)
 
-        _obj = cls.model_validate({"name": obj.get("name")})
+        _obj = cls.model_validate({"name": obj.get("name"), "uuid": obj.get("uuid")})
         return _obj

@@ -223,9 +223,20 @@ def cli(rsrc_data, pkg, client_pkg, output, output_dir, as_modules, template):
 
 @generate.command()
 @click.option(
-    "--base-url",
-    help="The default base URL for API",
+    "--as-modules",
+    help="Output each resource as a module",
+    is_flag=True,
+)
+@click.option(
+    "--backend-url",
+    help="The default backend base URL for API",
     default="https://localhost",
+)
+@click.option(
+    "--col-mappings",
+    "-C",
+    help="Custom column mapping orders, e.g. {'addressbook': ['postal_code', '']",
+    type=firestone_cli.AnyDict,
 )
 @click.option(
     "--output",
@@ -236,28 +247,50 @@ def cli(rsrc_data, pkg, client_pkg, output, output_dir, as_modules, template):
     show_default=True,
 )
 @click.option(
+    "--output-dir",
+    "-o",
+    help="Location of the directory to output the CLI generated module files",
+    type=click.Path(file_okay=False, dir_okay=True, writable=True),
+)
+@click.option(
     "--template",
     "-T",
     help="The location of a custom template to render the resources for CLI",
     type=str,
 )
 @click.pass_obj
-def streamlit(rsrc_data, base_url, output, template):
+def streamlit(rsrc_data, backend_url, col_mappings, output, output_dir, as_modules, template):
     """Generate python, Click-based CLI script.
 
     This generated script can be used as standalone or added to console scripts.
     """
-    cli_spec = firestone_spec.streamlit.generate(
+    _LOGGER.debug(f"col_mappings: {col_mappings}")
+    st_spec = firestone_spec.streamlit.generate(
         rsrc_data["data"],
         rsrc_data["title"],
         rsrc_data["desc"],
         rsrc_data["summary"],
         rsrc_data["version"],
-        base_url=base_url,
+        backend_url=backend_url,
+        as_modules=as_modules,
         template=template,
+        col_mappings=col_mappings,
     )
 
-    return print(cli_spec, file=output)
+    if not as_modules:
+        return print(st_spec, file=output)
+
+    if not output_dir:
+        raise click.UsageError("You must supply an --output-dir when using --as-modules")
+
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    for rsrc in st_spec:
+        with io.open(os.path.join(output_dir, f"{rsrc}.py"), "w", encoding="utf-8") as fh:
+            fh.write(st_spec[rsrc])
+
+    return None
 
 
 if __name__ == "main":

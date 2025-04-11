@@ -32,7 +32,8 @@ class CreatePerson(BaseModel):
     first_name: Optional[StrictStr] = Field(default=None, description="The person's first name")
     hobbies: Optional[List[StrictStr]] = Field(default=None, description="The person's hobbies")
     last_name: Optional[StrictStr] = Field(default=None, description="The person's last name")
-    __properties: ClassVar[List[str]] = ["age", "first_name", "hobbies", "last_name"]
+    uuid: Optional[Any] = None
+    __properties: ClassVar[List[str]] = ["age", "first_name", "hobbies", "last_name", "uuid"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -71,6 +72,11 @@ class CreatePerson(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # set to None if uuid (nullable) is None
+        # and model_fields_set contains the field
+        if self.uuid is None and "uuid" in self.model_fields_set:
+            _dict["uuid"] = None
+
         return _dict
 
     @classmethod
@@ -88,6 +94,7 @@ class CreatePerson(BaseModel):
                 "first_name": obj.get("first_name"),
                 "hobbies": obj.get("hobbies"),
                 "last_name": obj.get("last_name"),
+                "uuid": obj.get("uuid"),
             }
         )
         return _obj

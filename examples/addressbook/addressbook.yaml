@@ -89,6 +89,11 @@ schema:
   items:
     type: object
     properties:
+      address_key:
+        expose: false
+        description: A unique identifier for an addressbook entry.
+        schema:
+          type: string
       # embeded person
       person:
         description: This is a person object that lives at this address.

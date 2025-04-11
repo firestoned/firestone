@@ -34,6 +34,11 @@ components:
       - type: object
     addressbook:
       properties:
+        address_key:
+          description: A unique identifier for an addressbook entry.
+          expose: false
+          schema:
+            type: string
         addrtype:
           description: The address type, e.g. work or home
           enum:
@@ -79,12 +84,22 @@ components:
         last_name:
           description: The person's last name
           type: string
+        uuid:
+          description: A UUID associated to this person
+          expose: false
+          schema:
+            type: string
       type: object
     postal_code:
       properties:
         name:
           description: The postal code's name/id
           type: string
+        uuid:
+          description: A UUID associated to this postal code
+          expose: false
+          schema:
+            type: string
       type: object
   securitySchemes:
     bearer_auth:

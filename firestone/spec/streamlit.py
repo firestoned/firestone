@@ -284,10 +284,16 @@ def generate(
     desc: str,
     summary: str,
     version: str,
-    base_url: str = None,
+    backend_url: str = None,
+    as_modules: bool = False,
     template: str = None,
+    col_mappings: dict = None,
 ):
     """Generate a streamlit based WebUI script based on the resource data sent and other meta data."""
+    if not col_mappings:
+        col_mappings = {}
+    _LOGGER.debug(f"col_mappings: {col_mappings}")
+
     rsrcs = []
     for rsrc in rsrc_data:
         rsrc_name = rsrc["kind"]
@@ -307,8 +313,11 @@ def generate(
         rsrcs.append(
             {
                 "name": rsrc_name,
+                "key": rsrc["schema"]["key"],
+                "pretty_name": utils.split_capitalize(rsrc_name),
                 "baseurl": baseurl,
                 "operations": ops,
+                "col_mapping": col_mappings.get(rsrc_name),
             }
         )
 
@@ -325,14 +334,30 @@ def generate(
                 extensions=["jinja2.ext.loopcontrols"],
             ).from_string(tmpl_str)
 
-    if not tmpl:
-        tmpl = spec_base.JINJA_ENV.get_template("streamlit.py.jinja2")
+    if not as_modules:
+        if not tmpl:
+            tmpl = spec_base.JINJA_ENV.get_template("streamlit.py.jinja2")
+        return tmpl.render(
+            title=title,
+            summary=summary,
+            description=desc,
+            version=version,
+            rsrcs=rsrcs,
+            backend_url=backend_url,
+        )
 
-    return tmpl.render(
-        title=title,
-        summary=summary,
-        description=desc,
-        version=version,
-        rsrcs=rsrcs,
-        base_url=base_url,
-    )
+    rendered_rsrcs = {}
+    for rsrc in rsrcs:
+        if not tmpl:
+            tmpl = spec_base.JINJA_ENV.get_template("streamlit_page.py.jinja2")
+        rendered = tmpl.render(
+            title=title,
+            summary=summary,
+            description=desc,
+            version=version,
+            rsrc=rsrc,
+            backend_url=backend_url,
+        )
+        rendered_rsrcs[rsrc["name"]] = rendered
+
+    return rendered_rsrcs
