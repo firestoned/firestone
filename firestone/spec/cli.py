@@ -78,15 +78,18 @@ def params_to_attrs(params: list, required: list = None, key_names: list = None)
         required_val = param_name in required
         _LOGGER.debug(f"param_name: {param_name}")
         _LOGGER.debug(f"key_names: {key_names}")
-        attrs.append(
-            {
-                "argument": param_name in key_names,
-                "name": param_name,
-                "description": param.get("description"),
-                "type": cli_type,
-                "required": param.get("required", required_val),
-            }
-        )
+        attr = {
+            "argument": param_name in key_names,
+            "name": param_name,
+            "description": param.get("description"),
+            "type": cli_type,
+            "required": param.get("required", required_val),
+        }
+        if param.get("default") is not None:
+            attr["default"] = param.get("Default")
+
+        attrs.append(attr)
+
     return attrs
 
 
