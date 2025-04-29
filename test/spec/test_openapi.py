@@ -268,6 +268,42 @@ class TestOpenAPIGetParams(unittest.TestCase):
                     "in": "query",
                     "required": False,
                     "schema": {"type": "string"},
+                    "default": None,
+                }
+            ],
+        )
+
+    def test_with_query_params_default(self):
+        """Test firestone.spec.openapi.test_get_params() with query_params, default FooBar."""
+        params = openapi.get_params(
+            "/foo/{foo}",
+            "get",
+            {
+                "type": "array",
+                "query_params": [
+                    {
+                        "name": "foo",
+                        "description": "Filter by foo name",
+                        "schema": {"type": "string"},
+                        "methods": ["get"],
+                        "default": "FooBar",
+                    }
+                ],
+            },
+        )
+
+        self.assertIsNotNone(params)
+        self.assertEqual(len(params), 1)
+        self.assertEqual(
+            params,
+            [
+                {
+                    "name": "foo",
+                    "description": "Filter by foo name",
+                    "in": "query",
+                    "required": False,
+                    "schema": {"type": "string"},
+                    "default": "FooBar",
                 }
             ],
         )
@@ -323,6 +359,7 @@ class TestOpenAPIGetParams(unittest.TestCase):
                     "in": "query",
                     "required": True,
                     "schema": {"type": "string"},
+                    "default": None,
                 }
             ],
         )
