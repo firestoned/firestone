@@ -202,6 +202,7 @@ def get_params(
                     "required": param.get("required", False),
                     "schema": param.get("schema", {"type": "string"}),
                     "description": param.get("description"),
+                    "default": param.get("default"),
                 }
             )
 
