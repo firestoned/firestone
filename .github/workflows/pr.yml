@@ -2,7 +2,7 @@ name: PR Build 🐍
 
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -29,7 +29,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'poetry'
+          cache: "poetry"
 
       - name: Install dependencies
         run: |
@@ -49,9 +49,9 @@ jobs:
         run: |
           poetry run pytest --color=yes --cache-clear --cov-report=term-missing:skip-covered --junitxml=./pytest-coverage.xml --cov=firestone test/ > ./pytest-coverage.txt
 
-      - name: Pytest coverage comment
-        uses: MishaKav/pytest-coverage-comment@main
-        with:
-          pytest-coverage-path: ./pytest-coverage.txt
-          junitxml-path: ./pytest-coverage.xml
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Pytest coverage comment
+      #   uses: MishaKav/pytest-coverage-comment@main
+      #   with:
+      #     pytest-coverage-path: ./pytest-coverage.txt
+      #     junitxml-path: ./pytest-coverage.xml
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
