@@ -195,16 +195,17 @@ def get_params(
                 del param["methods"]
             if methods and method not in methods:
                 continue
-            parameters.append(
-                {
-                    "name": param["name"],
-                    "in": "query",
-                    "required": param.get("required", False),
-                    "schema": param.get("schema", {"type": "string"}),
-                    "description": param.get("description"),
-                    "default": param.get("default"),
-                }
-            )
+            new_params = {
+                "name": param["name"],
+                "in": "query",
+                "required": param.get("required", False),
+                "schema": param.get("schema", {"type": "string"}),
+                "description": param.get("description"),
+            }
+            if param.get("default") is not None:
+                new_params["default"] = param.get("default")
+
+            parameters.append(new_params)
 
     # Handle path params
     _LOGGER.debug(f"keys: {keys}")

@@ -268,7 +268,6 @@ class TestOpenAPIGetParams(unittest.TestCase):
                     "in": "query",
                     "required": False,
                     "schema": {"type": "string"},
-                    "default": None,
                 }
             ],
         )
@@ -359,7 +358,6 @@ class TestOpenAPIGetParams(unittest.TestCase):
                     "in": "query",
                     "required": True,
                     "schema": {"type": "string"},
-                    "default": None,
                 }
             ],
         )
