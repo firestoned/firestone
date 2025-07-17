@@ -86,7 +86,7 @@ def params_to_attrs(params: list, required: list = None, key_names: list = None)
             "required": param.get("required", required_val),
         }
         if param.get("default") is not None:
-            attr["default"] = param.get("Default")
+            attr["default"] = param.get("default")
 
         attrs.append(attr)
 
