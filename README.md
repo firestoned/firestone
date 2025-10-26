@@ -7,7 +7,7 @@
 
 ### A Resource-Based Approach to Building APIs
 
-`firestone` allows you to build OpenAPI, AsyncAPI and gRPC specs based off one or more resource JSON schema files. This allows you to focus on what really matters, the resource you are developing!
+`firestone` allows you to build OpenAPI and AsyncAPI specs—and optionally Python CLI or Streamlit scaffolding—from one or more resource JSON schema files. This allows you to focus on what really matters, the resource you are developing!
 
 Once you have generated the appropriate specification file for your project, you can then use the myriad of libraries and frameworks to generate stub code.
 
@@ -17,36 +17,48 @@ This makes it easy to come up to speed with little to no prior knowledge to get 
 
 Having said that, the schema for a resource provides additional helpful functionality, see the [schema](#schema) section for further details.
 
+## Firestone Ecosystem
+
+Firestone lives alongside a couple of sibling projects that share tooling and deployment stories:
+
+- [`firestone-lib`](https://github.com/firestoned/firestone-lib) packages the Click helpers, schema loaders, and logging defaults that this CLI relies on—use it when you need Firestone-style utilities without the generators.
+- [`forevd`](https://github.com/firestoned/forevd) applies `firestone-lib` to ship an auth-focused Apache sidecar, handy when you want spec-first services to sit behind consistent proxy infrastructure.
+
+## What's Generated
+
+| Generator | CLI command sketch | Output | Typical downstream use |
+| --- | --- | --- | --- |
+| OpenAPI | `firestone generate … openapi` | OpenAPI 3.x specification | Server scaffolds, client SDKs, documentation portals |
+| AsyncAPI | `firestone generate … asyncapi` | AsyncAPI 2.x specification | Event-driven contracts, channel documentation |
+| Python CLI | `firestone generate … cli` | Click-based CRUD utilities (`main.py` or modules) | Internal tooling, scripted batch jobs |
+| Streamlit UI | `firestone generate … streamlit` | Streamlit pages/modules | Lightweight admin dashboards over your API |
+
 ## Quick Start
 
 You can use `pip` or `poetry` to install and run `firestone`. We suggest using `pip` if you wish to install `firestone` globally, or for virtual environments, use `poetry`.
 
 ### `pip`
 
-It's a simple as running the following `pip` command:
+Set up a virtual environment (or use [pipx](https://pypa.github.io/pipx/)) and install from PyPI:
 
 ```zsh
-sudo pip install firestoned
+python3 -m venv .venv
+source .venv/bin/activate
+pip install firestoned
 ```
 
-> Yes, `firestone**d**`, not `firestone`! This is because there already is a, albeit emtpy, repository on [pypi.org](https://pypi.org/) with the same name ...
+> Yes, `firestone**d**`, not `firestone`! This is because there already is a, albeit empty, repository on [pypi.org](https://pypi.org/) with the same name ...
 
 ### `poetry`
 
 [Poetry](https://python-poetry.org/) is a great build tool for Python that allows you to build and run all locally in a virtual environment. This is great for checking out the tool and playing around with `firestone` itself.
 
-If you're starting with a new project, declare `firestoned` in your dependencies during the `poetry install` process:
-
-```zsh
-poetry install
-poetry build
-```
-
-If you're adding `firestone` to a `poetry` project:
+Add `firestoned` as a dependency and run the CLI through Poetry:
 
 ```zsh
 poetry add firestoned
-poetry build
+poetry install
+poetry run firestone --help
 ```
 
 ## Running
@@ -63,10 +75,11 @@ Now that you have a copy of `firestone`, let's try running it with the example r
 firestone \
     generate \
     --title 'Addressbook resource' \
-    --description 'A simple addressBook example' \
-    --resources examples/addressBook/resource.yaml \
-    openapi
-    --security '{"name": "bearer_auth", "scheme": "bearer", "type": "http", "bearerFormat": "JWT"}' \
+    --description 'A simple addressbook example' \
+    --resources examples/addressbook/addressbook.yaml \
+    --version 1.0 \
+    openapi \
+    --security '{"name": "bearer_auth", "scheme": "bearer", "type": "http", "bearerFormat": "JWT"}'
 ```
 
 Let's quickly dissect this command:
@@ -77,9 +90,11 @@ Let's quickly dissect this command:
 You can also add the command line `--ui-server` to the end, which will launch a small webserver and run the Swagger UI to view this specification file.
 
 ```zsh
-firestone --debug generate --title 'Example person and addressBook API' \
+firestone --debug generate \
+    --title 'Example person and addressbook API' \
     --description 'An example API with more than one resource' \
-    --resources examples/addressBook.yaml,examples/person.yaml \
+    --resources examples/addressbook/addressbook.yaml,examples/addressbook/person.yaml,examples/addressbook/postal_codes.yaml \
+    --version 1.0 \
     openapi \
     --security '{"name": "bearer_auth", "scheme": "bearer", "type": "http", "bearerFormat": "JWT"}' \
     --ui-server
@@ -103,10 +118,11 @@ Here is the full file:
 
 ```yaml
 # Metadata: start
-name: addressbook
-description: An example of an addressbook resource
-version: 1.0
-version_in_path: false
+kind: addressbook
+apiVersion: v1
+metadata:
+  description: An example of an addressbook resource
+versionInPath: false
 default_query_params:
   - name: limit
     description: Limit the number of responses back
@@ -164,9 +180,6 @@ schema:
     description: A unique identifier for an addressbook entry.
     schema:
       type: string
-  #responseCodes:
-  # - 200
-  # - 201
   query_params:
     - name: city
       description: Filter by city name
@@ -178,7 +191,11 @@ schema:
   items:
     type: object
     properties:
-      # embeded person
+      address_key:
+        expose: false
+        description: A unique identifier for an addressbook entry.
+        schema:
+          type: string
       person:
         description: This is a person object that lives at this address.
         schema:
@@ -186,8 +203,6 @@ schema:
       addrtype:
         description: The address type, e.g. work or home
         type: string
-        # Don't expose this attribute in the URL/specification
-        # expose: false
         enum:
           - work
           - home
@@ -208,6 +223,9 @@ schema:
         type: array
         items:
           type: string
+      is_valid:
+        description: Address is valid or not
+        type: boolean
     required:
       - addrtype
       - street
@@ -218,39 +236,37 @@ schema:
 
 ### Schema Metadata Fields
 
-#### `name`
+#### `kind`
 
-Name is used in various places, including as the root to API URLs, for example in OpenAPI, `/addressBook`
+The resource identifier. It seeds generated path segments, OpenAPI tags, and component names (for example `/addressbook`).
 
-#### `description`
+#### `apiVersion`
 
-The description of this resource is used in the generated specification files.
+Version label surfaced in generated specs. Combine with `versionInPath` to prefix URLs such as `/v1/addressbook`.
 
-#### `version`
+#### `metadata.description`
 
-The version of this resource definition, this can alternatively be used in the URL as well, see below `version_in_path`.
+Human-friendly description rendered in generated documentation, UI titles, and CLI help.
 
-#### `version_in_path`
+#### `versionInPath`
 
-This attribute defines whether to prepend the version defined above in the URL paths.  For example, for the
-above, you would get: `/v1.0/addressBook`.
+When `true`, prefixes generated routes with the version (`/v1/addressbook`). Leave `false` to omit versioned paths.
 
 #### `default_query_params`
 
-You can provide a list of default query parameters that will be added to all HTTP methods,
-or optionally you can provide a list of the HTTP methods, for which `firestone` will add.
+You can provide a list of default query parameters that will be added to generated operations. Include a `methods` list on an entry to scope it to specific verbs.
 
 #### `methods`
 
-This is a map/dict of `resource`, and/or `instance`, and/or `instance_attrs` (the instance attributes to expose), and a list of methods to explicitly expose.
+Map of `resource`, `instance`, and `instance_attrs` to the HTTP verbs you want generated. Omit a method to skip emitting that operation.
 
 #### `descriptions`
 
-This is a map/dict of either `resource` and/or `instance`, which itself is a map or methods to descriptions.
+Override operation descriptions for `resource`, `instance`, or `instance_attrs` endpoints. Any omitted method falls back to Firestone’s defaults.
 
 ### Generate OpenAPI Client
 
-Now, to generate your OpenAPI client, you will need the `openapi-generator` command ([installation instructions](https://openapi-generator.tech/docs/installation) to generate client code in many languages. 
+Now, to generate your OpenAPI client, you will need the `openapi-generator` command ([installation instructions](https://openapi-generator.tech/docs/installation) to generate client code in many languages.
 
 > Please check out the [OpenAPI Project](https://openapi-generator.tech/) for more details.
 
@@ -277,11 +293,11 @@ Here is an example command we use to generate the example Addressbook.
 firestone generate \
     --title 'Addressbook CLI' \
     --description 'This is the CLI for the example Addressbook' \
-    --resources examples/addressbook/addressbook.yaml,examples/addressbook/person.yaml \
+    --resources examples/addressbook/addressbook.yaml,examples/addressbook/person.yaml,examples/addressbook/postal_codes.yaml \
     --version 1.0 \
-     cli \
-     --pkg addressbook \
-     --client-pkg addressbook.client > examples/addressbook/main.py
+    cli \
+    --pkg addressbook \
+    --client-pkg addressbook.client > examples/addressbook/main.py
 ```
 
 ## Contributing
