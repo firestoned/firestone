@@ -1,0 +1,205 @@
+use clap::{Parser, Subcommand};
+use serde_json;
+use std::sync::Arc;
+
+{% for rsrc in rsrcs|sort(attribute='name') -%}
+mod {{ rsrc["name"] }};
+{% endfor -%}
+
+{% set enum_types = [] -%}
+{% for rsrc in rsrcs -%}
+{% for op in rsrc["operations"]["resource"] + rsrc["operations"]["instance"] -%}
+{% for attr in op["attrs"] -%}
+{% if attr.get("is_enum") and attr["type"] not in enum_types -%}
+{% set _ = enum_types.append(attr["type"]) -%}
+#[derive(clap::ValueEnum, Clone, Debug)]
+enum {{ attr["type"] }} {
+{% for variant in attr["enum_variants"] -%}
+    {{ variant["name"] }},
+{% endfor -%}
+}
+{% endif -%}
+{% endfor -%}
+{% endfor -%}
+{% endfor -%}
+
+#[derive(Parser, Debug)]
+#[command(name = "{{ pkg }}")]
+#[command(version = "{{ version }}")]
+#[command(about = "{{ title }}", long_about = "{{ description }}")]
+struct Cli {
+    /// Turn on debugging
+    #[arg(long)]
+    debug: bool,
+
+    /// The API key to authorize against API
+    #[arg(long, env = "API_KEY")]
+    api_key: Option<String>,
+
+    /// The API url, e.g. https://localhost
+    #[arg(long, env = "API_URL")]
+    api_url: Option<String>,
+
+    /// Path to the client cert for mutual TLS
+    #[arg(long, env = "CLIENT_CERT")]
+    client_cert: Option<String>,
+
+    /// Path to the client key for mutual TLS
+    #[arg(long, env = "CLIENT_KEY")]
+    client_key: Option<String>,
+
+    /// Trust the proxy env vars
+    #[arg(long)]
+    trust_proxy: bool,
+
+    #[command(subcommand)]
+    command: Commands,
+}
+
+#[derive(Subcommand, Debug)]
+enum Commands {
+{% for rsrc in rsrcs|sort(attribute='name') -%}
+    /// High level command for {{ rsrc["name"] }}
+    {{ rsrc["upper_name"] }}({{ rsrc["pascal_name"] }}Commands),
+{% endfor -%}
+}
+
+{% for rsrc in rsrcs|sort(attribute='name') -%}
+#[derive(Subcommand, Debug)]
+enum {{ rsrc["pascal_name"] }}Commands {
+    {% set comp_name = rsrc["name"] if not rsrc["name"].endswith("s") else rsrc["name"][:-1] -%}
+    {# high-level resource operations -#}
+    {% for op in rsrc["operations"]["resource"]|sort(attribute='name') -%}
+    /// {{ op["description"] }}
+    {{ op["pascal_name"] }}({{ op["pascal_name"] }}Args),
+    {% endfor -%}
+
+    {# high-level resource instance operations -#}
+    {% for op in rsrc["operations"]["instance"]|sort(attribute='name') -%}
+    /// {{ op["description"] }}
+    {{ op["pascal_name"] }}({{ op["pascal_name"] }}Args),
+    {% endfor -%}
+}
+
+{# Resource operations -#}
+{% for op in rsrc["operations"]["resource"]|sort(attribute='name') -%}
+#[derive(Parser, Debug)]
+struct {{ op["pascal_name"] }}Args {
+{% for attr in op["attrs"]|sort(attribute='name') -%}
+    /// {{ attr["description"] }}
+    {% if attr["type"] == "bool" -%}
+    #[arg(long, action = clap::ArgAction::SetTrue)]
+    {% elif attr.get("is_enum") -%}
+    #[arg(long, value_enum)]
+    {% else -%}
+    #[arg(long)]
+    {% endif -%}
+    {% if attr.get("default") is not none -%}
+    #[arg(default_value = "{{ attr["default"] }}")]
+    {% endif -%}
+    {% if not attr["required"] and attr.get("default") is none -%}
+    pub {{ attr["rust_name"] }}: Option<{{ attr["type"] }}>,
+    {% else -%}
+    pub {{ attr["rust_name"] }}: {{ attr["type"] }},
+    {% endif -%}
+{% endfor -%}
+}
+
+{% endfor -%}
+
+{# Instance operations -#}
+{% for op in rsrc["operations"]["instance"]|sort(attribute='name') -%}
+#[derive(Parser, Debug)]
+struct {{ op["pascal_name"] }}Args {
+{% for attr in op["attrs"]|sort(attribute='name') -%}
+    {% if attr.get("argument") -%}
+    /// {{ attr["description"] }}
+    pub {{ attr["rust_name"] }}: {{ attr["type"] }},
+    {% else -%}
+    /// {{ attr["description"] }}
+    {% if attr["type"] == "bool" -%}
+    #[arg(long, action = clap::ArgAction::SetTrue)]
+    {% elif attr.get("is_enum") -%}
+    #[arg(long, value_enum)]
+    {% else -%}
+    #[arg(long)]
+    {% endif -%}
+    {% if attr.get("default") is not none -%}
+    #[arg(default_value = "{{ attr["default"] }}")]
+    {% endif -%}
+    {% if not attr["required"] and attr.get("default") is none -%}
+    pub {{ attr["rust_name"] }}: Option<{{ attr["type"] }}>,
+    {% else -%}
+    pub {{ attr["rust_name"] }}: {{ attr["type"] }},
+    {% endif -%}
+    {% endif -%}
+{% endfor -%}
+}
+
+{% endfor -%}
+{% endfor -%}
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let cli = Cli::parse();
+
+    // Initialize logging
+    let log_level = if cli.debug {
+        log::LevelFilter::Debug
+    } else {
+        log::LevelFilter::Info
+    };
+    env_logger::Builder::from_default_env()
+        .filter_level(log_level)
+        .init();
+
+    // Initialize API client configuration
+    let mut config = {{ client_pkg }}::Configuration::default();
+    if let Some(ref api_url) = cli.api_url {
+        config.base_path = api_url.clone();
+    }
+    if let Some(ref api_key) = cli.api_key {
+        config.api_key = Some({{ client_pkg }}::ApiKey {
+            prefix: Some("Bearer".to_string()),
+            key: api_key.clone(),
+        });
+    }
+    // TODO: Handle client_cert and client_key if needed
+    
+    let api_client = Arc::new({{ client_pkg }}::ApiClient::new(config));
+
+    match &cli.command {
+{% for rsrc in rsrcs|sort(attribute='name') -%}
+        Commands::{{ rsrc["upper_name"] }}(subcmd) => {
+            // Initialize API for this resource
+            {% set clazz_name = rsrc["pascal_name"] -%}
+            let api = Arc::new({{ client_pkg }}::api::{{ clazz_name }}Api::new(api_client.clone()));
+            let ctx = {{ rsrc["name"] }}::ApiContext {
+                api_client: api_client.clone(),
+                api: api.clone(),
+            };
+            
+            match subcmd {
+{% for op in rsrc["operations"]["resource"]|sort(attribute='name') -%}
+                {{ rsrc["pascal_name"] }}Commands::{{ op["pascal_name"] }}(args) => {
+                    if let Err(e) = {{ rsrc["name"] }}::handle_{{ op["id"] }}(&ctx, args).await {
+                        eprintln!("Error: {}", e);
+                        std::process::exit(1);
+                    }
+                },
+{% endfor -%}
+{% for op in rsrc["operations"]["instance"]|sort(attribute='name') -%}
+                {{ rsrc["pascal_name"] }}Commands::{{ op["pascal_name"] }}(args) => {
+                    if let Err(e) = {{ rsrc["name"] }}::handle_{{ op["id"] }}(&ctx, args).await {
+                        eprintln!("Error: {}", e);
+                        std::process::exit(1);
+                    }
+                },
+{% endfor -%}
+            }
+        },
+{% endfor -%}
+    }
+    
+    Ok(())
+}

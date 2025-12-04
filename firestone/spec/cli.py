@@ -97,9 +97,12 @@ def get_resource_attrs(
     schema: dict, params: dict = None, check_required: bool = None, key_names: list = None
 ):
     """Get resource attributes."""
+    if not key_names:
+        key_names = []
     _LOGGER.debug(f"key_names: {key_names}")
     props = schema.get("items", {}).get("properties", {})
-    tmp_attrs = [{"name": attr, **(props[attr])} for attr in props]
+    # Filter out key fields from schema properties to avoid duplicates with path parameters
+    tmp_attrs = [{"name": attr, **(props[attr])} for attr in props if attr not in key_names]
     if params:
         tmp_attrs.extend(params)
     _LOGGER.debug(f"tmp_attrs: {tmp_attrs}")

@@ -1,0 +1,16 @@
+pub mod addressbook;
+pub use self::addressbook::Addressbook;
+pub mod create_addressbook;
+pub use self::create_addressbook::CreateAddressbook;
+pub mod create_person;
+pub use self::create_person::CreatePerson;
+pub mod create_postal_code;
+pub use self::create_postal_code::CreatePostalCode;
+pub mod person;
+pub use self::person::Person;
+pub mod postal_code;
+pub use self::postal_code::PostalCode;
+pub mod update_addressbook;
+pub use self::update_addressbook::UpdateAddressbook;
+pub mod update_person;
+pub use self::update_person::UpdatePerson;

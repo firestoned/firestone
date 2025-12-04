@@ -199,11 +199,10 @@ def init():
     @click.option("--hobbies", help="The person's hobbies", type=cli.StrList, required=False)
     @click.option("--last-name", help="The person's last name", type=str, required=False)
     @click.argument("uuid", type=str)
-    @click.argument("uuid", type=str)
     @click.pass_obj
     @firestone_utils.click_coro
     @api_exc
-    async def persons_uuid_put(ctx_obj, age, first_name, hobbies, last_name, uuid, uuid):
+    async def persons_uuid_put(ctx_obj, age, first_name, hobbies, last_name, uuid):
         """Put a new person in this collection, with the given UUId key"""
         api_obj = ctx_obj["api_obj"]
         params = {
@@ -214,7 +213,7 @@ def init():
         }
 
         req_body = update_person_model.UpdatePerson(**params)
-        resp = await api_obj.persons_uuid_put(uuid, uuid, req_body)
+        resp = await api_obj.persons_uuid_put(uuid, req_body)
         _LOGGER.debug(f"resp: {resp}")
 
         if isinstance(resp, list):

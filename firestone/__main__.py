@@ -188,23 +188,49 @@ def asyncapi(rsrc_data, output):
     help="The location of a custom template to render the resources for CLI",
     type=str,
 )
+@click.option(
+    "--language",
+    "-l",
+    help="The language to generate CLI code for",
+    type=click.Choice(["python", "rust"], case_sensitive=False),
+    default="python",
+    show_default=True,
+)
 @click.pass_obj
-def cli(rsrc_data, pkg, client_pkg, output, output_dir, as_modules, template):
-    """Generate python, Click-based CLI script.
+def cli(rsrc_data, pkg, client_pkg, output, output_dir, as_modules, template, language):
+    """Generate CLI script (Python Click-based or Rust Clap-based).
 
     This generated script can be used as standalone or added to console scripts.
     """
-    cli_spec = firestone_spec.cli.generate(
-        pkg,
-        client_pkg,
-        rsrc_data["data"],
-        rsrc_data["title"],
-        rsrc_data["desc"],
-        rsrc_data["summary"],
-        rsrc_data["version"],
-        as_modules,
-        template=template,
-    )
+    language_lower = language.lower()
+
+    if language_lower == "rust":
+        cli_spec = firestone_spec.cli_rust.generate(
+            pkg,
+            client_pkg,
+            rsrc_data["data"],
+            rsrc_data["title"],
+            rsrc_data["desc"],
+            rsrc_data["summary"],
+            rsrc_data["version"],
+            as_modules,
+            template=template,
+        )
+        file_extension = "rs"
+    else:  # python (default)
+        cli_spec = firestone_spec.cli.generate(
+            pkg,
+            client_pkg,
+            rsrc_data["data"],
+            rsrc_data["title"],
+            rsrc_data["desc"],
+            rsrc_data["summary"],
+            rsrc_data["version"],
+            as_modules,
+            template=template,
+        )
+        file_extension = "py"
+
     if not as_modules:
         return print(cli_spec, file=output)
 
@@ -215,7 +241,9 @@ def cli(rsrc_data, pkg, client_pkg, output, output_dir, as_modules, template):
         os.makedirs(output_dir)
 
     for rsrc in cli_spec:
-        with io.open(os.path.join(output_dir, f"{rsrc}.py"), "w", encoding="utf-8") as fh:
+        with io.open(
+            os.path.join(output_dir, f"{rsrc}.{file_extension}"), "w", encoding="utf-8"
+        ) as fh:
             fh.write(cli_spec[rsrc])
 
     return None

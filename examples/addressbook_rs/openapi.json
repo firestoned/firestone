@@ -1,0 +1,2142 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Example person and addressbook API",
+    "description": "Example person and addressbook API",
+    "version": "1.0"
+  },
+  "components": {
+    "schemas": {
+      "CreateAddressbook": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/addressbook"
+          },
+          {
+            "required": [
+              "addrtype",
+              "street",
+              "city",
+              "state",
+              "country"
+            ],
+            "type": "object"
+          }
+        ]
+      },
+      "CreatePerson": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/person"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "CreatePostal_code": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/postal_code"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "UpdateAddressbook": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/addressbook"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "UpdatePerson": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/person"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "addressbook": {
+        "properties": {
+          "address_key": {
+            "description": "A unique identifier for an addressbook entry.",
+            "expose": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          "addrtype": {
+            "description": "The address type, e.g. work or home",
+            "enum": [
+              "work",
+              "home"
+            ],
+            "type": "string"
+          },
+          "city": {
+            "description": "The city of this address",
+            "type": "string"
+          },
+          "country": {
+            "description": "The country of this address",
+            "type": "string"
+          },
+          "is_valid": {
+            "description": "Address is valid or not",
+            "type": "boolean"
+          },
+          "people": {
+            "description": "A list of people's names living there",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "person": {
+            "$ref": "#/components/schemas/person"
+          },
+          "state": {
+            "description": "The state of this address",
+            "type": "string"
+          },
+          "street": {
+            "description": "The street and civic number of this address",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "person": {
+        "properties": {
+          "age": {
+            "description": "The person's age",
+            "type": "integer"
+          },
+          "first_name": {
+            "description": "The person's first name",
+            "type": "string"
+          },
+          "hobbies": {
+            "description": "The person's hobbies",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "last_name": {
+            "description": "The person's last name",
+            "type": "string"
+          },
+          "uuid": {
+            "description": "A UUID associated to this person",
+            "expose": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "type": "object"
+      },
+      "postal_code": {
+        "properties": {
+          "name": {
+            "description": "The postal code's name/id",
+            "type": "string"
+          },
+          "uuid": {
+            "description": "A UUID associated to this postal code",
+            "expose": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "bearer_auth": {
+        "bearerFormat": "JWT",
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "paths": {
+    "/addressbook": {
+      "get": {
+        "description": "List all addresses in this addressbook.",
+        "operationId": "addressbook_get",
+        "parameters": [
+          {
+            "description": "Filter by city name",
+            "in": "query",
+            "name": "city",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Limit the number of responses back",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "The offset to start returning resources",
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/addressbook"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      },
+      "post": {
+        "description": "Create a new address in this addressbook, a new address key will be created.",
+        "operationId": "addressbook_post",
+        "parameters": [
+          {
+            "description": "Limit the number of responses back",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "The offset to start returning resources",
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAddressbook"
+              }
+            }
+          },
+          "description": "The request body for /addressbook",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateAddressbook"
+                }
+              }
+            },
+            "description": "Response for CREATED"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      }
+    },
+    "/addressbook/{address_key}": {
+      "delete": {
+        "description": "Delete an address from this addressbook.",
+        "operationId": "addressbook_address_key_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/addressbook"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      },
+      "get": {
+        "description": "Get a specific address from this addressbook.",
+        "operationId": "addressbook_address_key_get",
+        "parameters": [
+          {
+            "description": "Filter by city name",
+            "in": "query",
+            "name": "city",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/addressbook"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      },
+      "head": {
+        "description": "Determine the existence and size of this address.",
+        "operationId": "addressbook_address_key_head",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Default HEAD response"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      },
+      "put": {
+        "description": "Update an existing address in this addressbook, with the given address key.",
+        "operationId": "addressbook_address_key_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAddressbook"
+              }
+            }
+          },
+          "description": "The request body for /addressbook/{address_key}",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateAddressbook"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      }
+    },
+    "/addressbook/{address_key}/addrtype": {
+      "delete": {
+        "description": "delete operation for /addressbook/{address_key}/addrtype",
+        "operationId": "addressbook_address_key_addrtype_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "The address type, e.g. work or home",
+                  "enum": [
+                    "work",
+                    "home"
+                  ],
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      },
+      "get": {
+        "description": "get operation for /addressbook/{address_key}/addrtype",
+        "operationId": "addressbook_address_key_addrtype_get",
+        "parameters": [
+          {
+            "description": "Filter by city name",
+            "in": "query",
+            "name": "city",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "The address type, e.g. work or home",
+                  "enum": [
+                    "work",
+                    "home"
+                  ],
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      },
+      "head": {
+        "description": "head operation for /addressbook/{address_key}/addrtype",
+        "operationId": "addressbook_address_key_addrtype_head",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Default HEAD response"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      },
+      "put": {
+        "description": "put operation for /addressbook/{address_key}/addrtype",
+        "operationId": "addressbook_address_key_addrtype_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "The address type, e.g. work or home",
+                "enum": [
+                  "work",
+                  "home"
+                ],
+                "type": "string"
+              }
+            }
+          },
+          "description": "The request body for /addressbook/{address_key}/addrtype",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "The address type, e.g. work or home",
+                  "enum": [
+                    "work",
+                    "home"
+                  ],
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      }
+    },
+    "/addressbook/{address_key}/city": {
+      "delete": {
+        "description": "delete operation for /addressbook/{address_key}/city",
+        "operationId": "addressbook_address_key_city_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "The city of this address",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      },
+      "get": {
+        "description": "get operation for /addressbook/{address_key}/city",
+        "operationId": "addressbook_address_key_city_get",
+        "parameters": [
+          {
+            "description": "Filter by city name",
+            "in": "query",
+            "name": "city",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "The city of this address",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      },
+      "head": {
+        "description": "head operation for /addressbook/{address_key}/city",
+        "operationId": "addressbook_address_key_city_head",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Default HEAD response"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      },
+      "put": {
+        "description": "put operation for /addressbook/{address_key}/city",
+        "operationId": "addressbook_address_key_city_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "The city of this address",
+                "type": "string"
+              }
+            }
+          },
+          "description": "The request body for /addressbook/{address_key}/city",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "The city of this address",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      }
+    },
+    "/addressbook/{address_key}/country": {
+      "delete": {
+        "description": "delete operation for /addressbook/{address_key}/country",
+        "operationId": "addressbook_address_key_country_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "The country of this address",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      },
+      "get": {
+        "description": "get operation for /addressbook/{address_key}/country",
+        "operationId": "addressbook_address_key_country_get",
+        "parameters": [
+          {
+            "description": "Filter by city name",
+            "in": "query",
+            "name": "city",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "The country of this address",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      },
+      "head": {
+        "description": "head operation for /addressbook/{address_key}/country",
+        "operationId": "addressbook_address_key_country_head",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Default HEAD response"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      },
+      "put": {
+        "description": "put operation for /addressbook/{address_key}/country",
+        "operationId": "addressbook_address_key_country_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "The country of this address",
+                "type": "string"
+              }
+            }
+          },
+          "description": "The request body for /addressbook/{address_key}/country",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "The country of this address",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      }
+    },
+    "/addressbook/{address_key}/is_valid": {
+      "delete": {
+        "description": "delete operation for /addressbook/{address_key}/is_valid",
+        "operationId": "addressbook_address_key_is_valid_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Address is valid or not",
+                  "type": "boolean"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      },
+      "get": {
+        "description": "get operation for /addressbook/{address_key}/is_valid",
+        "operationId": "addressbook_address_key_is_valid_get",
+        "parameters": [
+          {
+            "description": "Filter by city name",
+            "in": "query",
+            "name": "city",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Address is valid or not",
+                  "type": "boolean"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      },
+      "head": {
+        "description": "head operation for /addressbook/{address_key}/is_valid",
+        "operationId": "addressbook_address_key_is_valid_head",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Default HEAD response"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      },
+      "put": {
+        "description": "put operation for /addressbook/{address_key}/is_valid",
+        "operationId": "addressbook_address_key_is_valid_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Address is valid or not",
+                "type": "boolean"
+              }
+            }
+          },
+          "description": "The request body for /addressbook/{address_key}/is_valid",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Address is valid or not",
+                  "type": "boolean"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      }
+    },
+    "/addressbook/{address_key}/people": {
+      "delete": {
+        "description": "delete operation for /addressbook/{address_key}/people",
+        "operationId": "addressbook_address_key_people_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "A list of people's names living there",
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      },
+      "get": {
+        "description": "get operation for /addressbook/{address_key}/people",
+        "operationId": "addressbook_address_key_people_get",
+        "parameters": [
+          {
+            "description": "Filter by city name",
+            "in": "query",
+            "name": "city",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "A list of people's names living there",
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      },
+      "head": {
+        "description": "head operation for /addressbook/{address_key}/people",
+        "operationId": "addressbook_address_key_people_head",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Default HEAD response"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      },
+      "put": {
+        "description": "put operation for /addressbook/{address_key}/people",
+        "operationId": "addressbook_address_key_people_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "A list of people's names living there",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            }
+          },
+          "description": "The request body for /addressbook/{address_key}/people",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "A list of people's names living there",
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      }
+    },
+    "/addressbook/{address_key}/person": {
+      "delete": {
+        "description": "delete operation for /addressbook/{address_key}/person",
+        "operationId": "addressbook_address_key_person_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Limit the number of responses back",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "The offset to start returning resources",
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/person"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      },
+      "get": {
+        "description": "get operation for /addressbook/{address_key}/person",
+        "operationId": "addressbook_address_key_person_get",
+        "parameters": [
+          {
+            "description": "Filter by last name",
+            "in": "query",
+            "name": "last_name",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Limit the number of responses back",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "The offset to start returning resources",
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/person"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      },
+      "head": {
+        "description": "head operation for /addressbook/{address_key}/person",
+        "operationId": "addressbook_address_key_person_head",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Limit the number of responses back",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "The offset to start returning resources",
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Default HEAD response"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      },
+      "patch": {
+        "description": "patch operation for /addressbook/{address_key}/person",
+        "operationId": "addressbook_address_key_person_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Limit the number of responses back",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "The offset to start returning resources",
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/person"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      },
+      "post": {
+        "description": "post operation for /addressbook/{address_key}/person",
+        "operationId": "addressbook_address_key_person_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Limit the number of responses back",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "The offset to start returning resources",
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePerson"
+              }
+            }
+          },
+          "description": "The request body for /addressbook/{address_key}/person",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatePerson"
+                }
+              }
+            },
+            "description": "Response for CREATED"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      }
+    },
+    "/addressbook/{address_key}/state": {
+      "delete": {
+        "description": "delete operation for /addressbook/{address_key}/state",
+        "operationId": "addressbook_address_key_state_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "The state of this address",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      },
+      "get": {
+        "description": "get operation for /addressbook/{address_key}/state",
+        "operationId": "addressbook_address_key_state_get",
+        "parameters": [
+          {
+            "description": "Filter by city name",
+            "in": "query",
+            "name": "city",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "The state of this address",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      },
+      "head": {
+        "description": "head operation for /addressbook/{address_key}/state",
+        "operationId": "addressbook_address_key_state_head",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Default HEAD response"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      },
+      "put": {
+        "description": "put operation for /addressbook/{address_key}/state",
+        "operationId": "addressbook_address_key_state_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "The state of this address",
+                "type": "string"
+              }
+            }
+          },
+          "description": "The request body for /addressbook/{address_key}/state",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "The state of this address",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      }
+    },
+    "/addressbook/{address_key}/street": {
+      "delete": {
+        "description": "delete operation for /addressbook/{address_key}/street",
+        "operationId": "addressbook_address_key_street_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "The street and civic number of this address",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      },
+      "get": {
+        "description": "get operation for /addressbook/{address_key}/street",
+        "operationId": "addressbook_address_key_street_get",
+        "parameters": [
+          {
+            "description": "Filter by city name",
+            "in": "query",
+            "name": "city",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "The street and civic number of this address",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      },
+      "head": {
+        "description": "head operation for /addressbook/{address_key}/street",
+        "operationId": "addressbook_address_key_street_head",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Default HEAD response"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      },
+      "put": {
+        "description": "put operation for /addressbook/{address_key}/street",
+        "operationId": "addressbook_address_key_street_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "address_key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "The street and civic number of this address",
+                "type": "string"
+              }
+            }
+          },
+          "description": "The request body for /addressbook/{address_key}/street",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "The street and civic number of this address",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "addressbook"
+        ]
+      }
+    },
+    "/persons": {
+      "get": {
+        "description": "List all persons in this collection",
+        "operationId": "persons_get",
+        "parameters": [
+          {
+            "description": "Filter by last name",
+            "in": "query",
+            "name": "last_name",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Limit the number of responses back",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "The offset to start returning resources",
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/person"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "persons"
+        ]
+      },
+      "post": {
+        "description": "Create a new person in this collection, a new UUID key will be created",
+        "operationId": "persons_post",
+        "parameters": [
+          {
+            "description": "Limit the number of responses back",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "The offset to start returning resources",
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePerson"
+              }
+            }
+          },
+          "description": "The request body for /persons",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatePerson"
+                }
+              }
+            },
+            "description": "Response for CREATED"
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ],
+        "tags": [
+          "persons"
+        ]
+      }
+    },
+    "/persons/{uuid}": {
+      "delete": {
+        "description": "delete operation for /persons/{uuid}",
+        "operationId": "persons_uuid_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/person"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ],
+        "tags": [
+          "persons"
+        ]
+      },
+      "get": {
+        "description": "Get a specific person from this collection",
+        "operationId": "persons_uuid_get",
+        "parameters": [
+          {
+            "description": "Filter by last name",
+            "in": "query",
+            "name": "last_name",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/person"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "persons"
+        ]
+      },
+      "head": {
+        "description": "Determine the existence and size of this person",
+        "operationId": "persons_uuid_head",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Default HEAD response"
+          }
+        },
+        "tags": [
+          "persons"
+        ]
+      },
+      "put": {
+        "description": "Put a new person in this collection, with the given UUId key",
+        "operationId": "persons_uuid_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePerson"
+              }
+            }
+          },
+          "description": "The request body for /persons/{uuid}",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdatePerson"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ],
+        "tags": [
+          "persons"
+        ]
+      }
+    },
+    "/postal_codes": {
+      "get": {
+        "description": "List all postal codes in this collection",
+        "operationId": "postal_codes_get",
+        "parameters": [
+          {
+            "description": "Filter by name",
+            "in": "query",
+            "name": "name",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Limit the number of responses back",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "The offset to start returning resources",
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/postal_code"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "postal_codes"
+        ]
+      },
+      "post": {
+        "description": "Create a new postal code in this collection, a new UUID key will be created",
+        "operationId": "postal_codes_post",
+        "parameters": [
+          {
+            "description": "Limit the number of responses back",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "The offset to start returning resources",
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePostal_code"
+              }
+            }
+          },
+          "description": "The request body for /postal_codes",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatePostal_code"
+                }
+              }
+            },
+            "description": "Response for CREATED"
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ],
+        "tags": [
+          "postal_codes"
+        ]
+      }
+    },
+    "/postal_codes/{uuid}": {
+      "delete": {
+        "description": "delete operation for /postal_codes/{uuid}",
+        "operationId": "postal_codes_uuid_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/postal_code"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ],
+        "tags": [
+          "postal_codes"
+        ]
+      },
+      "get": {
+        "description": "Get a specific postal code from this collection",
+        "operationId": "postal_codes_uuid_get",
+        "parameters": [
+          {
+            "description": "Filter by name",
+            "in": "query",
+            "name": "name",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/postal_code"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "postal_codes"
+        ]
+      },
+      "head": {
+        "description": "Determine the existence and size of this postal code",
+        "operationId": "postal_codes_uuid_head",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Default HEAD response"
+          }
+        },
+        "tags": [
+          "postal_codes"
+        ]
+      }
+    },
+    "/postal_codes/{uuid}/name": {
+      "delete": {
+        "description": "delete operation for /postal_codes/{uuid}/name",
+        "operationId": "postal_codes_uuid_name_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "The postal code's name/id",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ],
+        "tags": [
+          "postal_codes"
+        ]
+      },
+      "get": {
+        "description": "get operation for /postal_codes/{uuid}/name",
+        "operationId": "postal_codes_uuid_name_get",
+        "parameters": [
+          {
+            "description": "Filter by name",
+            "in": "query",
+            "name": "name",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "The postal code's name/id",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Response for OK"
+          }
+        },
+        "tags": [
+          "postal_codes"
+        ]
+      }
+    }
+  }
+}

@@ -155,12 +155,14 @@ def init():
     @click.pass_obj
     @firestone_utils.click_coro
     @api_exc
-    async def {{ op["id"] }}(ctx_obj{% for attr in op["attrs"]|sort(attribute='name') -%}{{ ", " + attr["name"].replace("-", "_") }}{% endfor -%}):
+    async def {{ op["id"] }}(ctx_obj{% set seen_param_names = [] -%}{% for attr in op["attrs"]|sort(attribute='name') -%}{% if attr["name"] not in seen_param_names -%}{% set _ = seen_param_names.append(attr["name"]) -%}{{ ", " + attr["name"].replace("-", "_") }}{% endif -%}{% endfor -%}):
         """{{ op["description"] }}"""
         api_obj = ctx_obj["api_obj"]
+        {% set seen_param_names_body = [] -%}
         params = {
             {% for attr in op["attrs"]|sort(attribute='name') -%}
-            {% if not attr.get("argument") -%}
+            {% if not attr.get("argument") and attr["name"] not in seen_param_names_body -%}
+            {% set _ = seen_param_names_body.append(attr["name"]) -%}
             "{{ attr["name"] }}":  {{ attr["name"].replace("-", "_") }},
             {% endif -%}
             {% endfor %}

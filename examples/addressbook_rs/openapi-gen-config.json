@@ -1,0 +1,9 @@
+{
+    "packageName": "addressbook_rs",
+    "packageVersion": "1.0.0",
+    "sortParamsByRequiredFlag": true,
+    "prependFormOrBodyParameters": true,
+    "useSingleRequestParameter": false,
+    "library": "reqwest"
+}
+
