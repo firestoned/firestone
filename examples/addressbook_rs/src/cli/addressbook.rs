@@ -7,8 +7,8 @@ use crate::apis::configuration::Configuration;
 
 #[derive(clap::ValueEnum, Clone, Debug)]
 enum AddrtypeEnum {
-WORK,
-HOME,
+    WORK,
+    HOME,
 }
 // Context for API client - similar to Python's ctx_obj
 pub struct ApiContext {
@@ -27,11 +27,11 @@ pub enum AddressbookCommands {
     Get(GetArgs),
     /// Update an existing address in this addressbook, with the given address key.
     Update(UpdateArgs),
-    }
+}
 
 #[derive(Parser, Debug)]
 pub struct CreateArgs {
-/// A unique identifier for an addressbook entry.
+    /// A unique identifier for an addressbook entry.
     #[arg(long)]
     pub address_key: Option<String>,
     /// The address type, e.g. work or home
@@ -58,11 +58,11 @@ pub struct CreateArgs {
     /// The street and civic number of this address
     #[arg(long)]
     pub street: String,
-    }
+}
 
 #[derive(Parser, Debug)]
 pub struct ListArgs {
-/// Filter by city name
+    /// Filter by city name
     #[arg(long)]
     pub city: Option<String>,
     /// Limit the number of responses back
@@ -71,26 +71,26 @@ pub struct ListArgs {
     /// The offset to start returning resources
     #[arg(long)]
     pub offset: Option<i64>,
-    }
+}
 
 #[derive(Parser, Debug)]
 pub struct DeleteArgs {
-/// 
+    ///
     pub address_key: String,
-    }
+}
 
 #[derive(Parser, Debug)]
 pub struct GetArgs {
-/// 
+    ///
     pub address_key: String,
     /// Filter by city name
     #[arg(long)]
     pub city: Option<String>,
-    }
+}
 
 #[derive(Parser, Debug)]
 pub struct UpdateArgs {
-/// A unique identifier for an addressbook entry.
+    /// A unique identifier for an addressbook entry.
     pub address_key: String,
     /// The address type, e.g. work or home
     #[arg(long, value_enum)]
@@ -116,29 +116,19 @@ pub struct UpdateArgs {
     /// The street and civic number of this address
     #[arg(long)]
     pub street: Option<String>,
-    }
+}
 
 pub async fn handle_addressbook_command(
     ctx: &ApiContext,
     cmd: &AddressbookCommands,
 ) -> Result<(), Box<dyn std::error::Error>> {
     match cmd {
-AddressbookCommands::Create(args) => {
-            handle_addressbook_post(ctx, args).await
-        },
-AddressbookCommands::List(args) => {
-            handle_addressbook_get(ctx, args).await
-        },
-AddressbookCommands::Delete(args) => {
-            handle_addressbook_address_key_delete(ctx, args).await
-        },
-AddressbookCommands::Get(args) => {
-            handle_addressbook_address_key_get(ctx, args).await
-        },
-AddressbookCommands::Update(args) => {
-            handle_addressbook_address_key_put(ctx, args).await
-        },
-}
+        AddressbookCommands::Create(args) => handle_addressbook_post(ctx, args).await,
+        AddressbookCommands::List(args) => handle_addressbook_get(ctx, args).await,
+        AddressbookCommands::Delete(args) => handle_addressbook_address_key_delete(ctx, args).await,
+        AddressbookCommands::Get(args) => handle_addressbook_address_key_get(ctx, args).await,
+        AddressbookCommands::Update(args) => handle_addressbook_address_key_put(ctx, args).await,
+    }
 }
 
 async fn handle_addressbook_post(
@@ -147,24 +137,33 @@ async fn handle_addressbook_post(
 ) -> Result<(), Box<dyn std::error::Error>> {
     // Build request body for create operation
     let req_body = crate::models::CreateAddressbook {
-        address_key: args.address_key.as_ref().map(|s| Some(serde_json::Value::String(s.clone()))),
+        address_key: args
+            .address_key
+            .as_ref()
+            .map(|s| Some(serde_json::Value::String(s.clone()))),
         addrtype: match args.addrtype {
             AddrtypeEnum::WORK => crate::models::create_addressbook::Addrtype::Work,
             AddrtypeEnum::HOME => crate::models::create_addressbook::Addrtype::Home,
-            },
+        },
         city: args.city.clone(),
         country: args.country.clone(),
         is_valid: args.is_valid,
         people: args.people.clone(),
-        person: args.person.as_ref().and_then(|s| serde_json::from_str::<crate::models::Person>(s).ok()).map(|p| Box::new(p)),
+        person: args
+            .person
+            .as_ref()
+            .and_then(|s| serde_json::from_str::<crate::models::Person>(s).ok())
+            .map(|p| Box::new(p)),
         state: args.state.clone(),
         street: args.street.clone(),
-        };
-    
+    };
+
     // Extract query parameters (limit, offset) if present
     let limit = None::<i32>;
     let offset = None::<i32>;
-    let resp = crate::apis::addressbook_api::addressbook_post(&ctx.api_client, req_body, limit, offset).await?;
+    let resp =
+        crate::apis::addressbook_api::addressbook_post(&ctx.api_client, req_body, limit, offset)
+            .await?;
     Ok(())
 }
 
@@ -174,9 +173,15 @@ async fn handle_addressbook_get(
 ) -> Result<(), Box<dyn std::error::Error>> {
     // Build query parameters - openapi-generator functions take individual Option parameters
     let city_param = args.city.as_ref().map(|s| s.as_str());
-    let limit_param = None::<i32>;
-    let offset_param = None::<i32>;
-    let resp = crate::apis::addressbook_api::addressbook_get(&ctx.api_client, city_param, limit_param, offset_param).await?;
+    let limit_param = args.limit.map(|v| v as i32);
+    let offset_param = args.offset.map(|v| v as i32);
+    let resp = crate::apis::addressbook_api::addressbook_get(
+        &ctx.api_client,
+        city_param,
+        limit_param,
+        offset_param,
+    )
+    .await?;
     // Output response as JSON
     let json_output = serde_json::to_string_pretty(&resp)?;
     println!("{}", json_output);
@@ -188,20 +193,26 @@ async fn handle_addressbook_address_key_delete(
     args: &DeleteArgs,
 ) -> Result<(), Box<dyn std::error::Error>> {
     // Build query parameters for instance operations
-    let city_param = None::<&str>;
     // DELETE operations may return empty responses (204 No Content)
     // Handle gracefully without panicking on content type mismatches
-    let resp_result = crate::apis::addressbook_api::addressbook_address_key_delete(&ctx.api_client, &args.address_key).await;
+    let resp_result = crate::apis::addressbook_api::addressbook_address_key_delete(
+        &ctx.api_client,
+        &args.address_key,
+    )
+    .await;
     match resp_result {
         Ok(data) => {
             // If we got JSON data, serialize and print it
             let json_output = serde_json::to_string_pretty(&data)?;
             println!("{}", json_output);
-        },
+        }
         Err(crate::apis::Error::Serde(e)) => {
             // Check if this is a content type mismatch (empty response)
             let error_msg = e.to_string();
-            if error_msg.contains("content type") || error_msg.contains("application/octet-stream") || error_msg.contains("cannot be converted") {
+            if error_msg.contains("content type")
+                || error_msg.contains("application/octet-stream")
+                || error_msg.contains("cannot be converted")
+            {
                 // Empty response is OK for DELETE - operation succeeded
                 // Output success JSON
                 println!("{}", r#"{"status": "deleted"}"#);
@@ -209,7 +220,7 @@ async fn handle_addressbook_address_key_delete(
                 // Real serialization error, propagate it
                 return Err(Box::new(e));
             }
-        },
+        }
         Err(e) => {
             // Other errors (network, HTTP errors, etc.) - propagate
             return Err(Box::new(e));
@@ -224,7 +235,12 @@ async fn handle_addressbook_address_key_get(
 ) -> Result<(), Box<dyn std::error::Error>> {
     // Build query parameters for instance operations
     let city_param = args.city.as_ref().map(|s| s.as_str());
-    let resp = crate::apis::addressbook_api::addressbook_address_key_get(&ctx.api_client, &args.address_key, city_param).await?;
+    let resp = crate::apis::addressbook_api::addressbook_address_key_get(
+        &ctx.api_client,
+        &args.address_key,
+        city_param,
+    )
+    .await?;
     // Output response as JSON
     let json_output = serde_json::to_string_pretty(&resp)?;
     println!("{}", json_output);
@@ -241,17 +257,25 @@ async fn handle_addressbook_address_key_put(
         addrtype: args.addrtype.as_ref().map(|e| match e {
             AddrtypeEnum::WORK => crate::models::update_addressbook::Addrtype::Work,
             AddrtypeEnum::HOME => crate::models::update_addressbook::Addrtype::Home,
-            }),
+        }),
         city: args.city.clone(),
         country: args.country.clone(),
         is_valid: args.is_valid,
         people: args.people.clone(),
-        person: args.person.as_ref().and_then(|s| serde_json::from_str::<crate::models::Person>(s).ok()).map(|p| Box::new(p)),
+        person: args
+            .person
+            .as_ref()
+            .and_then(|s| serde_json::from_str::<crate::models::Person>(s).ok())
+            .map(|p| Box::new(p)),
         state: args.state.clone(),
         street: args.street.clone(),
-        };
-    
-    let resp = crate::apis::addressbook_api::addressbook_address_key_put(&ctx.api_client, req_body, &args.address_key).await?;
+    };
+
+    let resp = crate::apis::addressbook_api::addressbook_address_key_put(
+        &ctx.api_client,
+        req_body,
+        &args.address_key,
+    )
+    .await?;
     Ok(())
 }
-

@@ -1,7 +1,11 @@
 pub mod addressbook;
 pub use self::addressbook::Addressbook;
+pub mod contact;
+pub use self::contact::Contact;
 pub mod create_addressbook;
 pub use self::create_addressbook::CreateAddressbook;
+pub mod create_contact;
+pub use self::create_contact::CreateContact;
 pub mod create_person;
 pub use self::create_person::CreatePerson;
 pub mod create_postal_code;

@@ -20,21 +20,21 @@ pub enum PostalCodesCommands {
     Delete(DeleteArgs),
     /// Get a specific postal code from this collection
     Get(GetArgs),
-    }
+}
 
 #[derive(Parser, Debug)]
 pub struct CreateArgs {
-/// The postal code's name/id
+    /// The postal code's name/id
     #[arg(long)]
     pub name: Option<String>,
     /// A UUID associated to this postal code
     #[arg(long)]
     pub uuid: Option<String>,
-    }
+}
 
 #[derive(Parser, Debug)]
 pub struct ListArgs {
-/// Limit the number of responses back
+    /// Limit the number of responses back
     #[arg(long)]
     pub limit: Option<i64>,
     /// Filter by name
@@ -43,41 +43,33 @@ pub struct ListArgs {
     /// The offset to start returning resources
     #[arg(long)]
     pub offset: Option<i64>,
-    }
+}
 
 #[derive(Parser, Debug)]
 pub struct DeleteArgs {
-/// 
+    ///
     pub uuid: String,
-    }
+}
 
 #[derive(Parser, Debug)]
 pub struct GetArgs {
-/// Filter by name
+    /// Filter by name
     #[arg(long)]
     pub name: Option<String>,
-    /// 
+    ///
     pub uuid: String,
-    }
+}
 
 pub async fn handle_postal_codes_command(
     ctx: &ApiContext,
     cmd: &PostalCodesCommands,
 ) -> Result<(), Box<dyn std::error::Error>> {
     match cmd {
-PostalCodesCommands::Create(args) => {
-            handle_postal_codes_post(ctx, args).await
-        },
-PostalCodesCommands::List(args) => {
-            handle_postal_codes_get(ctx, args).await
-        },
-PostalCodesCommands::Delete(args) => {
-            handle_postal_codes_uuid_delete(ctx, args).await
-        },
-PostalCodesCommands::Get(args) => {
-            handle_postal_codes_uuid_get(ctx, args).await
-        },
-}
+        PostalCodesCommands::Create(args) => handle_postal_codes_post(ctx, args).await,
+        PostalCodesCommands::List(args) => handle_postal_codes_get(ctx, args).await,
+        PostalCodesCommands::Delete(args) => handle_postal_codes_uuid_delete(ctx, args).await,
+        PostalCodesCommands::Get(args) => handle_postal_codes_uuid_get(ctx, args).await,
+    }
 }
 
 async fn handle_postal_codes_post(
@@ -87,13 +79,18 @@ async fn handle_postal_codes_post(
     // Build request body for create operation
     let req_body = crate::models::CreatePostalCode {
         name: args.name.clone(),
-        uuid: args.uuid.as_ref().map(|s| Some(serde_json::Value::String(s.clone()))),
-        };
-    
+        uuid: args
+            .uuid
+            .as_ref()
+            .map(|s| Some(serde_json::Value::String(s.clone()))),
+    };
+
     // Extract query parameters (limit, offset) if present
     let limit = None::<i32>;
     let offset = None::<i32>;
-    let resp = crate::apis::postal_codes_api::postal_codes_post(&ctx.api_client, req_body, limit, offset).await?;
+    let resp =
+        crate::apis::postal_codes_api::postal_codes_post(&ctx.api_client, req_body, limit, offset)
+            .await?;
     Ok(())
 }
 
@@ -103,9 +100,15 @@ async fn handle_postal_codes_get(
 ) -> Result<(), Box<dyn std::error::Error>> {
     // Build query parameters - openapi-generator functions take individual Option parameters
     let name_param = args.name.as_ref().map(|s| s.as_str());
-    let limit_param = None::<i32>;
-    let offset_param = None::<i32>;
-    let resp = crate::apis::postal_codes_api::postal_codes_get(&ctx.api_client, name_param, limit_param, offset_param).await?;
+    let limit_param = args.limit.map(|v| v as i32);
+    let offset_param = args.offset.map(|v| v as i32);
+    let resp = crate::apis::postal_codes_api::postal_codes_get(
+        &ctx.api_client,
+        name_param,
+        limit_param,
+        offset_param,
+    )
+    .await?;
     // Output response as JSON
     let json_output = serde_json::to_string_pretty(&resp)?;
     println!("{}", json_output);
@@ -117,20 +120,23 @@ async fn handle_postal_codes_uuid_delete(
     args: &DeleteArgs,
 ) -> Result<(), Box<dyn std::error::Error>> {
     // Build query parameters for instance operations
-    let city_param = None::<&str>;
     // DELETE operations may return empty responses (204 No Content)
     // Handle gracefully without panicking on content type mismatches
-    let resp_result = crate::apis::postal_codes_api::postal_codes_uuid_delete(&ctx.api_client, &args.uuid).await;
+    let resp_result =
+        crate::apis::postal_codes_api::postal_codes_uuid_delete(&ctx.api_client, &args.uuid).await;
     match resp_result {
         Ok(data) => {
             // If we got JSON data, serialize and print it
             let json_output = serde_json::to_string_pretty(&data)?;
             println!("{}", json_output);
-        },
+        }
         Err(crate::apis::Error::Serde(e)) => {
             // Check if this is a content type mismatch (empty response)
             let error_msg = e.to_string();
-            if error_msg.contains("content type") || error_msg.contains("application/octet-stream") || error_msg.contains("cannot be converted") {
+            if error_msg.contains("content type")
+                || error_msg.contains("application/octet-stream")
+                || error_msg.contains("cannot be converted")
+            {
                 // Empty response is OK for DELETE - operation succeeded
                 // Output success JSON
                 println!("{}", r#"{"status": "deleted"}"#);
@@ -138,7 +144,7 @@ async fn handle_postal_codes_uuid_delete(
                 // Real serialization error, propagate it
                 return Err(Box::new(e));
             }
-        },
+        }
         Err(e) => {
             // Other errors (network, HTTP errors, etc.) - propagate
             return Err(Box::new(e));
@@ -153,10 +159,14 @@ async fn handle_postal_codes_uuid_get(
 ) -> Result<(), Box<dyn std::error::Error>> {
     // Build query parameters for instance operations
     let name_param = args.name.as_ref().map(|s| s.as_str());
-    let resp = crate::apis::postal_codes_api::postal_codes_uuid_get(&ctx.api_client, &args.uuid, name_param).await?;
+    let resp = crate::apis::postal_codes_api::postal_codes_uuid_get(
+        &ctx.api_client,
+        &args.uuid,
+        name_param,
+    )
+    .await?;
     // Output response as JSON
     let json_output = serde_json::to_string_pretty(&resp)?;
     println!("{}", json_output);
     Ok(())
 }
-

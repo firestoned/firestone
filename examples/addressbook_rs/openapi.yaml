@@ -1,6 +1,6 @@
-openapi: "3.1.0"
+openapi: "3.0.0"
 info:
-  title: Example person and addressbook API
+  title: Addressbook API
   description: Example person and addressbook API
   version: "1.0"
 # https://www.jvt.me/posts/2022/05/29/openapi-json-patch/
@@ -15,6 +15,15 @@ components:
         - city
         - state
         - country
+        type: object
+    CreateContact:
+      allOf:
+      - $ref: '#/components/schemas/contact'
+      - required:
+        - contact_id
+        - name
+        - priority
+        - categories
         type: object
     CreatePerson:
       allOf:
@@ -66,6 +75,57 @@ components:
           type: string
         street:
           description: The street and civic number of this address
+          type: string
+      type: object
+    contact:
+      properties:
+        categories:
+          description: Contact categories (array of enums)
+          items:
+            enum:
+            - family
+            - friend
+            - colleague
+            - vendor
+            type: string
+          type: array
+        contact_id:
+          description: The unique ID for this contact
+          expose: false
+          schema:
+            type: string
+        email:
+          description: Contact email address
+          type: string
+        name:
+          description: The contact's name
+          type: string
+        notes:
+          description: Optional notes (array of strings, not enums)
+          items:
+            type: string
+          type: array
+        priority:
+          description: Contact priority level (required enum)
+          enum:
+          - high
+          - medium
+          - low
+          type: string
+        status:
+          default: active
+          description: The status of the contact (optional enum with default)
+          enum:
+          - active
+          - inactive
+          - archived
+          type: string
+        type:
+          description: The contact type (optional enum, tests Rust keyword escaping)
+          enum:
+          - personal
+          - business
+          - emergency
           type: string
       type: object
     person:
@@ -941,6 +1001,92 @@ paths:
           description: Response for OK
       tags:
       - addressbook
+  /contacts:
+    get:
+      description: List all contacts in this collection
+      operationId: contacts_get
+      parameters:
+      - &id012
+        description: Limit the number of responses back
+        in: query
+        name: limit
+        schema:
+          type: integer
+      - &id013
+        description: The offset to start returning resources
+        in: query
+        name: offset
+        schema:
+          type: integer
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/contact'
+                type: array
+          description: Response for OK
+      tags:
+      - contacts
+    post:
+      description: Create a new contact in this collection
+      operationId: contacts_post
+      parameters:
+      - *id012
+      - *id013
+      requestBody:
+        content:
+          application/json:
+            schema: &id014
+              $ref: '#/components/schemas/CreateContact'
+        description: The request body for /contacts
+        required: true
+      responses:
+        201:
+          content:
+            application/json:
+              schema: *id014
+          description: Response for CREATED
+      tags:
+      - contacts
+  /contacts/{contact_id}:
+    delete:
+      description: Delete this contact from the collection
+      operationId: contacts_contact_id_delete
+      parameters:
+      - in: path
+        name: contact_id
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/contact'
+          description: Response for OK
+      tags:
+      - contacts
+    get:
+      description: Get a specific contact from this collection
+      operationId: contacts_contact_id_get
+      parameters:
+      - in: path
+        name: contact_id
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/contact'
+          description: Response for OK
+      tags:
+      - contacts
   /persons:
     get:
       description: List all persons in this collection
@@ -952,13 +1098,13 @@ paths:
         required: false
         schema:
           type: string
-      - &id012
+      - &id015
         description: Limit the number of responses back
         in: query
         name: limit
         schema:
           type: integer
-      - &id013
+      - &id016
         description: The offset to start returning resources
         in: query
         name: offset
@@ -979,12 +1125,12 @@ paths:
       description: Create a new person in this collection, a new UUID key will be created
       operationId: persons_post
       parameters:
-      - *id012
-      - *id013
+      - *id015
+      - *id016
       requestBody:
         content:
           application/json:
-            schema: &id014
+            schema: &id017
               $ref: '#/components/schemas/CreatePerson'
         description: The request body for /persons
         required: true
@@ -992,7 +1138,7 @@ paths:
         201:
           content:
             application/json:
-              schema: *id014
+              schema: *id017
           description: Response for CREATED
       security:
       - bearer_auth: []
@@ -1095,13 +1241,13 @@ paths:
         required: false
         schema:
           type: string
-      - &id015
+      - &id018
         description: Limit the number of responses back
         in: query
         name: limit
         schema:
           type: integer
-      - &id016
+      - &id019
         description: The offset to start returning resources
         in: query
         name: offset
@@ -1123,12 +1269,12 @@ paths:
         be created
       operationId: postal_codes_post
       parameters:
-      - *id015
-      - *id016
+      - *id018
+      - *id019
       requestBody:
         content:
           application/json:
-            schema: &id017
+            schema: &id020
               $ref: '#/components/schemas/CreatePostal_code'
         description: The request body for /postal_codes
         required: true
@@ -1136,7 +1282,7 @@ paths:
         201:
           content:
             application/json:
-              schema: *id017
+              schema: *id020
           description: Response for CREATED
       security:
       - bearer_auth: []
@@ -1215,7 +1361,7 @@ paths:
         200:
           content:
             application/json:
-              schema: &id018
+              schema: &id021
                 description: The postal code's name/id
                 type: string
           description: Response for OK
@@ -1242,7 +1388,7 @@ paths:
         200:
           content:
             application/json:
-              schema: *id018
+              schema: *id021
           description: Response for OK
       tags:
       - postal_codes
