@@ -148,11 +148,32 @@ async fn handle_{{ op["id"] }}(
         {% for attr in op["attrs"]|sort(attribute='name') -%}
         {% if attr["name"] != "limit" and attr["name"] != "offset" -%}
         {{ attr["rust_name"] }}: {% if attr.get("body_conversion") == "ENUM_MATCH" -%}
+        {% if attr.get("required") -%}
         match args.{{ attr["rust_name"] }} {
             {% for mapping in attr.get("enum_variant_mappings", []) -%}
             {{ attr["type"] }}::{{ mapping["cli_variant"] }} => {{ attr.get("enum_model_type") }}::{{ mapping["model_variant"] }},
             {% endfor -%}
-        }{% elif attr.get("body_conversion") and attr.get("body_conversion") != "None" -%}{{ attr["body_conversion"] }}{% else -%}args.{{ attr["rust_name"] }}.clone(){% endif -%},
+        }
+        {%- elif attr.get("default") -%}
+        Some(match args.{{ attr["rust_name"] }} {
+            {% for mapping in attr.get("enum_variant_mappings", []) -%}
+            {{ attr["type"] }}::{{ mapping["cli_variant"] }} => {{ attr.get("enum_model_type") }}::{{ mapping["model_variant"] }},
+            {% endfor -%}
+        })
+        {%- else -%}
+        args.{{ attr["rust_name"] }}.as_ref().map(|e| match e {
+            {% for mapping in attr.get("enum_variant_mappings", []) -%}
+            {{ attr["type"] }}::{{ mapping["cli_variant"] }} => {{ attr.get("enum_model_type") }}::{{ mapping["model_variant"] }},
+            {% endfor -%}
+        })
+        {%- endif -%}
+{% elif attr.get("body_conversion") == "ENUM_ARRAY_MATCH" -%}
+        args.{{ attr["rust_name"] }}.iter().map(|s| match s.to_lowercase().as_str() {
+            {% for mapping in attr.get("enum_variant_mappings", []) -%}
+            "{{ mapping["cli_variant"]|lower }}" => {{ attr.get("enum_item_type") }}::{{ mapping["model_variant"] }},
+            {% endfor -%}
+            _ => panic!("Invalid enum value for {{ attr["name"] }}: {}", s),
+        }).collect(){% elif attr.get("body_conversion") and attr.get("body_conversion") != "None" -%}{{ attr["body_conversion"] }}{% else -%}args.{{ attr["rust_name"] }}.clone(){% endif -%},
         {% endif -%}
         {% endfor -%}
     };
@@ -171,49 +192,27 @@ async fn handle_{{ op["id"] }}(
     let resp = crate::apis::{{ rsrc["name"] }}_api::{{ op["id"] }}(&ctx.api_client, req_body, limit, offset).await?;
     {% else -%}
     // Build query parameters - openapi-generator functions take individual Option parameters
-    {% set query_params = [] -%}
-    {% for attr in op["attrs"]|sort(attribute='name') -%}
-    {% if attr["name"] != "limit" and attr["name"] != "offset" -%}
-    {% set _ = query_params.append(attr) -%}
+    {% for qp in op.get("query_params", []) -%}
+    {% if qp["type"] == "String" -%}
+    {% if qp["required"] -%}
+    let {{ qp["rust_name"] }}_param = Some(args.{{ qp["rust_name"] }}.as_str());
+    {% else -%}
+    let {{ qp["rust_name"] }}_param = args.{{ qp["rust_name"] }}.as_ref().map(|s| s.as_str());
+    {% endif -%}
+    {% elif qp["type"] == "i64" -%}
+    {% if qp["required"] -%}
+    let {{ qp["rust_name"] }}_param = args.{{ qp["rust_name"] }} as i32;
+    {% else -%}
+    let {{ qp["rust_name"] }}_param = args.{{ qp["rust_name"] }}.map(|v| v as i32);
+    {% endif -%}
+    {% else -%}
+    let {{ qp["rust_name"] }}_param = args.{{ qp["rust_name"] }};
     {% endif -%}
     {% endfor -%}
-    {% set limit_attr = None -%}
-    {% set offset_attr = None -%}
-    {% for attr in op["attrs"]|sort(attribute='name') -%}
-    {% if attr["name"] == "limit" -%}
-    {% set limit_attr = attr -%}
-    {% elif attr["name"] == "offset" -%}
-    {% set offset_attr = attr -%}
-    {% endif -%}
-    {% endfor -%}
-    {% if query_params|length > 0 -%}
-    {% set first_param = query_params[0] -%}
-    {% if not first_param["required"] and first_param.get("default") is none -%}
-    let {{ first_param["rust_name"] }}_param = args.{{ first_param["rust_name"] }}.as_ref().map(|s| s.as_str());
-    {% else -%}
-    let {{ first_param["rust_name"] }}_param = Some(args.{{ first_param["rust_name"] }}.as_str());
-    {% endif -%}
-    {% else -%}
-    let city_param = None::<&str>;
-    {% endif -%}
-    {% if limit_attr -%}
-    let limit_param = args.{{ limit_attr["rust_name"] }}.map(|v| v as i32);
-    {% else -%}
-    let limit_param = None::<i32>;
-    {% endif -%}
-    {% if offset_attr -%}
-    let offset_param = args.{{ offset_attr["rust_name"] }}.map(|v| v as i32);
-    {% else -%}
-    let offset_param = None::<i32>;
-    {% endif -%}
     {% if op["name"] == "delete" -%}
     // DELETE operations may return empty responses (204 No Content)
     // Handle gracefully without panicking on content type mismatches
-    {% if query_params|length > 0 -%}
-    let resp_result = crate::apis::{{ rsrc["name"] }}_api::{{ op["id"] }}(&ctx.api_client, {{ query_params[0]["rust_name"] }}_param, limit_param, offset_param).await;
-    {% else -%}
-    let resp_result = crate::apis::{{ rsrc["name"] }}_api::{{ op["id"] }}(&ctx.api_client, None, limit_param, offset_param).await;
-    {% endif -%}
+    let resp_result = crate::apis::{{ rsrc["name"] }}_api::{{ op["id"] }}(&ctx.api_client{% for qp in op.get("query_params", []) %}, {{ qp["rust_name"] }}_param{% endfor %}).await;
     match resp_result {
         Ok(data) => {
             // If we got JSON data, serialize and print it
@@ -238,11 +237,7 @@ async fn handle_{{ op["id"] }}(
         }
     }
     {% else -%}
-    {% if query_params|length > 0 -%}
-    let resp = crate::apis::{{ rsrc["name"] }}_api::{{ op["id"] }}(&ctx.api_client, {{ query_params[0]["rust_name"] }}_param, limit_param, offset_param).await?;
-    {% else -%}
-    let resp = crate::apis::{{ rsrc["name"] }}_api::{{ op["id"] }}(&ctx.api_client, None, limit_param, offset_param).await?;
-    {% endif -%}
+    let resp = crate::apis::{{ rsrc["name"] }}_api::{{ op["id"] }}(&ctx.api_client{% for qp in op.get("query_params", []) %}, {{ qp["rust_name"] }}_param{% endfor %}).await?;
     // Output response as JSON
     let json_output = serde_json::to_string_pretty(&resp)?;
     println!("{}", json_output);
@@ -279,7 +274,13 @@ async fn handle_{{ op["id"] }}(
             {% for mapping in attr.get("enum_variant_mappings", []) -%}
             {{ attr["type"] }}::{{ mapping["cli_variant"] }} => {{ attr.get("enum_model_type") }}::{{ mapping["model_variant"] }},
             {% endfor -%}
-        }){% elif attr.get("body_conversion") -%}{{ attr["body_conversion"] }}{% else -%}args.{{ attr["rust_name"] }}.clone(){% endif -%},
+        }){% elif attr.get("body_conversion") == "ENUM_ARRAY_MATCH" -%}
+        args.{{ attr["rust_name"] }}.as_ref().map(|v| v.iter().map(|s| match s.to_lowercase().as_str() {
+            {% for mapping in attr.get("enum_variant_mappings", []) -%}
+            "{{ mapping["cli_variant"]|lower }}" => {{ attr.get("enum_item_type") }}::{{ mapping["model_variant"] }},
+            {% endfor -%}
+            _ => panic!("Invalid enum value for {{ attr["name"] }}: {}", s),
+        }).collect()){% elif attr.get("body_conversion") -%}{{ attr["body_conversion"] }}{% else -%}args.{{ attr["rust_name"] }}.clone(){% endif -%},
         {% set _ = seen_field_names.append(attr["name"]) -%}
         {% endif -%}
         {% endif -%}
@@ -302,46 +303,37 @@ async fn handle_{{ op["id"] }}(
     {% endif -%}
     {% else -%}
     // Build query parameters for instance operations
-    {% set query_params = [] -%}
-    {% set key_attr_names = [] -%}
-    {% for attr in op["attrs"]|sort(attribute='name') -%}
-    {% if attr.get("argument") -%}
-    {% set _ = key_attr_names.append(attr["name"]) -%}
-    {% endif -%}
-    {% endfor -%}
-    {% for attr in op["attrs"]|sort(attribute='name') -%}
-    {% if not attr.get("argument") and attr["name"] not in key_attr_names -%}
-    {% set _ = query_params.append(attr) -%}
-    {% endif -%}
-    {% endfor -%}
     {% set key_attrs = [] -%}
-    {% for attr in op["attrs"]|sort(attribute='name') -%}
+    {% for attr in op["attrs"] -%}
     {% if attr.get("argument") -%}
     {% set _ = key_attrs.append(attr) -%}
     {% endif -%}
     {% endfor -%}
-    {% if query_params|length > 0 -%}
-    {% set first_param = query_params[0] -%}
-    {% if not first_param["required"] and first_param.get("default") is none -%}
-    let {{ first_param["rust_name"] }}_param = args.{{ first_param["rust_name"] }}.as_ref().map(|s| s.as_str());
+    {% for qp in op.get("query_params", []) -%}
+    {% if qp["type"] == "String" -%}
+    {% if qp["required"] -%}
+    let {{ qp["rust_name"] }}_param = Some(args.{{ qp["rust_name"] }}.as_str());
     {% else -%}
-    let {{ first_param["rust_name"] }}_param = Some(args.{{ first_param["rust_name"] }}.as_str());
+    let {{ qp["rust_name"] }}_param = args.{{ qp["rust_name"] }}.as_ref().map(|s| s.as_str());
+    {% endif -%}
+    {% elif qp["type"] == "i64" -%}
+    {% if qp["required"] -%}
+    let {{ qp["rust_name"] }}_param = args.{{ qp["rust_name"] }} as i32;
+    {% else -%}
+    let {{ qp["rust_name"] }}_param = args.{{ qp["rust_name"] }}.map(|v| v as i32);
     {% endif -%}
     {% else -%}
-    let city_param = None::<&str>;
+    let {{ qp["rust_name"] }}_param = args.{{ qp["rust_name"] }};
     {% endif -%}
+    {% endfor -%}
     {% if op["name"] == "delete" -%}
     // DELETE operations may return empty responses (204 No Content)
     // Handle gracefully without panicking on content type mismatches
     {% if key_attrs|length == 1 -%}
-    {% if query_params|length > 0 -%}
-    let resp_result = crate::apis::{{ rsrc["name"] }}_api::{{ op["id"] }}(&ctx.api_client, &args.{{ key_attrs[0]["rust_name"] }}, {{ query_params[0]["rust_name"] }}_param).await;
-    {% else -%}
-    let resp_result = crate::apis::{{ rsrc["name"] }}_api::{{ op["id"] }}(&ctx.api_client, &args.{{ key_attrs[0]["rust_name"] }}).await;
-    {% endif -%}
+    let resp_result = crate::apis::{{ rsrc["name"] }}_api::{{ op["id"] }}(&ctx.api_client, &args.{{ key_attrs[0]["rust_name"] }}{% for qp in op.get("query_params", []) %}, {{ qp["rust_name"] }}_param{% endfor %}).await;
     {% else -%}
     // Multiple key arguments - adjust based on your API client signature
-    let resp_result = crate::apis::{{ rsrc["name"] }}_api::{{ op["id"] }}(&ctx.api_client, {% for attr in key_attrs -%}&args.{{ attr["rust_name"] }}{% if not loop.last %}, {% endif %}{% endfor -%}{% if query_params|length > 0 %}, {{ query_params[0]["rust_name"] }}_param{% endif %}).await;
+    let resp_result = crate::apis::{{ rsrc["name"] }}_api::{{ op["id"] }}(&ctx.api_client, {% for attr in key_attrs -%}&args.{{ attr["rust_name"] }}{% if not loop.last %}, {% endif %}{% endfor -%}{% for qp in op.get("query_params", []) %}, {{ qp["rust_name"] }}_param{% endfor %}).await;
     {% endif -%}
     match resp_result {
         Ok(data) => {
@@ -368,14 +360,10 @@ async fn handle_{{ op["id"] }}(
     }
     {% else -%}
     {% if key_attrs|length == 1 -%}
-    {% if query_params|length > 0 -%}
-    let resp = crate::apis::{{ rsrc["name"] }}_api::{{ op["id"] }}(&ctx.api_client, &args.{{ key_attrs[0]["rust_name"] }}, {{ query_params[0]["rust_name"] }}_param).await?;
-    {% else -%}
-    let resp = crate::apis::{{ rsrc["name"] }}_api::{{ op["id"] }}(&ctx.api_client, &args.{{ key_attrs[0]["rust_name"] }}).await?;
-    {% endif -%}
+    let resp = crate::apis::{{ rsrc["name"] }}_api::{{ op["id"] }}(&ctx.api_client, &args.{{ key_attrs[0]["rust_name"] }}{% for qp in op.get("query_params", []) %}, {{ qp["rust_name"] }}_param{% endfor %}).await?;
     {% else -%}
     // Multiple key arguments - adjust based on your API client signature
-    let resp = crate::apis::{{ rsrc["name"] }}_api::{{ op["id"] }}(&ctx.api_client, {% for attr in key_attrs -%}&args.{{ attr["rust_name"] }}{% if not loop.last %}, {% endif %}{% endfor -%}{% if query_params|length > 0 %}, {{ query_params[0]["rust_name"] }}_param{% endif %}).await?;
+    let resp = crate::apis::{{ rsrc["name"] }}_api::{{ op["id"] }}(&ctx.api_client, {% for attr in key_attrs -%}&args.{{ attr["rust_name"] }}{% if not loop.last %}, {% endif %}{% endfor -%}{% for qp in op.get("query_params", []) %}, {{ qp["rust_name"] }}_param{% endfor %}).await?;
     {% endif -%}
     // Output response as JSON
     let json_output = serde_json::to_string_pretty(&resp)?;

@@ -22,11 +22,11 @@ pub enum PersonsCommands {
     Get(GetArgs),
     /// Put a new person in this collection, with the given UUId key
     Update(UpdateArgs),
-    }
+}
 
 #[derive(Parser, Debug)]
 pub struct CreateArgs {
-/// The person's age
+    /// The person's age
     #[arg(long)]
     pub age: Option<i64>,
     /// The person's first name
@@ -41,11 +41,11 @@ pub struct CreateArgs {
     /// A UUID associated to this person
     #[arg(long)]
     pub uuid: Option<String>,
-    }
+}
 
 #[derive(Parser, Debug)]
 pub struct ListArgs {
-/// Filter by last name
+    /// Filter by last name
     #[arg(long)]
     pub last_name: Option<String>,
     /// Limit the number of responses back
@@ -54,26 +54,26 @@ pub struct ListArgs {
     /// The offset to start returning resources
     #[arg(long)]
     pub offset: Option<i64>,
-    }
+}
 
 #[derive(Parser, Debug)]
 pub struct DeleteArgs {
-/// 
+    ///
     pub uuid: String,
-    }
+}
 
 #[derive(Parser, Debug)]
 pub struct GetArgs {
-/// Filter by last name
+    /// Filter by last name
     #[arg(long)]
     pub last_name: Option<String>,
-    /// 
+    ///
     pub uuid: String,
-    }
+}
 
 #[derive(Parser, Debug)]
 pub struct UpdateArgs {
-/// The person's age
+    /// The person's age
     #[arg(long)]
     pub age: Option<i64>,
     /// The person's first name
@@ -87,29 +87,19 @@ pub struct UpdateArgs {
     pub last_name: Option<String>,
     /// A UUID associated to this person
     pub uuid: String,
-    }
+}
 
 pub async fn handle_persons_command(
     ctx: &ApiContext,
     cmd: &PersonsCommands,
 ) -> Result<(), Box<dyn std::error::Error>> {
     match cmd {
-PersonsCommands::Create(args) => {
-            handle_persons_post(ctx, args).await
-        },
-PersonsCommands::List(args) => {
-            handle_persons_get(ctx, args).await
-        },
-PersonsCommands::Delete(args) => {
-            handle_persons_uuid_delete(ctx, args).await
-        },
-PersonsCommands::Get(args) => {
-            handle_persons_uuid_get(ctx, args).await
-        },
-PersonsCommands::Update(args) => {
-            handle_persons_uuid_put(ctx, args).await
-        },
-}
+        PersonsCommands::Create(args) => handle_persons_post(ctx, args).await,
+        PersonsCommands::List(args) => handle_persons_get(ctx, args).await,
+        PersonsCommands::Delete(args) => handle_persons_uuid_delete(ctx, args).await,
+        PersonsCommands::Get(args) => handle_persons_uuid_get(ctx, args).await,
+        PersonsCommands::Update(args) => handle_persons_uuid_put(ctx, args).await,
+    }
 }
 
 async fn handle_persons_post(
@@ -122,13 +112,17 @@ async fn handle_persons_post(
         first_name: args.first_name.clone(),
         hobbies: args.hobbies.clone(),
         last_name: args.last_name.clone(),
-        uuid: args.uuid.as_ref().map(|s| Some(serde_json::Value::String(s.clone()))),
-        };
-    
+        uuid: args
+            .uuid
+            .as_ref()
+            .map(|s| Some(serde_json::Value::String(s.clone()))),
+    };
+
     // Extract query parameters (limit, offset) if present
     let limit = None::<i32>;
     let offset = None::<i32>;
-    let resp = crate::apis::persons_api::persons_post(&ctx.api_client, req_body, limit, offset).await?;
+    let resp =
+        crate::apis::persons_api::persons_post(&ctx.api_client, req_body, limit, offset).await?;
     Ok(())
 }
 
@@ -138,9 +132,15 @@ async fn handle_persons_get(
 ) -> Result<(), Box<dyn std::error::Error>> {
     // Build query parameters - openapi-generator functions take individual Option parameters
     let last_name_param = args.last_name.as_ref().map(|s| s.as_str());
-    let limit_param = None::<i32>;
-    let offset_param = None::<i32>;
-    let resp = crate::apis::persons_api::persons_get(&ctx.api_client, last_name_param, limit_param, offset_param).await?;
+    let limit_param = args.limit.map(|v| v as i32);
+    let offset_param = args.offset.map(|v| v as i32);
+    let resp = crate::apis::persons_api::persons_get(
+        &ctx.api_client,
+        last_name_param,
+        limit_param,
+        offset_param,
+    )
+    .await?;
     // Output response as JSON
     let json_output = serde_json::to_string_pretty(&resp)?;
     println!("{}", json_output);
@@ -152,20 +152,23 @@ async fn handle_persons_uuid_delete(
     args: &DeleteArgs,
 ) -> Result<(), Box<dyn std::error::Error>> {
     // Build query parameters for instance operations
-    let city_param = None::<&str>;
     // DELETE operations may return empty responses (204 No Content)
     // Handle gracefully without panicking on content type mismatches
-    let resp_result = crate::apis::persons_api::persons_uuid_delete(&ctx.api_client, &args.uuid).await;
+    let resp_result =
+        crate::apis::persons_api::persons_uuid_delete(&ctx.api_client, &args.uuid).await;
     match resp_result {
         Ok(data) => {
             // If we got JSON data, serialize and print it
             let json_output = serde_json::to_string_pretty(&data)?;
             println!("{}", json_output);
-        },
+        }
         Err(crate::apis::Error::Serde(e)) => {
             // Check if this is a content type mismatch (empty response)
             let error_msg = e.to_string();
-            if error_msg.contains("content type") || error_msg.contains("application/octet-stream") || error_msg.contains("cannot be converted") {
+            if error_msg.contains("content type")
+                || error_msg.contains("application/octet-stream")
+                || error_msg.contains("cannot be converted")
+            {
                 // Empty response is OK for DELETE - operation succeeded
                 // Output success JSON
                 println!("{}", r#"{"status": "deleted"}"#);
@@ -173,7 +176,7 @@ async fn handle_persons_uuid_delete(
                 // Real serialization error, propagate it
                 return Err(Box::new(e));
             }
-        },
+        }
         Err(e) => {
             // Other errors (network, HTTP errors, etc.) - propagate
             return Err(Box::new(e));
@@ -188,7 +191,9 @@ async fn handle_persons_uuid_get(
 ) -> Result<(), Box<dyn std::error::Error>> {
     // Build query parameters for instance operations
     let last_name_param = args.last_name.as_ref().map(|s| s.as_str());
-    let resp = crate::apis::persons_api::persons_uuid_get(&ctx.api_client, &args.uuid, last_name_param).await?;
+    let resp =
+        crate::apis::persons_api::persons_uuid_get(&ctx.api_client, &args.uuid, last_name_param)
+            .await?;
     // Output response as JSON
     let json_output = serde_json::to_string_pretty(&resp)?;
     println!("{}", json_output);
@@ -206,9 +211,9 @@ async fn handle_persons_uuid_put(
         hobbies: args.hobbies.clone(),
         last_name: args.last_name.clone(),
         uuid: None,
-        };
-    
-    let resp = crate::apis::persons_api::persons_uuid_put(&ctx.api_client, req_body, &args.uuid).await?;
+    };
+
+    let resp =
+        crate::apis::persons_api::persons_uuid_put(&ctx.api_client, req_body, &args.uuid).await?;
     Ok(())
 }
-

@@ -20,7 +20,10 @@ use apis::configuration::Configuration;
 #[derive(Parser, Debug)]
 #[command(name = "addressbook_rs")]
 #[command(version = "1.0.0")]
-#[command(about = "Addressbook CLI and Server", long_about = "This is the CLI and server for the example Addressbook")]
+#[command(
+    about = "Addressbook CLI and Server",
+    long_about = "This is the CLI and server for the example Addressbook"
+)]
 struct Cli {
     /// Turn on debugging
     #[arg(long)]
@@ -55,6 +58,9 @@ enum Commands {
     /// Addressbook operations
     #[command(subcommand)]
     Addressbook(cli::addressbook::AddressbookCommands),
+    /// Contact operations
+    #[command(subcommand)]
+    Contacts(cli::contacts::ContactsCommands),
     /// Person operations
     #[command(subcommand)]
     Persons(cli::persons::PersonsCommands),
@@ -83,7 +89,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // Otherwise, run CLI commands
-    let api_url = cli.api_url.unwrap_or_else(|| "http://localhost:8080".to_string());
+    let api_url = cli
+        .api_url
+        .unwrap_or_else(|| "http://localhost:8080".to_string());
     let mut config = Configuration::default();
     config.base_path = api_url.clone();
     if let Some(api_key) = cli.api_key {
@@ -101,6 +109,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 api_client: config_arc.clone(),
             };
             cli::addressbook::handle_addressbook_command(&ctx, &cmd).await?;
+        }
+        Some(Commands::Contacts(cmd)) => {
+            let ctx = cli::contacts::ApiContext {
+                api_client: config_arc.clone(),
+            };
+            cli::contacts::handle_contacts_command(&ctx, &cmd).await?;
         }
         Some(Commands::Persons(cmd)) => {
             let ctx = cli::persons::ApiContext {
@@ -128,11 +142,13 @@ async fn run_server(host: &str, port: u16) -> Result<(), Box<dyn std::error::Err
     let app = server::create_router();
     let addr = format!("{}:{}", host, port);
     let listener = TcpListener::bind(&addr).await?;
-    
+
     println!("Server running on http://{}", addr);
-    println!("API documentation available at http://{}/openapi.json", addr);
-    
+    println!(
+        "API documentation available at http://{}/openapi.json",
+        addr
+    );
+
     axum::serve(listener, app).await?;
     Ok(())
 }
-

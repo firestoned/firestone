@@ -13,20 +13,22 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-use crate::models::*;
 use crate::models::addressbook::Addrtype as AddressbookAddrtype;
 use crate::models::create_addressbook::Addrtype as CreateAddrtype;
 use crate::models::update_addressbook::Addrtype as UpdateAddrtype;
+use crate::models::*;
 
 // In-memory storage (would be replaced with database in real implementation)
 type AddressbookStore = Arc<RwLock<HashMap<String, Addressbook>>>;
 type PersonStore = Arc<RwLock<HashMap<String, Person>>>;
 type PostalCodeStore = Arc<RwLock<HashMap<String, PostalCode>>>;
+type ContactStore = Arc<RwLock<HashMap<String, Contact>>>;
 
 pub fn create_router() -> Router {
     let addressbook_store: AddressbookStore = Arc::new(RwLock::new(HashMap::new()));
     let person_store: PersonStore = Arc::new(RwLock::new(HashMap::new()));
     let postal_code_store: PostalCodeStore = Arc::new(RwLock::new(HashMap::new()));
+    let contact_store: ContactStore = Arc::new(RwLock::new(HashMap::new()));
 
     Router::new()
         .route("/addressbook", post(create_addressbook))
@@ -38,9 +40,14 @@ pub fn create_router() -> Router {
         .route("/persons", get(list_persons))
         .route("/postal_codes", post(create_postal_code))
         .route("/postal_codes", get(list_postal_codes))
+        .route("/contacts", post(create_contact))
+        .route("/contacts", get(list_contacts))
+        .route("/contacts/:contact_id", get(get_contact))
+        .route("/contacts/:contact_id", delete(delete_contact))
         .with_state(addressbook_store)
         .layer(axum::Extension(person_store))
         .layer(axum::Extension(postal_code_store))
+        .layer(axum::Extension(contact_store))
 }
 
 async fn create_addressbook(
@@ -48,7 +55,8 @@ async fn create_addressbook(
     Json(payload): Json<CreateAddressbook>,
 ) -> Result<Json<Addressbook>, StatusCode> {
     // Extract address_key from Option<Option<Value>>, generate UUID if not provided
-    let address_key = payload.address_key
+    let address_key = payload
+        .address_key
         .and_then(|inner| inner)
         .and_then(|v| {
             if let serde_json::Value::String(s) = v {
@@ -58,23 +66,23 @@ async fn create_addressbook(
             }
         })
         .unwrap_or_else(|| uuid::Uuid::new_v4().to_string());
-    
+
     // Convert CreateAddressbook::Addrtype to Addressbook::Addrtype
     let addrtype = match payload.addrtype {
         CreateAddrtype::Work => AddressbookAddrtype::Work,
         CreateAddrtype::Home => AddressbookAddrtype::Home,
     };
-    
+
     let addressbook = Addressbook {
         address_key: Some(Some(serde_json::Value::String(address_key.clone()))),
         addrtype: Some(addrtype),
-        city: Some(payload.city),          // CreateAddressbook has String, Addressbook expects Option<String>
-        country: Some(payload.country),    // CreateAddressbook has String, Addressbook expects Option<String>
+        city: Some(payload.city), // CreateAddressbook has String, Addressbook expects Option<String>
+        country: Some(payload.country), // CreateAddressbook has String, Addressbook expects Option<String>
         is_valid: payload.is_valid,
         people: payload.people,
         person: payload.person,
-        state: Some(payload.state),        // CreateAddressbook has String, Addressbook expects Option<String>
-        street: Some(payload.street),      // CreateAddressbook has String, Addressbook expects Option<String>
+        state: Some(payload.state), // CreateAddressbook has String, Addressbook expects Option<String>
+        street: Some(payload.street), // CreateAddressbook has String, Addressbook expects Option<String>
     };
     store.write().await.insert(address_key, addressbook.clone());
     Ok(Json(addressbook))
@@ -86,12 +94,12 @@ async fn list_addressbooks(
 ) -> Json<Vec<Addressbook>> {
     let store = store.read().await;
     let mut results: Vec<Addressbook> = store.values().cloned().collect();
-    
+
     // Filter by city if provided (city is Option<String> in Addressbook)
     if let Some(city) = params.get("city") {
         results.retain(|a| a.city.as_ref().map(|s| s.as_str()) == Some(city.as_str()));
     }
-    
+
     Json(results)
 }
 
@@ -100,7 +108,8 @@ async fn get_addressbook(
     Path(address_key): Path<String>,
 ) -> Result<Json<Addressbook>, StatusCode> {
     let store = store.read().await;
-    store.get(&address_key)
+    store
+        .get(&address_key)
         .map(|a| Json(a.clone()))
         .ok_or(StatusCode::NOT_FOUND)
 }
@@ -112,7 +121,7 @@ async fn update_addressbook(
 ) -> Result<Json<Addressbook>, StatusCode> {
     let mut store = store.write().await;
     let addressbook = store.get_mut(&address_key).ok_or(StatusCode::NOT_FOUND)?;
-    
+
     // Convert UpdateAddressbook::Addrtype to Addressbook::Addrtype
     if let Some(addrtype) = payload.addrtype {
         addressbook.addrtype = Some(match addrtype {
@@ -141,7 +150,7 @@ async fn update_addressbook(
     if let Some(street) = payload.street {
         addressbook.street = Some(street);
     }
-    
+
     Ok(Json(addressbook.clone()))
 }
 
@@ -162,7 +171,8 @@ async fn create_person(
     Json(payload): Json<CreatePerson>,
 ) -> Result<Json<Person>, StatusCode> {
     // Extract uuid from Option<Option<Value>>, generate UUID if not provided
-    let uuid = payload.uuid
+    let uuid = payload
+        .uuid
         .and_then(|inner| inner)
         .and_then(|v| {
             if let serde_json::Value::String(s) = v {
@@ -172,7 +182,7 @@ async fn create_person(
             }
         })
         .unwrap_or_else(|| uuid::Uuid::new_v4().to_string());
-    
+
     let person = Person {
         age: payload.age,
         first_name: payload.first_name,
@@ -196,7 +206,8 @@ async fn create_postal_code(
     Json(payload): Json<CreatePostalCode>,
 ) -> Result<Json<PostalCode>, StatusCode> {
     // Extract uuid from Option<Option<Value>>, generate UUID if not provided
-    let uuid = payload.uuid
+    let uuid = payload
+        .uuid
         .and_then(|inner| inner)
         .and_then(|v| {
             if let serde_json::Value::String(s) = v {
@@ -206,10 +217,10 @@ async fn create_postal_code(
             }
         })
         .unwrap_or_else(|| uuid::Uuid::new_v4().to_string());
-    
+
     // Extract name, generate from uuid if not provided
     let name = payload.name.unwrap_or_else(|| uuid.clone());
-    
+
     let postal_code = PostalCode {
         name: Some(name.clone()),
         uuid: Some(Some(serde_json::Value::String(uuid.clone()))),
@@ -225,3 +236,94 @@ async fn list_postal_codes(
     Json(store.values().cloned().collect())
 }
 
+async fn create_contact(
+    axum::extract::Extension(store): axum::extract::Extension<ContactStore>,
+    Json(payload): Json<CreateContact>,
+) -> Result<Json<Contact>, StatusCode> {
+    use crate::models::contact::{Categories as ContactCategories, Priority as ContactPriority, Status as ContactStatus, Type as ContactType};
+    use crate::models::create_contact::{Categories as CreateCategories, Priority as CreatePriority, Status as CreateStatus, Type as CreateType};
+
+    // Extract contact_id from Option<Option<Value>>, generate UUID if not provided
+    let contact_id = payload
+        .contact_id
+        .and_then(|v| {
+            if let serde_json::Value::String(s) = v {
+                Some(s)
+            } else {
+                None
+            }
+        })
+        .unwrap_or_else(|| uuid::Uuid::new_v4().to_string());
+
+    // Convert priority enum
+    let priority = match payload.priority {
+        CreatePriority::High => ContactPriority::High,
+        CreatePriority::Medium => ContactPriority::Medium,
+        CreatePriority::Low => ContactPriority::Low,
+    };
+
+    // Convert status enum (with default)
+    let status = payload.status.map(|s| match s {
+        CreateStatus::Active => ContactStatus::Active,
+        CreateStatus::Inactive => ContactStatus::Inactive,
+        CreateStatus::Archived => ContactStatus::Archived,
+    }).unwrap_or(ContactStatus::Active); // Default is active
+
+    // Convert optional type enum
+    let r#type = payload.r#type.map(|t| match t {
+        CreateType::Personal => ContactType::Personal,
+        CreateType::Business => ContactType::Business,
+        CreateType::Emergency => ContactType::Emergency,
+    });
+
+    // Convert categories array
+    let categories = payload.categories.into_iter().map(|c| match c {
+        CreateCategories::Family => ContactCategories::Family,
+        CreateCategories::Friend => ContactCategories::Friend,
+        CreateCategories::Colleague => ContactCategories::Colleague,
+        CreateCategories::Vendor => ContactCategories::Vendor,
+    }).collect();
+
+    let contact = Contact {
+        contact_id: Some(Some(serde_json::Value::String(contact_id.clone()))),
+        name: Some(payload.name),
+        priority: Some(priority),
+        status: Some(status),
+        r#type,
+        categories: Some(categories),
+        notes: payload.notes,
+        email: payload.email,
+    };
+    store.write().await.insert(contact_id, contact.clone());
+    Ok(Json(contact))
+}
+
+async fn list_contacts(
+    axum::extract::Extension(store): axum::extract::Extension<ContactStore>,
+) -> Json<Vec<Contact>> {
+    let store = store.read().await;
+    Json(store.values().cloned().collect())
+}
+
+async fn get_contact(
+    axum::extract::Extension(store): axum::extract::Extension<ContactStore>,
+    Path(contact_id): Path<String>,
+) -> Result<Json<Contact>, StatusCode> {
+    let store = store.read().await;
+    store
+        .get(&contact_id)
+        .map(|c| Json(c.clone()))
+        .ok_or(StatusCode::NOT_FOUND)
+}
+
+async fn delete_contact(
+    axum::extract::Extension(store): axum::extract::Extension<ContactStore>,
+    Path(contact_id): Path<String>,
+) -> StatusCode {
+    let mut store = store.write().await;
+    if store.remove(&contact_id).is_some() {
+        StatusCode::NO_CONTENT
+    } else {
+        StatusCode::NOT_FOUND
+    }
+}

@@ -40,13 +40,54 @@ def _get_op_name(method: str, top_level: bool) -> str:
 
 def _to_snake_case(name: str) -> str:
     """Convert a name to snake_case."""
-    return name.replace("-", "_").replace(" ", "_")
+    snake = name.replace("-", "_").replace(" ", "_")
+    # Escape Rust keywords
+    rust_keywords = {
+        "type",
+        "match",
+        "self",
+        "Self",
+        "super",
+        "trait",
+        "impl",
+        "fn",
+        "const",
+        "static",
+        "let",
+        "mut",
+        "ref",
+        "move",
+        "as",
+        "use",
+        "pub",
+        "mod",
+        "crate",
+        "extern",
+        "where",
+        "unsafe",
+        "async",
+        "await",
+    }
+    if snake in rust_keywords:
+        return f"r#{snake}"
+    return snake
 
 
 def _to_pascal_case(name: str) -> str:
     """Convert a name to PascalCase."""
     parts = name.replace("-", "_").replace(" ", "_").split("_")
     return "".join(part.capitalize() for part in parts)
+
+
+def _enum_value_to_variant(enum_value: str) -> str:
+    """Convert an enum value to a Rust enum variant name.
+
+    Examples:
+        "work" -> "Work"
+        "admin-roles" -> "AdminRoles"
+        "read-write" -> "ReadWrite"
+    """
+    return _to_pascal_case(enum_value)
 
 
 # pylint: disable=too-many-locals,too-many-branches,too-many-statements,too-many-nested-blocks
@@ -73,7 +114,9 @@ def _enrich_attr_for_body(
     rust_name = attr["rust_name"]
     rust_type = attr["type"]
     is_enum = attr.get("is_enum", False)
+    is_enum_array = attr.get("is_enum_array", False)
     is_argument = attr.get("argument", False)
+    is_required = attr.get("required", False)
 
     # Check if this is a path parameter that also appears in the body
     is_path_param_in_body = is_argument and attr_name in key_names
@@ -86,6 +129,28 @@ def _enrich_attr_for_body(
         # Path parameters that appear in body should be set to None in update operations
         needs_none_in_update = True
         body_conversion = "None"
+    elif is_enum_array:
+        # Array of enums - needs conversion from Vec<String> to Vec<EnumType>
+        enum_variants = attr.get("enum_variants", [])
+        # The model enum type for arrays - OpenAPI generator uses the property name in PascalCase
+        # For example, "categories" becomes "Categories" not "CategoriesItem"
+        enum_item_type = f"crate::models::{op_name}_{comp_name}::{_to_pascal_case(attr_name)}"
+        attr["enum_item_type"] = enum_item_type
+
+        # Generate variant mappings for the array items
+        variant_mappings = []
+        for variant in enum_variants:
+            variant_name = variant["name"]
+            variant_value = variant["value"]
+            model_variant = _enum_value_to_variant(variant_value)
+            variant_mappings.append(
+                {
+                    "cli_variant": variant_name,
+                    "model_variant": model_variant,
+                }
+            )
+        attr["enum_variant_mappings"] = variant_mappings
+        body_conversion = "ENUM_ARRAY_MATCH"  # Special marker for template
     elif is_enum:
         # Enum conversion - generate match statement
         enum_variants = attr.get("enum_variants", [])
@@ -97,8 +162,8 @@ def _enrich_attr_for_body(
         for variant in enum_variants:
             variant_name = variant["name"]
             variant_value = variant["value"]
-            # Convert enum value to PascalCase for model enum (e.g., "work" -> "Work")
-            model_variant = variant_value.capitalize()
+            # Convert enum value to PascalCase for model enum (e.g., "admin-ro" -> "AdminRo")
+            model_variant = _enum_value_to_variant(variant_value)
             variant_mappings.append(
                 {
                     "cli_variant": variant_name,
@@ -171,16 +236,26 @@ def _enrich_attr_for_body(
         elif param_schema.get("expose") is False or attr_name in key_names:
             # Fields with expose: false or key fields need Option<Option<Value>>
             # This handles fields like address_key, uuid that use serde_with::rust::double_option
-            body_conversion = (
-                f"args.{rust_name}.as_ref().map(|s| Some(serde_json::Value::String(s.clone())))"
-            )
+            # However, if the field is required, it's a String not Option<String>
+            if is_required:
+                # Required key field: convert directly without .as_ref()
+                # It's Option<Value> in the model
+                body_conversion = f"Some(serde_json::Value::String(args.{rust_name}.clone()))"
+            else:
+                # Optional key field: use .as_ref().map()
+                body_conversion = (
+                    f"args.{rust_name}.as_ref().map(|s| Some(serde_json::Value::String(s.clone())))"
+                )
         else:
             # Regular string
             body_conversion = f"args.{rust_name}.clone()"
     elif rust_type == "i64":
         # Integer conversion - check if model expects i32
-        # For now, assume all integers need i32 conversion (can be made smarter later)
-        body_conversion = f"args.{rust_name}.map(|v| v as i32)"
+        # Required fields don't need .map(), optional fields do
+        if is_required:
+            body_conversion = f"args.{rust_name} as i32"
+        else:
+            body_conversion = f"args.{rust_name}.map(|v| v as i32)"
     elif rust_type == "bool":
         # Boolean - pass directly
         body_conversion = f"args.{rust_name}"
@@ -229,10 +304,28 @@ def params_to_attrs(params: list, required: list = None, key_names: list = None)
         if param_type in ["object", "array"]:
             _LOGGER.info(f"{param['name']} is of type '{param_type}', processing special CLI type.")
             rust_type = "String"  # JSON string for objects/arrays
-            items_type = param_schema.get("items", {}).get("type", "string")
+            items_schema = param_schema.get("items", {})
+            items_type = items_schema.get("type", "string")
             _LOGGER.debug(f"rust_type: {rust_type}")
             _LOGGER.debug(f"items_type: {items_type}")
-            if param_type == "array" and items_type != "object":
+
+            # Check if array items are enums
+            if param_type == "array" and "enum" in items_schema:
+                _LOGGER.info(
+                    f"{param['name']} is an array of enums, setting to Vec<String> for CLI"
+                )
+                rust_type = "Vec<String>"
+                # Store enum info for body conversion
+                enum_variants = []
+                for enum_val in items_schema["enum"]:
+                    variant = enum_val.upper().replace("-", "_").replace(" ", "_")
+                    enum_variants.append(
+                        {
+                            "name": variant,
+                            "value": enum_val,
+                        }
+                    )
+            elif param_type == "array" and items_type != "object":
                 _LOGGER.info(
                     f"{param['name']} has items of type '{items_type}', setting to Vec<String>"
                 )
@@ -264,6 +357,12 @@ def params_to_attrs(params: list, required: list = None, key_names: list = None)
         # Convert to snake_case for Rust
         rust_name = _to_snake_case(param_name)
 
+        # Check if this is an array of enums
+        is_enum_array = param_type == "array" and "enum" in param_schema.get("items", {})
+
+        # Get parameter location (query, path, body)
+        param_in = param.get("in", "body")  # Default to body if not specified
+
         attr = {
             "argument": param_name in key_names,
             "name": param_name,  # Keep original for API calls
@@ -272,10 +371,16 @@ def params_to_attrs(params: list, required: list = None, key_names: list = None)
             "type": rust_type,
             "required": param.get("required", required_val),
             "is_enum": "enum" in param_schema,
+            "is_enum_array": is_enum_array,
             "schema": param_schema,  # Preserve schema for enrichment
+            "in": param_in,  # Parameter location (query, path, body)
         }
         if "enum" in param_schema:
             attr["enum_values"] = param_schema["enum"]
+            attr["enum_variants"] = enum_variants
+        if is_enum_array:
+            # For enum arrays, store the enum info from items
+            attr["enum_values"] = param_schema.get("items", {}).get("enum", [])
             attr["enum_variants"] = enum_variants
         if param.get("default") is not None:
             attr["default"] = param.get("default")
@@ -621,10 +726,18 @@ def generate(
                     )
                     enriched_attrs.append(enriched_attr)
 
+                # Build query params list in the order they appear in attrs
+                # This preserves the order from the OpenAPI spec
+                query_params = []
+                for attr in enriched_attrs:
+                    if attr.get("in") == "query":
+                        query_params.append(attr)
+
                 processed_op = {
                     **op,
                     "pascal_name": op_pascal,
                     "attrs": enriched_attrs,
+                    "query_params": query_params,  # Explicit list of all query params for API calls
                 }
                 processed_ops[op_type].append(processed_op)
 
