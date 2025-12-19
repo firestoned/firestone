@@ -1,0 +1,32 @@
+{% if page.toc %}
+<aside class="toc-right">
+  <div class="toc-title">On This Page</div>
+  <nav>
+    <ul class="toc-list">
+      {% for h1 in page.toc %}
+        <li>
+          <a href="#{{ h1.id }}" class="toc-link">{{ h1.title }}</a>
+          {% if h1.children %}
+            <ul class="toc-list-nested">
+              {% for h2 in h1.children %}
+                <li>
+                  <a href="#{{ h2.id }}" class="toc-link">{{ h2.title }}</a>
+                  {% if h2.children %}
+                    <ul class="toc-list-nested">
+                      {% for h3 in h2.children %}
+                        <li>
+                          <a href="#{{ h3.id }}" class="toc-link">{{ h3.title }}</a>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </nav>
+</aside>
+{% endif %}

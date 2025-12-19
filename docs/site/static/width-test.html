@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Width Diagnostic</title>
+    <style>
+        body { font-family: monospace; padding: 20px; }
+        iframe { width: 100%; height: 400px; border: 2px solid blue; margin: 10px 0; }
+        .info { background: #f0f0f0; padding: 10px; margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <h1>Firestone Width Diagnostic</h1>
+    <p>Each iframe shows a different page. Check if the content widths look different.</p>
+    
+    <h2>1. Home Page (Overview)</h2>
+    <div class="info" id="info1">Loading...</div>
+    <iframe id="frame1" src="/"></iframe>
+    
+    <h2>2. Getting Started (Overview)</h2>
+    <div class="info" id="info2">Loading...</div>
+    <iframe id="frame2" src="/getting-started/"></iframe>
+    
+    <h2>3. Why Resource First (Regular Page)</h2>
+    <div class="info" id="info3">Loading...</div>
+    <iframe id="frame3" src="/getting-started/why-resource-first/"></iframe>
+    
+    <h2>4. Generation Outputs (Regular Page)</h2>
+    <div class="info" id="info4">Loading...</div>
+    <iframe id="frame4" src="/getting-started/outputs/"></iframe>
+    
+    <script>
+        function analyzeFrame(frameId, infoId) {
+            setTimeout(() => {
+                const frame = document.getElementById(frameId);
+                const info = document.getElementById(infoId);
+                try {
+                    const doc = frame.contentDocument || frame.contentWindow.document;
+                    const mainContent = doc.querySelector('.main-content');
+                    const wrapper = doc.querySelector('.content-wrapper');
+                    
+                    if (mainContent && wrapper) {
+                        const style = frame.contentWindow.getComputedStyle(mainContent);
+                        const wrapperClasses = wrapper.className;
+                        
+                        info.innerHTML = `
+                            Wrapper classes: "${wrapperClasses}"<br>
+                            max-width: ${style.maxWidth}<br>
+                            width: ${style.width}<br>
+                            actual width: ${mainContent.offsetWidth}px<br>
+                            padding: ${style.paddingLeft} / ${style.paddingRight}
+                        `;
+                    } else {
+                        info.textContent = 'Could not find .main-content or .content-wrapper';
+                    }
+                } catch (e) {
+                    info.textContent = 'Error: ' + e.message;
+                }
+            }, 1500);
+        }
+        
+        window.onload = () => {
+            analyzeFrame('frame1', 'info1');
+            analyzeFrame('frame2', 'info2');
+            analyzeFrame('frame3', 'info3');
+            analyzeFrame('frame4', 'info4');
+        };
+    </script>
+</body>
+</html>

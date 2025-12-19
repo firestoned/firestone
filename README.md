@@ -64,9 +64,8 @@ firestone \
     generate \
     --title 'Addressbook resource' \
     --description 'A simple addressBook example' \
-    --resources examples/addressBook/resource.yaml \
+    --resources examples/addressbook/addressbook.yaml \
     openapi
-    --security '{"name": "bearer_auth", "scheme": "bearer", "type": "http", "bearerFormat": "JWT"}' \
 ```
 
 Let's quickly dissect this command:
@@ -79,9 +78,8 @@ You can also add the command line `--ui-server` to the end, which will launch a 
 ```zsh
 firestone --debug generate --title 'Example person and addressBook API' \
     --description 'An example API with more than one resource' \
-    --resources examples/addressBook.yaml,examples/person.yaml \
+    --resources examples/addressbook/addressbook.yaml,examples/addressbook/person.yaml \
     openapi \
-    --security '{"name": "bearer_auth", "scheme": "bearer", "type": "http", "bearerFormat": "JWT"}' \
     --ui-server
 # ...
 * Serving Quart app 'firestone.__main__'

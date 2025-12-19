@@ -1,0 +1,65 @@
+<aside class="sidebar-left">
+  <nav class="sidebar-nav">
+    <!-- Home Link -->
+    <a href="{{ get_url(path='@/_index.md') }}" class="sidebar-link {% if current_path == '/' %}active{% endif %}">
+      🏠 Home
+    </a>
+
+    <!-- Iterate through sections -->
+    {% set root = get_section(path="_index.md") %}
+    {% for subsection_path in root.subsections %}
+      {% set subsection = get_section(path=subsection_path) %}
+
+      {% set is_single_item_section = (subsection.pages | length == 0 and subsection.subsections | length == 0) %}
+
+      {% if is_single_item_section %}
+        <a href="{{ subsection.permalink }}" class="sidebar-link {% if current_path == subsection.path %}active{% endif %}">
+          <span class="section-title">{{ subsection.title }}</span>
+        </a>
+      {% else %}
+        <div class="sidebar-section">
+          <div class="section-header" onclick="toggleSection('{{ subsection.title | slugify }}')">
+            <span class="section-icon">▼</span>
+            <span class="section-title">{{ subsection.title }}</span>
+          </div>
+
+          <div id="{{ subsection.title | slugify }}" class="section-content">
+            <!-- Section landing page -->
+            {% if subsection.path != "_index.md" %}
+            <a href="{{ subsection.permalink }}" class="subsection-link {% if current_path == subsection.path %}active{% endif %}">
+              Overview
+            </a>
+            {% endif %}
+
+            <!-- Pages in this section -->
+            {% for page in subsection.pages %}
+              <a href="{{ page.permalink }}" class="subsection-link {% if current_path == page.path %}active{% endif %}">
+                {{ page.title }}
+              </a>
+            {% endfor %}
+
+            <!-- Nested subsections (if any) -->
+            {% if subsection.subsections %}
+              {% for nested_path in subsection.subsections %}
+                {% set nested = get_section(path=nested_path) %}
+                <div class="nested-section">
+                  <div class="nested-header" onclick="toggleSection('{{ nested.title | slugify }}')">
+                    <span class="section-icon">▶</span>
+                    <span>{{ nested.title }}</span>
+                  </div>
+                  <div id="{{ nested.title | slugify }}" class="section-content collapsed" style="display: none;">
+                    {% for nested_page in nested.pages %}
+                      <a href="{{ nested_page.permalink }}" class="nested-link {% if current_path == nested_page.path %}active{% endif %}">
+                        {{ nested_page.title }}
+                      </a>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endfor %}
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </nav>
+</aside>

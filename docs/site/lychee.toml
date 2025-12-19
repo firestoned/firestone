@@ -1,0 +1,22 @@
+# Lychee Link Checker Configuration
+# Used by both GitHub Actions (CI) and local test-docs.sh script.
+
+# Exclude specific domains that are flaky or slow to respond in CI
+exclude = [
+    "localhost",
+    "127.0.0.1",
+    "linkedin.com",
+    "twitter.com",
+    "example.com",
+    "asyncapi.com",
+    "streamlit.io"
+]
+
+# Exclude mailto links
+exclude_mail = true
+
+# Timeout for external links (in seconds)
+timeout = 30
+
+# Max retries for failed links
+max_retries = 3

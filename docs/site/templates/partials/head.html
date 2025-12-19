@@ -1,0 +1,27 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% if page.title %}{{ page.title }} | {% elif section.title %}{{ section.title }} | {% endif %}{{ config.title }}</title>
+
+{% if page.description %}
+<meta name="description" content="{{ page.description }}">
+{% elif section.description %}
+<meta name="description" content="{{ section.description }}">
+{% elif config.description %}
+<meta name="description" content="{{ config.description }}">
+{% endif %}
+
+<!-- Favicon -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
+
+<!-- Main CSS -->
+<link rel="stylesheet" href="{{ get_url(path='css/main.css') }}">
+
+<!-- Pagefind CSS -->
+<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+
+<!-- Set initial theme before page render to avoid flash -->
+<script>
+  // Check for saved theme preference or default to 'dark'
+  const savedTheme = localStorage.getItem('theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+</script>
