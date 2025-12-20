@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="{{ config.default_language }}" data-theme="dark">
+<head>
+  {% include "partials/head.html" %}
+</head>
+<body>
+  <div class="page-wrapper">
+    <!-- Navbar -->
+    {% include "partials/navbar.html" %}
+
+    <!-- Mobile Overlay -->
+    <div id="mobile-overlay" class="mobile-overlay"></div>
+
+    <!-- Main Content Area with 3-column layout -->
+    {% set has_toc = false %}
+    {% if page and page.toc %}
+      {% set has_toc = true %}
+    {% endif %}
+
+    <div class="content-wrapper {% if has_toc %}has-toc{% endif %}">
+      <!-- Left Sidebar Navigation -->
+      {% include "partials/sidebar.html" %}
+
+      <!-- Main Content -->
+      <main class="main-content">
+        {% block content %}
+        {% endblock content %}
+      </main>
+
+      <!-- Right Table of Contents -->
+      {% block sidebar_toc %}
+        {% if has_toc %}
+          {% include "partials/toc.html" %}
+        {% endif %}
+      {% endblock %}
+    </div>
+
+    <!-- Footer -->
+    {% include "partials/footer.html" %}
+  </div>
+
+  <!-- Pagefind JS -->
+  <script src="/pagefind/pagefind-ui.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', (event) => {
+      new PagefindUI({
+        element: "#search",
+        showSubResults: true,
+        showEmptyFilters: false
+      });
+    });
+  </script>
+
+  <!-- Navigation JavaScript -->
+  <script src="{{ get_url(path='js/navigation.js') }}"></script>
+
+  <!-- Theme Toggle JavaScript -->
+  <script src="{{ get_url(path='js/theme-toggle.js') }}"></script>
+
+  <!-- Mermaid JS Support -->
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+
+    // Configuration for dark/light theme
+    const theme = document.documentElement.getAttribute('data-theme');
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: theme === 'dark' ? 'dark' : 'default'
+    });
+
+    // Transform Zola code blocks to Mermaid divs
+    document.addEventListener("DOMContentLoaded", function() {
+      const codeBlocks = document.querySelectorAll('pre code');
+      codeBlocks.forEach(block => {
+        const content = block.textContent.trim();
+        if (content.startsWith('graph ') ||
+            content.startsWith('sequenceDiagram') ||
+            content.startsWith('classDiagram') ||
+            content.startsWith('stateDiagram') ||
+            content.startsWith('erDiagram') ||
+            content.startsWith('journey') ||
+            content.startsWith('gantt') ||
+            content.startsWith('pie') ||
+            content.startsWith('flowchart')) {
+
+          const div = document.createElement('div');
+          div.classList.add('mermaid');
+          div.textContent = content;
+
+          // Replace the pre element with the new div
+          block.parentElement.replaceWith(div);
+        }
+      });
+
+      mermaid.run();
+    });
+
+    // Update Mermaid theme when toggling
+    window.addEventListener('themechange', (e) => {
+      mermaid.initialize({
+        theme: e.detail.theme === 'dark' ? 'dark' : 'default'
+      });
+      // Reinitialize mermaid diagrams
+      document.querySelectorAll('.mermaid').forEach(el => {
+        el.removeAttribute('data-processed');
+      });
+      mermaid.run();
+    });
+  </script>
+</body>
+</html>

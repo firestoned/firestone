@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50" width="200" height="50" role="img" aria-label="Firestoned Logo">
+  <defs>
+    <style>
+      .fs-text {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        font-weight: 600;
+        font-size: 24px;
+        letter-spacing: -0.5px;
+      }
+    </style>
+    <linearGradient id="flame-gradient-light" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6b35;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#f7931e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ff4500;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="hex-gradient-light" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#d4a574;stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:#c89858;stop-opacity:0.2" />
+    </linearGradient>
+  </defs>
+  <g transform="translate(5, 5)">
+    <path d="M20 2 L35.32 9.5 Q37.32 10.5 37.32 12.5 L37.32 27.5 Q37.32 29.5 35.32 30.5 L20 38 Q18 39 16 38 L4.68 30.5 Q2.68 29.5 2.68 27.5 L2.68 12.5 Q2.68 10.5 4.68 9.5 L18 2 Q19 1 20 2 Z"
+          fill="url(#hex-gradient-light)"
+          stroke="#0066cc"
+          stroke-width="2.5"
+          stroke-linejoin="round"/>
+    <g opacity="0.2" stroke="#0066cc" stroke-width="1.5">
+      <line x1="20" y1="20" x2="20" y2="3" />
+      <line x1="20" y1="20" x2="35" y2="10" />
+      <line x1="20" y1="20" x2="35" y2="30" />
+      <line x1="20" y1="20" x2="20" y2="37" />
+      <line x1="20" y1="20" x2="5" y2="30" />
+      <line x1="20" y1="20" x2="5" y2="10" />
+    </g>
+    <circle cx="20" cy="20" r="3" fill="#d4a574" stroke="#0066cc" stroke-width="1" opacity="0.25"/>
+    <path d="M20 33C20 33 26 27 26 19C26 13.5 22 11 20 6C18 11 14 13.5 14 19C14 27 20 33 20 33Z"
+          fill="url(#flame-gradient-light)"/>
+    <path d="M20 28C20 28 23 24 23 20C23 17 21.5 16 20 13C18.5 16 17 17 17 20C17 24 20 28 20 28Z"
+          fill="#fff5e6"
+          opacity="0.6"/>
+  </g>
+  <text x="50" y="32" fill="#e0e0e0" class="fs-text">Firestone</text>
+</svg>

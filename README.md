@@ -35,23 +35,11 @@ Firestone lives alongside a couple of sibling projects that share tooling and de
 
 ## Quick Start
 
-You can use `pip` or `poetry` to install and run `firestone`. We suggest using `pip` if you wish to install `firestone` globally, or for virtual environments, use `poetry`.
+**Poetry is the recommended way to install and use `firestone`.** [Poetry](https://python-poetry.org/) manages dependencies and virtual environments automatically, making it ideal for both development and production use.
 
-### `pip`
+> **Note:** The package is published as `firestoned` (with 'd'), not `firestone`, because `firestone` was already taken on PyPI.
 
-Set up a virtual environment (or use [pipx](https://pypa.github.io/pipx/)) and install from PyPI:
-
-```zsh
-python3 -m venv .venv
-source .venv/bin/activate
-pip install firestoned
-```
-
-> Yes, `firestone**d**`, not `firestone`! This is because there already is a, albeit empty, repository on [pypi.org](https://pypi.org/) with the same name ...
-
-### `poetry`
-
-[Poetry](https://python-poetry.org/) is a great build tool for Python that allows you to build and run all locally in a virtual environment. This is great for checking out the tool and playing around with `firestone` itself.
+### Poetry (Recommended)
 
 Add `firestoned` as a dependency and run the CLI through Poetry:
 
@@ -59,6 +47,16 @@ Add `firestoned` as a dependency and run the CLI through Poetry:
 poetry add firestoned
 poetry install
 poetry run firestone --help
+```
+
+### pip (Alternative)
+
+If you prefer pip, set up a virtual environment (or use [pipx](https://pypa.github.io/pipx/)) and install from PyPI:
+
+```zsh
+python3 -m venv .venv
+source .venv/bin/activate
+pip install firestoned
 ```
 
 ## Running
@@ -78,8 +76,7 @@ firestone \
     --description 'A simple addressbook example' \
     --resources examples/addressbook/addressbook.yaml \
     --version 1.0 \
-    openapi \
-    --security '{"name": "bearer_auth", "scheme": "bearer", "type": "http", "bearerFormat": "JWT"}'
+    openapi
 ```
 
 Let's quickly dissect this command:
@@ -96,7 +93,6 @@ firestone --debug generate \
     --resources examples/addressbook/addressbook.yaml,examples/addressbook/person.yaml,examples/addressbook/postal_codes.yaml \
     --version 1.0 \
     openapi \
-    --security '{"name": "bearer_auth", "scheme": "bearer", "type": "http", "bearerFormat": "JWT"}' \
     --ui-server
 # ...
 * Serving Quart app 'firestone.__main__'

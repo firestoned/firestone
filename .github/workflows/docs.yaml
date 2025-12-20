@@ -1,0 +1,109 @@
+name: Deploy Firestone Docs
+on:
+  push:
+    branches: ['main']
+    paths:
+      - 'docs/**'
+      - 'firestone/**'
+      - '.github/workflows/docs.yaml'
+  pull_request:
+    branches: ['main']
+    paths:
+      - 'docs/**'
+      - 'firestone/**'
+      - '.github/workflows/docs.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Poetry
+        run: pipx install poetry
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'poetry'
+
+      - name: Install Dependencies
+        run: poetry install --no-interaction
+
+      - name: Run Unit Tests
+        run: poetry run pytest
+
+  build-and-test-docs:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Zola
+        uses: taiki-e/install-action@v2
+        with:
+          tool: zola@0.19.1
+
+      - name: Install Poetry
+        run: pipx install poetry
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'poetry'
+
+      - name: Install Dependencies
+        run: poetry install --no-interaction
+
+      - name: Generate API Docs
+        run: |
+          mkdir -p docs/site/content/api-reference
+          poetry run pydoc-markdown -m firestone.spec.openapi -m firestone.spec.asyncapi -m firestone.spec.cli -m firestone.spec.streamlit -m firestone.spec._base --render-toc > docs/site/content/api-reference/reference.raw.md
+          cat docs/site/content/api-reference/reference.raw.md | python3 docs/site/scripts/fix_anchors.py | docs/site/scripts/add_frontmatter.sh "API Reference" "section.html" "1" > docs/site/content/api-reference/_index.md
+          rm docs/site/content/api-reference/reference.raw.md
+
+      - name: Build & Smoke Test
+        env:
+          SKIP_LYCHEE: "true"
+        run: ./docs/site/scripts/test-docs.sh
+
+      - name: Install Pagefind
+        run: |
+          wget https://github.com/CloudCannon/pagefind/releases/download/v1.1.0/pagefind-v1.1.0-x86_64-unknown-linux-musl.tar.gz
+          tar -xzvf pagefind-v1.1.0-x86_64-unknown-linux-musl.tar.gz
+          chmod +x pagefind
+
+      - name: Index Site
+        working-directory: docs/site
+        run: ../../pagefind --site public
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/site/public
+
+  deploy:
+    needs: build-and-test-docs
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
