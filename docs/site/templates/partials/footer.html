@@ -1,0 +1,18 @@
+<footer class="footer">
+  <div class="footer-content">
+    <p>
+      <strong>{{ config.title }}</strong>
+      {% if config.extra.author %}
+      by {{ config.extra.author }}
+      {% endif %}
+      |
+      {% if config.extra.github %}
+      <a href="{{ config.extra.github }}" target="_blank" rel="noopener">GitHub</a>
+      {% endif %}
+    </p>
+    <p class="text-muted">
+      Built with <a href="https://www.getzola.org/" target="_blank" rel="noopener">Zola</a> |
+      Search powered by <a href="https://pagefind.app/" target="_blank" rel="noopener">Pagefind</a>
+    </p>
+  </div>
+</footer>

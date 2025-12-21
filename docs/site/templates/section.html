@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block sidebar_toc %}{% endblock %}
+
+{% block content %}
+{{ section.content | safe }}
+
+<hr>
+
+<h2>Pages in this section:</h2>
+<ul>
+{% for page in section.pages %}
+    <li><a href="{{ page.permalink }}">{{ page.title }}</a></li>
+{% endfor %}
+</ul>
+
+{% if section.subsections %}
+<h2>Subsections:</h2>
+<ul>
+{% for subsection_path in section.subsections %}
+    {% set subsection = get_section(path=subsection_path) %}
+    <li><a href="{{ subsection.permalink }}">{{ subsection.title }}</a></li>
+{% endfor %}
+</ul>
+{% endif %}
+{% endblock content %}

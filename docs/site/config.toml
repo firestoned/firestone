@@ -1,0 +1,27 @@
+base_url = "https://firestone.firestoned.io"
+title = "Firestone Documentation"
+description = "Resource-based API specification generator"
+default_language = "en"
+compile_sass = true
+minify_html = false
+
+[extra]
+author = "Firestoned Team"
+github = "https://github.com/firestoned/firestone"
+back_to_main_site = "https://firestoned.io"
+
+[markdown]
+highlight_code = true
+
+[search]
+build_search_index = true
+
+[link_checker]
+# Skip external link checking in zola check (handled by lychee instead)
+# Note: This uses skip_prefixes in newer Zola versions
+skip_prefixes = [
+    "https://www.asyncapi.com",
+    "https://streamlit.io",
+    "https://linkedin.com",
+    "https://twitter.com"
+]
