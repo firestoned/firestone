@@ -91,3 +91,7 @@ schema:
         type: array
         items:
           type: string
+      timezone:
+        description: The person's timezone (e.g. UTC, America/New_York)
+        type: string
+        default: UTC

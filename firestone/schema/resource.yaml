@@ -81,6 +81,35 @@ properties:
       instance: *http_methods
       instance_attrs: *http_methods
       additionalProperties: false
+  client_pkg:
+    description: >
+      The Rust client crate generated for this resource (e.g. my_project_client).
+      Overrides the global --client-pkg for this resource only, enabling multiple
+      client crates to coexist in a single generated CLI binary.
+    type: string
+  namespace:
+    description: >
+      Optional prefix added to the generated module name to avoid collisions
+      when two projects share a resource kind (e.g. namespace: project_a +
+      kind: users → module name: project_a_users).
+    type: string
+  model_pkg_overrides:
+    description: >
+      Map from $ref filename stem to the Rust client crate that owns the model.
+      The key is the schema filename without extension and is matched
+      case-insensitively (e.g. "person.yaml" is matched by key "person" or
+      "Person"). Only needed when a resource body references models from a
+      different OpenAPI source than its own client_pkg (cross-crate $ref).
+      Example: { person: shared_models_client }
+    type: object
+    additionalProperties:
+      type: string
+  singular:
+    description: >
+      Explicit singular form of the resource kind, used when deriving model
+      type names (e.g. CreateAddress).  Only needed when the automatic
+      singularization produces the wrong result.
+    type: string
   schema:
     description: The schema of the resource
     type: object

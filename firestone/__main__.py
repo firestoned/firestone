@@ -15,6 +15,9 @@ from firestone import spec as firestone_spec
 
 _LOGGER = logging.getLogger(__name__)
 
+LANG_RUST = "rust"
+LANG_PYTHON = "python"
+
 
 @click.group()
 @click.option("--debug", help="Turn on debugging", is_flag=True)
@@ -192,8 +195,8 @@ def asyncapi(rsrc_data, output):
     "--language",
     "-l",
     help="The language to generate CLI code for",
-    type=click.Choice(["python", "rust"], case_sensitive=False),
-    default="python",
+    type=click.Choice([LANG_PYTHON, LANG_RUST], case_sensitive=False),
+    default=LANG_PYTHON,
     show_default=True,
 )
 @click.pass_obj
@@ -204,7 +207,7 @@ def cli(rsrc_data, pkg, client_pkg, output, output_dir, as_modules, template, la
     """
     language_lower = language.lower()
 
-    if language_lower == "rust":
+    if language_lower == LANG_RUST:
         cli_spec = firestone_spec.cli_rust.generate(
             pkg,
             client_pkg,
@@ -217,7 +220,7 @@ def cli(rsrc_data, pkg, client_pkg, output, output_dir, as_modules, template, la
             template=template,
         )
         file_extension = "rs"
-    else:  # python (default)
+    else:  # LANG_PYTHON (default, any non-rust language)
         cli_spec = firestone_spec.cli.generate(
             pkg,
             client_pkg,
@@ -245,6 +248,18 @@ def cli(rsrc_data, pkg, client_pkg, output, output_dir, as_modules, template, la
             os.path.join(output_dir, f"{rsrc}.{file_extension}"), "w", encoding="utf-8"
         ) as fh:
             fh.write(cli_spec[rsrc])
+
+    # For Rust modules, also emit a Cargo.toml so the output is immediately
+    # usable as a standalone crate without manual dependency wiring.
+    if language_lower == LANG_RUST:
+        cargo_toml = firestone_spec.cli_rust.generate_cargo_toml(
+            pkg,
+            rsrc_data["version"],
+            rsrc_data["data"],
+            client_pkg,
+        )
+        with io.open(os.path.join(output_dir, "Cargo.toml"), "w", encoding="utf-8") as fh:
+            fh.write(cargo_toml)
 
     return None
 

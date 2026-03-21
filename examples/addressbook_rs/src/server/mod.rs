@@ -188,6 +188,7 @@ async fn create_person(
         first_name: payload.first_name,
         hobbies: payload.hobbies,
         last_name: payload.last_name,
+        timezone: payload.timezone,
         uuid: Some(Some(serde_json::Value::String(uuid.clone()))),
     };
     store.write().await.insert(uuid, person.clone());

@@ -144,6 +144,10 @@ components:
         last_name:
           description: The person's last name
           type: string
+        timezone:
+          default: UTC
+          description: The person's timezone (e.g. UTC, America/New_York)
+          type: string
         uuid:
           description: A UUID associated to this person
           expose: false
