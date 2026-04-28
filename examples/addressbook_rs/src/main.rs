@@ -2,7 +2,6 @@
 // Similar to examples/addressbook/main.py in Python
 
 use clap::{Parser, Subcommand};
-use std::sync::Arc;
 use tokio::net::TcpListener;
 
 // Auto-generated modules (from openapi-generator)
@@ -14,8 +13,6 @@ mod cli;
 
 // Manually created modules
 mod server;
-
-use apis::configuration::Configuration;
 
 #[derive(Parser, Debug)]
 #[command(name = "addressbook_rs")]
@@ -92,39 +89,34 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let api_url = cli
         .api_url
         .unwrap_or_else(|| "http://localhost:8080".to_string());
-    let mut config = Configuration::default();
-    config.base_path = api_url.clone();
-    if let Some(api_key) = cli.api_key {
-        // Set API key in configuration if needed
-        // config.api_key = Some(apis::ApiKey { prefix: Some("Bearer".to_string()), key: api_key });
-    }
-
-    // openapi-generator Rust client uses standalone functions, not API structs
-    // So we just pass the Configuration to the CLI handlers
-    let config_arc = Arc::new(config);
+    let api_key = cli.api_key;
 
     match cli.command {
         Some(Commands::Addressbook(cmd)) => {
             let ctx = cli::addressbook::ApiContext {
-                api_client: config_arc.clone(),
+                base_url: Some(api_url.clone()),
+                api_key: api_key.clone(),
             };
             cli::addressbook::handle_addressbook_command(&ctx, &cmd).await?;
         }
         Some(Commands::Contacts(cmd)) => {
             let ctx = cli::contacts::ApiContext {
-                api_client: config_arc.clone(),
+                base_url: Some(api_url.clone()),
+                api_key: api_key.clone(),
             };
             cli::contacts::handle_contacts_command(&ctx, &cmd).await?;
         }
         Some(Commands::Persons(cmd)) => {
             let ctx = cli::persons::ApiContext {
-                api_client: config_arc.clone(),
+                base_url: Some(api_url.clone()),
+                api_key: api_key.clone(),
             };
             cli::persons::handle_persons_command(&ctx, &cmd).await?;
         }
         Some(Commands::PostalCodes(cmd)) => {
             let ctx = cli::postal_codes::ApiContext {
-                api_client: config_arc.clone(),
+                base_url: Some(api_url.clone()),
+                api_key: api_key.clone(),
             };
             cli::postal_codes::handle_postal_codes_command(&ctx, &cmd).await?;
         }

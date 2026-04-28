@@ -16,6 +16,7 @@ from firestone.spec import openapi as spec_openapi
 PARAM_TYPE_TO_RUST_TYPE = {
     "string": "String",
     "integer": "i64",
+    "number": "f64",
     "boolean": "bool",
 }
 
@@ -90,6 +91,21 @@ def _enum_value_to_variant(enum_value: str) -> str:
     return _to_pascal_case(enum_value)
 
 
+def _to_singular(name: str) -> str:
+    """Convert a plural resource name to its singular form.
+
+    Handles common English pluralization patterns.  For irregular cases,
+    callers should prefer an explicit ``singular`` key in the resource schema.
+    """
+    if name.endswith(("ses", "xes", "ches", "shes", "zes")):
+        return name[:-2]  # addresses -> address, boxes -> box
+    if name.endswith("ies") and len(name) > 3:
+        return name[:-3] + "y"  # categories -> category
+    if name.endswith("s") and not name.endswith("ss"):
+        return name[:-1]  # books -> book  (but "class" stays "class")
+    return name
+
+
 # pylint: disable=too-many-locals,too-many-branches,too-many-statements,too-many-nested-blocks
 def _enrich_attr_for_body(
     attr: dict,
@@ -97,6 +113,8 @@ def _enrich_attr_for_body(
     comp_name: str,
     op_name: str,
     key_names: list = None,  # pylint: disable=unused-argument
+    client_pkg: str = "crate",
+    model_pkg_overrides: dict = None,
 ):
     """Enrich an attribute with metadata for request body generation.
 
@@ -134,7 +152,9 @@ def _enrich_attr_for_body(
         enum_variants = attr.get("enum_variants", [])
         # The model enum type for arrays - OpenAPI generator uses the property name in PascalCase
         # For example, "categories" becomes "Categories" not "CategoriesItem"
-        enum_item_type = f"crate::models::{op_name}_{comp_name}::{_to_pascal_case(attr_name)}"
+        enum_item_type = (
+            f"{client_pkg}::models::{op_name}_{comp_name}::{_to_pascal_case(attr_name)}"
+        )
         attr["enum_item_type"] = enum_item_type
 
         # Generate variant mappings for the array items
@@ -154,7 +174,9 @@ def _enrich_attr_for_body(
     elif is_enum:
         # Enum conversion - generate match statement
         enum_variants = attr.get("enum_variants", [])
-        enum_model_type = f"crate::models::{op_name}_{comp_name}::{_to_pascal_case(attr_name)}"
+        enum_model_type = (
+            f"{client_pkg}::models::{op_name}_{comp_name}::{_to_pascal_case(attr_name)}"
+        )
         attr["enum_model_type"] = enum_model_type
 
         # Generate variant mappings
@@ -171,6 +193,8 @@ def _enrich_attr_for_body(
                 }
             )
         attr["enum_variant_mappings"] = variant_mappings
+        if "default" in attr:
+            attr["enum_has_default"] = True
         body_conversion = "ENUM_MATCH"  # Special marker for template
     elif rust_type == "String":
         # Check if this is an object reference (like person with $ref)
@@ -231,7 +255,14 @@ def _enrich_attr_for_body(
                 ref_name = ref_parts[-1].replace(".yaml", "").replace(".json", "")
             else:
                 ref_name = attr_name
-            model_type = f"crate::models::{_to_pascal_case(ref_name)}"
+            # Allow callers to redirect a $ref model to a different client crate
+            # when it lives outside the resource's own OpenAPI source.
+            # Lookup is case-insensitive: the key is matched against the extracted
+            # filename stem (e.g. "person.yaml" → "person"), so both "person" and
+            # "Person" work as override keys.
+            _overrides_lower = {k.lower(): v for k, v in (model_pkg_overrides or {}).items()}
+            ref_client_pkg = _overrides_lower.get(ref_name.lower(), client_pkg)
+            model_type = f"{ref_client_pkg}::models::{_to_pascal_case(ref_name)}"
             body_conversion = f"args.{rust_name}.as_ref().and_then(|s| serde_json::from_str::<{model_type}>(s).ok()).map(|p| Box::new(p))"
         elif param_schema.get("expose") is False or attr_name in key_names:
             # Fields with expose: false or key fields need Option<Option<Value>>
@@ -248,7 +279,14 @@ def _enrich_attr_for_body(
                 )
         else:
             # Regular string
-            body_conversion = f"args.{rust_name}.clone()"
+            # Fields with defaults are emitted as plain String CLI args on create,
+            # but remain Option<String> on update so callers can omit them.
+            # Only wrap create-time defaults in Some(...); update handlers must
+            # pass the Option<String> through unchanged.
+            if "default" in attr and not is_required and op_name != "update":
+                body_conversion = f"Some(args.{rust_name}.clone())"
+            else:
+                body_conversion = f"args.{rust_name}.clone()"
     elif rust_type == "i64":
         # Integer conversion - check if model expects i32
         # Required fields don't need .map(), optional fields do
@@ -318,10 +356,9 @@ def params_to_attrs(params: list, required: list = None, key_names: list = None)
                 # Store enum info for body conversion
                 enum_variants = []
                 for enum_val in items_schema["enum"]:
-                    variant = enum_val.upper().replace("-", "_").replace(" ", "_")
                     enum_variants.append(
                         {
-                            "name": variant,
+                            "name": _enum_value_to_variant(enum_val),
                             "value": enum_val,
                         }
                     )
@@ -333,13 +370,12 @@ def params_to_attrs(params: list, required: list = None, key_names: list = None)
         elif "enum" in param_schema:
             _LOGGER.info(f"{param['name']} is of type '{param_type}', creating enum")
             rust_type = f"{_to_pascal_case(param['name'])}Enum"
-            # Pre-process enum values to Rust enum variant names
+            # Pre-process enum values to Rust enum variant names (PascalCase per convention)
             enum_variants = []
             for enum_val in param_schema["enum"]:
-                variant = enum_val.upper().replace("-", "_").replace(" ", "_")
                 enum_variants.append(
                     {
-                        "name": variant,
+                        "name": _enum_value_to_variant(enum_val),
                         "value": enum_val,
                     }
                 )
@@ -568,7 +604,14 @@ def get_resource_ops(
 
         if op_name == "create":
             check_required = True
-            attrs = get_resource_attrs(schema, check_required=check_required)
+            # Pass query params alongside body schema attrs so they appear in
+            # query_params and can be forwarded to the API call generically.
+            query_only = [p for p in params if p.get("in") == "query"]
+            attrs = get_resource_attrs(
+                schema,
+                check_required=check_required,
+                params=query_only or None,
+            )
 
         # Deduplicate attributes by name
         seen_names = {}
@@ -610,7 +653,7 @@ def get_ops(
     if not ops:
         ops = {}
 
-    if schema["type"] == "array" and "key" not in schema:
+    if schema["type"] == "array" and not "key" in schema:
         raise spec_base.SchemaMissingAttribute("A 'key' is missing in schema {yaml.dump(schema)}")
 
     key = None
@@ -663,9 +706,34 @@ def generate(
     template: str = None,
 ):
     """Generate a Clap based CLI script based on the resource data sent and other meta data."""
+    # Detect duplicate module names up-front so callers get a clear error rather
+    # than silently losing resources (the rendered dict is keyed by module_name).
+    seen_module_names: dict = {}
+    for rsrc in rsrc_data:
+        rsrc_name = rsrc["kind"]
+        namespace = rsrc.get("namespace")
+        module_name = f"{namespace}_{rsrc_name}" if namespace else rsrc_name
+        if module_name in seen_module_names:
+            raise ValueError(
+                f"Duplicate module name '{module_name}': resource kind='{rsrc_name}' "
+                f"collides with a previously seen resource kind='{seen_module_names[module_name]}'. "
+                f"Set a unique 'namespace' key on one of them to disambiguate."
+            )
+        seen_module_names[module_name] = rsrc_name
+
     rsrcs = []
     for rsrc in rsrc_data:
         rsrc_name = rsrc["kind"]
+
+        # Per-resource client crate, falling back to the global value.
+        rsrc_client_pkg = rsrc.get("client_pkg", client_pkg).replace(".", "_")
+
+        # Optional namespace prefix to avoid module-name collisions when combining
+        # schemas from multiple projects (e.g. namespace: project_a + kind: users
+        # → module_name: project_a_users).
+        namespace = rsrc.get("namespace")
+        module_name = f"{namespace}_{rsrc_name}" if namespace else rsrc_name
+
         baseurl = "/"
         if rsrc.get("versionInPath", False):
             baseurl += f"v{rsrc['apiVersion']}/"
@@ -691,13 +759,18 @@ def generate(
         )
         _LOGGER.debug(f"ops: {ops}")
 
-        # Add PascalCase names for Rust
-        rsrc_pascal = _to_pascal_case(rsrc_name)
-        rsrc_upper = rsrc_name.upper().replace("-", "_").replace(" ", "_")
+        # Derive display names from module_name so namespaced resources stay unique
+        # in the Commands enum (e.g. "project_a_users" → "ProjectAUsers").
+        rsrc_pascal = _to_pascal_case(module_name)
+        rsrc_upper = module_name.upper().replace("-", "_").replace(" ", "_")
 
-        # Calculate component name (singular form)
-        comp_name = rsrc_name if not rsrc_name.endswith("s") else rsrc_name[:-1]
+        # Calculate component name (singular form).
+        # Prefer an explicit ``singular`` key in the resource schema over auto-derivation.
+        comp_name = rsrc.get("singular") or _to_singular(rsrc_name)
         comp_name_pascal = _to_pascal_case(comp_name)
+
+        # Per-resource $ref → client-crate overrides for cross-crate model paths.
+        rsrc_model_pkg_overrides = rsrc.get("model_pkg_overrides", {})
 
         # Process operations to add PascalCase names and enrich attributes
         processed_ops = {}
@@ -723,6 +796,8 @@ def generate(
                         comp_name,
                         op["name"],
                         key_names=key_names,
+                        client_pkg=rsrc_client_pkg,
+                        model_pkg_overrides=rsrc_model_pkg_overrides,
                     )
                     enriched_attrs.append(enriched_attr)
 
@@ -743,11 +818,13 @@ def generate(
 
         rsrcs.append(
             {
-                "name": rsrc_name,
+                "name": rsrc_name,  # original kind (used in API call paths)
+                "module_name": module_name,  # namespace-qualified name (used for mod/file)
                 "pascal_name": rsrc_pascal,
                 "upper_name": rsrc_upper,
                 "comp_name": comp_name,
                 "comp_name_pascal": comp_name_pascal,
+                "client_pkg": rsrc_client_pkg,
                 "operations": processed_ops,
             }
         )
@@ -762,7 +839,7 @@ def generate(
             tmpl_str = "".join(fh.readlines())
 
         tmpl = jinja2.Environment(
-            loader=jinja2.BaseLoader,
+            loader=jinja2.BaseLoader(),
             extensions=["jinja2.ext.loopcontrols"],
         ).from_string(tmpl_str)
 
@@ -795,9 +872,51 @@ def generate(
             description=desc,
             version=version,
             pkg=pkg,
-            client_pkg=rust_client_pkg,
+            client_pkg=rsrc["client_pkg"],  # per-resource
             rsrc=rsrc,
         )
-        rendered_rsrcs[rsrc["name"]] = rendered
+        rendered_rsrcs[rsrc["module_name"]] = rendered
 
     return rendered_rsrcs
+
+
+def generate_cargo_toml(
+    pkg: str,
+    version: str,
+    rsrc_data: list,
+    default_client_pkg: str,
+) -> str:
+    """Generate a Cargo.toml for the CLI crate.
+
+    Lists every unique client crate as a dependency so callers know what to
+    wire up; individual path/version/git entries are left as TODOs since they
+    depend on the user's workspace layout.
+    """
+
+    def _is_external_crate(name: str) -> bool:
+        """Return True only if name looks like a real external crate name.
+
+        Filters out:
+        - "crate" — Rust keyword meaning the current crate; not an external dep.
+        - anything containing "::" after dot-normalisation — those are module
+          paths (e.g. "foo::apis"), not crate names.
+        """
+        return name != "crate" and "::" not in name
+
+    seen = set()
+    client_pkgs = []
+    for rsrc in rsrc_data:
+        cp = rsrc.get("client_pkg", default_client_pkg).replace(".", "_")
+        if cp not in seen and _is_external_crate(cp):
+            seen.add(cp)
+            client_pkgs.append(cp)
+        # model_pkg_overrides can reference crates that no resource owns directly;
+        # they still need to be in Cargo.toml or the generated code won't compile.
+        for override_pkg in rsrc.get("model_pkg_overrides", {}).values():
+            op = override_pkg.replace(".", "_")
+            if op not in seen and _is_external_crate(op):
+                seen.add(op)
+                client_pkgs.append(op)
+
+    tmpl = spec_base.JINJA_ENV.get_template("Cargo.toml.jinja2")
+    return tmpl.render(pkg=pkg, version=version, client_pkgs=client_pkgs)

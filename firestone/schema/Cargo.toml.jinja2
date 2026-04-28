@@ -1,0 +1,33 @@
+[package]
+name = "{{ pkg }}"
+version = "{{ version }}"
+edition = "2021"
+
+# The generated resource modules are placed in the output directory alongside
+# this file.  Add your own [[bin]] or [lib] target that references your
+# hand-rolled main.rs and re-exports or uses the generated modules.
+#
+# Typical layout when --output-dir points at the crate root:
+#
+#   my_cli/
+#   ├── Cargo.toml          <- this file
+#   ├── src/
+#   │   ├── main.rs         <- hand-rolled wiring
+#   │   ├── addressbook.rs  <- generated
+#   │   └── users.rs        <- generated
+#
+#   [[bin]]
+#   name = "{{ pkg }}"
+#   path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4", features = ["derive", "env"] }
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+log = "0.4"
+env_logger = "0.11"
+{% for cp in client_pkgs %}
+# TODO: set the correct version/path/git source for {{ cp }}
+{{ cp }} = { version = "*" }
+{%- endfor %}

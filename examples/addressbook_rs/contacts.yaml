@@ -1,0 +1,94 @@
+kind: contacts
+apiVersion: v1
+versionInPath: false
+metadata:
+  description: An example of a contacts resource
+default_query_params:
+  - name: limit
+    description: Limit the number of responses back
+    in: query
+    schema:
+      type: integer
+  - name: offset
+    description: The offset to start returning resources
+    in: query
+    schema:
+      type: integer
+descriptions:
+  resource:
+    get: List all contacts in this collection
+    post: Create a new contact in this collection
+  instance:
+    delete: Delete this contact from the collection
+    get: Get a specific contact from this collection
+methods:
+  resource:
+    - get
+    - post
+  instance:
+    - delete
+    - get
+  instance_attrs: []
+schema:
+  type: array
+  key:
+    name: contact_id
+    description: The unique ID for this contact
+    schema:
+      type: string
+  items:
+    type: object
+    properties:
+      contact_id:
+        expose: false
+        description: The unique ID for this contact
+        schema:
+          type: string
+      name:
+        description: The contact's name
+        type: string
+      email:
+        description: Contact email address
+        type: string
+      notes:
+        description: Optional notes (array of strings, not enums)
+        type: array
+        items:
+          type: string
+      priority:
+        description: Contact priority level (required enum)
+        type: string
+        enum:
+          - high
+          - medium
+          - low
+      status:
+        description: The status of the contact (optional enum with default)
+        type: string
+        default: active
+        enum:
+          - active
+          - inactive
+          - archived
+      type:
+        description: The contact type (optional enum, tests Rust keyword escaping)
+        type: string
+        enum:
+          - personal
+          - business
+          - emergency
+      categories:
+        description: Contact categories (array of enums)
+        type: array
+        items:
+          type: string
+          enum:
+            - family
+            - friend
+            - colleague
+            - vendor
+    required:
+      - contact_id
+      - name
+      - priority
+      - categories

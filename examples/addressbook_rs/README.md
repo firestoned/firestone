@@ -35,8 +35,167 @@ unset PYTHONPATH && poetry run firestone generate \
   -d "Example person and addressbook API" \
   -v 1.0 \
   -r examples/addressbook/addressbook.yaml,examples/addressbook/person.yaml,examples/addressbook/postal_codes.yaml,examples/addressbook_rs/contacts.yaml \
-  cli rust
+  cli --language rust \
+  --pkg addressbook_rs \
+  --client-pkg crate \
+  --as-modules \
+  --output-dir examples/addressbook_rs/src/cli
 ```
+
+`examples/addressbook_rs/src/cli/mod.rs` is a tiny hand-maintained module index;
+the generator emits the resource modules plus `Cargo.toml`.
+
+## Generating a Modular Rust CLI
+
+### Single-resource module
+
+Generate one `.rs` file per resource using `--as-modules`. This also emits a
+`Cargo.toml` with all required dependencies pre-filled:
+
+```bash
+# From the repository root
+unset PYTHONPATH && poetry run firestone generate \
+  -t "Addressbook API" \
+  -d "Example person and addressbook API" \
+  -v 1.0 \
+  -r examples/addressbook/addressbook.yaml \
+  cli --language rust \
+  --pkg addressbook_cli \
+  --client-pkg addressbook_rs \
+  --as-modules \
+  --output-dir my_cli/src/
+```
+
+Point `--output-dir` at the `src/` directory of your crate root. The
+generator writes the resource module(s) there and a `Cargo.toml` alongside
+them. The intended layout after generation:
+
+```
+my_cli/
+├── Cargo.toml          ← move here from my_cli/src/ after generation
+└── src/
+    ├── main.rs         ← hand-rolled wiring (see below)
+    └── addressbook.rs  ← generated
+```
+
+The `Cargo.toml` contains a commented-out `[[bin]]` block as a starting
+point; uncomment it once you move the file to the crate root.
+
+The generated file exports `pub enum AddressbookCommands`, `pub struct
+ApiContext`, and `pub async fn handle_*` functions — all the building blocks
+you need.
+
+### Combining schemas from multiple projects
+
+When two projects share a resource `kind`, use `namespace` and `client_pkg`
+in each schema file to avoid module-name collisions and wire each resource to
+its own generated client crate:
+
+```yaml
+# project_a/users.yaml
+kind: users
+namespace: project_a
+client_pkg: project_a_client
+# ...rest of schema
+```
+
+```yaml
+# project_b/users.yaml
+kind: users
+namespace: project_b
+client_pkg: project_b_client
+# ...rest of schema
+```
+
+```bash
+unset PYTHONPATH && poetry run firestone generate \
+  -t "Combined API" -d "Multi-project CLI" -v 1.0 \
+  -r project_a/users.yaml,project_b/users.yaml \
+  cli --language rust \
+  --pkg combined_cli \
+  --client-pkg fallback_client \
+  --as-modules \
+  --output-dir my_cli/src/
+```
+
+Output: `project_a_users.rs`, `project_b_users.rs`, `Cargo.toml` listing
+both `project_a_client` and `project_b_client` as dependencies.
+
+If a resource body references a model that lives in a *different* client crate
+from the resource itself (a cross-crate `$ref`), add `model_pkg_overrides` to
+map the model to the right crate. The key is the **`$ref` filename stem**
+(the filename without extension, e.g. `person.yaml` → `person`). Matching is
+case-insensitive, so `person` and `Person` both work:
+
+```yaml
+kind: addressbook
+client_pkg: addressbook_client
+model_pkg_overrides:
+  person: shared_models_client   # person.yaml $ref lives in shared_models_client
+```
+
+`shared_models_client` will be added to `Cargo.toml` automatically.
+
+### Hand-rolling the wiring (`main.rs`)
+
+The generated modules are standalone — they have no `main()`. Write your own
+`main.rs` to mix generated resource commands with hand-rolled ones:
+
+```rust
+mod addressbook;       // generated
+mod project_a_users;   // generated (namespaced)
+mod project_b_users;   // generated (namespaced)
+mod my_custom;         // hand-rolled
+
+#[derive(Parser, Debug)]
+struct Cli {
+    #[arg(long, env = "API_URL")]
+    api_url: Option<String>,
+    #[arg(long, env = "API_KEY")]
+    api_key: Option<String>,
+    #[command(subcommand)]
+    command: Commands,
+}
+
+#[derive(Subcommand, Debug)]
+enum Commands {
+    // Hand-rolled top-level command
+    Config(my_custom::ConfigArgs),
+    // Generated resource commands
+    Addressbook(addressbook::AddressbookCommands),
+    ProjectAUsers(project_a_users::ProjectAUsersCommands),
+    ProjectBUsers(project_b_users::ProjectBUsersCommands),
+}
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let cli = Cli::parse();
+    let base_url = cli.api_url.clone();
+    let api_key  = cli.api_key.clone();
+
+    match cli.command {
+        Commands::Config(args) => my_custom::run_config(args).await?,
+
+        Commands::Addressbook(cmd) => {
+            let ctx = addressbook::ApiContext { base_url, api_key };
+            addressbook::handle_addressbook_command(&ctx, &cmd).await?;
+        }
+        Commands::ProjectAUsers(cmd) => {
+            let ctx = project_a_users::ApiContext { base_url, api_key };
+            project_a_users::handle_project_a_users_command(&ctx, &cmd).await?;
+        }
+        Commands::ProjectBUsers(cmd) => {
+            let ctx = project_b_users::ApiContext { base_url, api_key };
+            project_b_users::handle_project_b_users_command(&ctx, &cmd).await?;
+        }
+    }
+    Ok(())
+}
+```
+
+Each generated module's `ApiContext` is `{ base_url: Option<String>,
+api_key: Option<String> }`. Passing `None` for `base_url` preserves the
+client crate's compiled-in default endpoint.
 
 ## Installation
 
@@ -132,6 +291,5 @@ cargo doc --open
 ```
 
 ## Author
-
 
 

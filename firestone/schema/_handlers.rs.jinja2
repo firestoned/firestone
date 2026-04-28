@@ -1,0 +1,273 @@
+{% macro init_config(client_pkg) -%}
+    let mut config = {{ client_pkg }}::apis::configuration::Configuration::default();
+    if let Some(ref url) = ctx.base_url {
+        config.base_path = url.clone();
+    }
+    if let Some(ref key) = ctx.api_key {
+        config.api_key = Some({{ client_pkg }}::apis::configuration::ApiKey {
+            prefix: Some("Bearer".to_string()),
+            key: key.clone(),
+        });
+    }
+{%- endmacro -%}
+
+pub async fn handle_{{ rsrc["module_name"] }}_command(
+    ctx: &ApiContext,
+    cmd: &{{ rsrc["pascal_name"] }}Commands,
+) -> Result<(), Box<dyn std::error::Error>> {
+    match cmd {
+{% for op in rsrc["operations"]["resource"]|sort(attribute='name') -%}
+        {{ rsrc["pascal_name"] }}Commands::{{ op["pascal_name"] }}(args) => {
+            handle_{{ rsrc["module_name"] }}_{{ op["id"] | replace(rsrc["name"] ~ "_", "") }}(ctx, args).await
+        },
+{% endfor -%}
+{% for op in rsrc["operations"]["instance"]|sort(attribute='name') -%}
+        {{ rsrc["pascal_name"] }}Commands::{{ op["pascal_name"] }}(args) => {
+            handle_{{ rsrc["module_name"] }}_{{ op["id"] | replace(rsrc["name"] ~ "_", "") }}(ctx, args).await
+        },
+{% endfor -%}
+    }
+}
+
+{# Resource operation handlers -#}
+{% for op in rsrc["operations"]["resource"]|sort(attribute='name') -%}
+pub async fn handle_{{ rsrc["module_name"] }}_{{ op["id"] | replace(rsrc["name"] ~ "_", "") }}(
+    ctx: &ApiContext,
+    args: &{{ op["pascal_name"] }}Args,
+) -> Result<(), Box<dyn std::error::Error>> {
+    {{ init_config(rsrc["client_pkg"]) }}
+    {% if op["name"] == "create" -%}
+    // Build request body for create operation
+    let req_body = {{ rsrc["client_pkg"] }}::models::Create{{ rsrc["comp_name_pascal"] }} {
+        {% for attr in op["attrs"]|sort(attribute='name') -%}
+        {% if attr.get("in") != "query" -%}
+        {{ attr["rust_name"] }}: {% if attr.get("body_conversion") == "ENUM_MATCH" -%}
+        {% if attr.get("required") -%}
+        match args.{{ attr["rust_name"] }} {
+            {% for mapping in attr.get("enum_variant_mappings", []) -%}
+            {{ attr["type"] }}::{{ mapping["cli_variant"] }} => {{ attr.get("enum_model_type") }}::{{ mapping["model_variant"] }},
+            {% endfor -%}
+        }
+        {%- elif attr.get("default") -%}
+        Some(match args.{{ attr["rust_name"] }} {
+            {% for mapping in attr.get("enum_variant_mappings", []) -%}
+            {{ attr["type"] }}::{{ mapping["cli_variant"] }} => {{ attr.get("enum_model_type") }}::{{ mapping["model_variant"] }},
+            {% endfor -%}
+        })
+        {%- else -%}
+        args.{{ attr["rust_name"] }}.as_ref().map(|e| match e {
+            {% for mapping in attr.get("enum_variant_mappings", []) -%}
+            {{ attr["type"] }}::{{ mapping["cli_variant"] }} => {{ attr.get("enum_model_type") }}::{{ mapping["model_variant"] }},
+            {% endfor -%}
+        })
+        {%- endif -%}
+{% elif attr.get("body_conversion") == "ENUM_ARRAY_MATCH" -%}
+        args.{{ attr["rust_name"] }}.iter().map(|s| match s.to_lowercase().as_str() {
+            {% for mapping in attr.get("enum_variant_mappings", []) -%}
+            "{{ mapping["cli_variant"]|lower }}" => {{ attr.get("enum_item_type") }}::{{ mapping["model_variant"] }},
+            {% endfor -%}
+            _ => panic!("Invalid enum value for {{ attr["name"] }}: {}", s),
+        }).collect(){% elif attr.get("body_conversion") and attr.get("body_conversion") != "None" -%}{{ attr["body_conversion"] }}{% else -%}args.{{ attr["rust_name"] }}.clone(){% endif -%},
+        {% endif -%}
+        {% endfor -%}
+    };
+    // Build query parameters for create operation
+    {% for qp in op.get("query_params", []) -%}
+    {% if qp["type"] == "String" -%}
+    {% if qp["required"] -%}
+    let {{ qp["rust_name"] }}_param = Some(args.{{ qp["rust_name"] }}.as_str());
+    {% else -%}
+    let {{ qp["rust_name"] }}_param = args.{{ qp["rust_name"] }}.as_ref().map(|s| s.as_str());
+    {% endif -%}
+    {% elif qp["type"] == "i64" -%}
+    {% if qp["required"] -%}
+    let {{ qp["rust_name"] }}_param = args.{{ qp["rust_name"] }} as i32;
+    {% else -%}
+    let {{ qp["rust_name"] }}_param = args.{{ qp["rust_name"] }}.map(|v| v as i32);
+    {% endif -%}
+    {% else -%}
+    {# Enum or other type: convert via AsRef<str> to avoid moving out of &args #}
+    {% if qp["required"] -%}
+    let {{ qp["rust_name"] }}_param = Some(args.{{ qp["rust_name"] }}.as_ref());
+    {% else -%}
+    let {{ qp["rust_name"] }}_param = args.{{ qp["rust_name"] }}.as_ref().map(|e| e.as_ref());
+    {% endif -%}
+    {% endif -%}
+    {% endfor -%}
+    let resp = {{ rsrc["client_pkg"] }}::apis::{{ rsrc["name"] }}_api::{{ op["id"] }}(&config, req_body{% for qp in op.get("query_params", []) %}, {{ qp["rust_name"] }}_param{% endfor %}).await?;
+    let json_output = serde_json::to_string_pretty(&resp)?;
+    println!("{}", json_output);
+    {% else -%}
+    // Build query parameters - openapi-generator functions take individual Option parameters
+    {% for qp in op.get("query_params", []) -%}
+    {% if qp["type"] == "String" -%}
+    {% if qp["required"] -%}
+    let {{ qp["rust_name"] }}_param = Some(args.{{ qp["rust_name"] }}.as_str());
+    {% else -%}
+    let {{ qp["rust_name"] }}_param = args.{{ qp["rust_name"] }}.as_ref().map(|s| s.as_str());
+    {% endif -%}
+    {% elif qp["type"] == "i64" -%}
+    {% if qp["required"] -%}
+    let {{ qp["rust_name"] }}_param = args.{{ qp["rust_name"] }} as i32;
+    {% else -%}
+    let {{ qp["rust_name"] }}_param = args.{{ qp["rust_name"] }}.map(|v| v as i32);
+    {% endif -%}
+    {% else -%}
+    {# Enum or other type: convert via AsRef<str> to avoid moving out of &args #}
+    {% if qp["required"] -%}
+    let {{ qp["rust_name"] }}_param = Some(args.{{ qp["rust_name"] }}.as_ref());
+    {% else -%}
+    let {{ qp["rust_name"] }}_param = args.{{ qp["rust_name"] }}.as_ref().map(|e| e.as_ref());
+    {% endif -%}
+    {% endif -%}
+    {% endfor -%}
+    {% if op["name"] == "delete" -%}
+    // DELETE operations may return empty responses (204 No Content)
+    let resp_result = {{ rsrc["client_pkg"] }}::apis::{{ rsrc["name"] }}_api::{{ op["id"] }}(&config{% for qp in op.get("query_params", []) %}, {{ qp["rust_name"] }}_param{% endfor %}).await;
+    match resp_result {
+        Ok(data) => {
+            let json_output = serde_json::to_string_pretty(&data)?;
+            println!("{}", json_output);
+        },
+        Err({{ rsrc["client_pkg"] }}::apis::Error::Serde(e)) => {
+            let error_msg = e.to_string();
+            if error_msg.contains("content type") || error_msg.contains("application/octet-stream") || error_msg.contains("cannot be converted") {
+                println!("{}", r#"{"status": "deleted"}"#);
+            } else {
+                return Err(Box::new(e));
+            }
+        },
+        Err(e) => return Err(Box::new(e)),
+    }
+    {% else -%}
+    let resp = {{ rsrc["client_pkg"] }}::apis::{{ rsrc["name"] }}_api::{{ op["id"] }}(&config{% for qp in op.get("query_params", []) %}, {{ qp["rust_name"] }}_param{% endfor %}).await?;
+    let json_output = serde_json::to_string_pretty(&resp)?;
+    println!("{}", json_output);
+    {% endif -%}
+    {% endif -%}
+    Ok(())
+}
+
+{% endfor -%}
+
+{# Instance operation handlers -#}
+{% for op in rsrc["operations"]["instance"]|sort(attribute='name') -%}
+pub async fn handle_{{ rsrc["module_name"] }}_{{ op["id"] | replace(rsrc["name"] ~ "_", "") }}(
+    ctx: &ApiContext,
+    args: &{{ op["pascal_name"] }}Args,
+) -> Result<(), Box<dyn std::error::Error>> {
+    {{ init_config(rsrc["client_pkg"]) }}
+    {% if op["name"] == "update" -%}
+    // Build request body for update operation
+    {% set key_attr_names = [] -%}
+    {% for attr in op["attrs"]|sort(attribute='name') -%}
+    {% if attr.get("argument") -%}
+    {% set _ = key_attr_names.append(attr["name"]) -%}
+    {% endif -%}
+    {% endfor -%}
+    {% set seen_field_names = [] -%}
+    let req_body = {{ rsrc["client_pkg"] }}::models::Update{{ rsrc["comp_name_pascal"] }} {
+        {% for attr in op["attrs"]|sort(attribute='name') -%}
+        {% if attr["name"] not in seen_field_names -%}
+        {% if attr.get("needs_none_in_update") -%}
+        {{ attr["rust_name"] }}: None,
+        {% set _ = seen_field_names.append(attr["name"]) -%}
+        {% elif attr["name"] not in key_attr_names and not attr.get("argument") -%}
+        {{ attr["rust_name"] }}: {% if attr.get("body_conversion") == "ENUM_MATCH" -%}args.{{ attr["rust_name"] }}.as_ref().map(|e| match e {
+            {% for mapping in attr.get("enum_variant_mappings", []) -%}
+            {{ attr["type"] }}::{{ mapping["cli_variant"] }} => {{ attr.get("enum_model_type") }}::{{ mapping["model_variant"] }},
+            {% endfor -%}
+        }){% elif attr.get("body_conversion") == "ENUM_ARRAY_MATCH" -%}
+        args.{{ attr["rust_name"] }}.as_ref().map(|v| v.iter().map(|s| match s.to_lowercase().as_str() {
+            {% for mapping in attr.get("enum_variant_mappings", []) -%}
+            "{{ mapping["cli_variant"]|lower }}" => {{ attr.get("enum_item_type") }}::{{ mapping["model_variant"] }},
+            {% endfor -%}
+            _ => panic!("Invalid enum value for {{ attr["name"] }}: {}", s),
+        }).collect()){% elif attr.get("body_conversion") -%}{{ attr["body_conversion"] }}{% else -%}args.{{ attr["rust_name"] }}.clone(){% endif -%},
+        {% set _ = seen_field_names.append(attr["name"]) -%}
+        {% endif -%}
+        {% endif -%}
+        {% endfor -%}
+    };
+
+    {% set key_attrs = [] -%}
+    {% set seen_key_names = [] -%}
+    {% for attr in op["attrs"]|sort(attribute='name') -%}
+    {% if attr.get("argument") and attr["name"] not in seen_key_names -%}
+    {% set _ = key_attrs.append(attr) -%}
+    {% set _ = seen_key_names.append(attr["name"]) -%}
+    {% endif -%}
+    {% endfor -%}
+    {% if key_attrs|length == 1 -%}
+    let resp = {{ rsrc["client_pkg"] }}::apis::{{ rsrc["name"] }}_api::{{ op["id"] }}(&config, req_body, &args.{{ key_attrs[0]["rust_name"] }}).await?;
+    {% else -%}
+    let resp = {{ rsrc["client_pkg"] }}::apis::{{ rsrc["name"] }}_api::{{ op["id"] }}(&config, req_body, {% for attr in key_attrs -%}&args.{{ attr["rust_name"] }}{% if not loop.last %}, {% endif %}{% endfor -%}).await?;
+    {% endif -%}
+    let json_output = serde_json::to_string_pretty(&resp)?;
+    println!("{}", json_output);
+    {% else -%}
+    // Build query parameters for instance operations
+    {% set key_attrs = [] -%}
+    {% for attr in op["attrs"] -%}
+    {% if attr.get("argument") -%}
+    {% set _ = key_attrs.append(attr) -%}
+    {% endif -%}
+    {% endfor -%}
+    {% for qp in op.get("query_params", []) -%}
+    {% if qp["type"] == "String" -%}
+    {% if qp["required"] -%}
+    let {{ qp["rust_name"] }}_param = Some(args.{{ qp["rust_name"] }}.as_str());
+    {% else -%}
+    let {{ qp["rust_name"] }}_param = args.{{ qp["rust_name"] }}.as_ref().map(|s| s.as_str());
+    {% endif -%}
+    {% elif qp["type"] == "i64" -%}
+    {% if qp["required"] -%}
+    let {{ qp["rust_name"] }}_param = args.{{ qp["rust_name"] }} as i32;
+    {% else -%}
+    let {{ qp["rust_name"] }}_param = args.{{ qp["rust_name"] }}.map(|v| v as i32);
+    {% endif -%}
+    {% else -%}
+    {# Enum or other type: convert via AsRef<str> to avoid moving out of &args #}
+    {% if qp["required"] -%}
+    let {{ qp["rust_name"] }}_param = Some(args.{{ qp["rust_name"] }}.as_ref());
+    {% else -%}
+    let {{ qp["rust_name"] }}_param = args.{{ qp["rust_name"] }}.as_ref().map(|e| e.as_ref());
+    {% endif -%}
+    {% endif -%}
+    {% endfor -%}
+    {% if op["name"] == "delete" -%}
+    // DELETE operations may return empty responses (204 No Content)
+    {% if key_attrs|length == 1 -%}
+    let resp_result = {{ rsrc["client_pkg"] }}::apis::{{ rsrc["name"] }}_api::{{ op["id"] }}(&config, &args.{{ key_attrs[0]["rust_name"] }}{% for qp in op.get("query_params", []) %}, {{ qp["rust_name"] }}_param{% endfor %}).await;
+    {% else -%}
+    let resp_result = {{ rsrc["client_pkg"] }}::apis::{{ rsrc["name"] }}_api::{{ op["id"] }}(&config, {% for attr in key_attrs -%}&args.{{ attr["rust_name"] }}{% if not loop.last %}, {% endif %}{% endfor -%}{% for qp in op.get("query_params", []) %}, {{ qp["rust_name"] }}_param{% endfor %}).await;
+    {% endif -%}
+    match resp_result {
+        Ok(data) => {
+            let json_output = serde_json::to_string_pretty(&data)?;
+            println!("{}", json_output);
+        },
+        Err({{ rsrc["client_pkg"] }}::apis::Error::Serde(e)) => {
+            let error_msg = e.to_string();
+            if error_msg.contains("content type") || error_msg.contains("application/octet-stream") || error_msg.contains("cannot be converted") {
+                println!("{}", r#"{"status": "deleted"}"#);
+            } else {
+                return Err(Box::new(e));
+            }
+        },
+        Err(e) => return Err(Box::new(e)),
+    }
+    {% else -%}
+    {% if key_attrs|length == 1 -%}
+    let resp = {{ rsrc["client_pkg"] }}::apis::{{ rsrc["name"] }}_api::{{ op["id"] }}(&config, &args.{{ key_attrs[0]["rust_name"] }}{% for qp in op.get("query_params", []) %}, {{ qp["rust_name"] }}_param{% endfor %}).await?;
+    {% else -%}
+    let resp = {{ rsrc["client_pkg"] }}::apis::{{ rsrc["name"] }}_api::{{ op["id"] }}(&config, {% for attr in key_attrs -%}&args.{{ attr["rust_name"] }}{% if not loop.last %}, {% endif %}{% endfor -%}{% for qp in op.get("query_params", []) %}, {{ qp["rust_name"] }}_param{% endfor %}).await?;
+    {% endif -%}
+    let json_output = serde_json::to_string_pretty(&resp)?;
+    println!("{}", json_output);
+    {% endif -%}
+    {% endif -%}
+    Ok(())
+}
+
+{% endfor -%}
