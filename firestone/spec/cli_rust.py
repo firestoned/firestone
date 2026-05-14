@@ -91,19 +91,8 @@ def _enum_value_to_variant(enum_value: str) -> str:
     return _to_pascal_case(enum_value)
 
 
-def _to_singular(name: str) -> str:
-    """Convert a plural resource name to its singular form.
-
-    Handles common English pluralization patterns.  For irregular cases,
-    callers should prefer an explicit ``singular`` key in the resource schema.
-    """
-    if name.endswith(("ses", "xes", "ches", "shes", "zes")):
-        return name[:-2]  # addresses -> address, boxes -> box
-    if name.endswith("ies") and len(name) > 3:
-        return name[:-3] + "y"  # categories -> category
-    if name.endswith("s") and not name.endswith("ss"):
-        return name[:-1]  # books -> book  (but "class" stays "class")
-    return name
+# Alias kept for backward compatibility; canonical implementation lives in _base.
+_to_singular = spec_base.to_singular
 
 
 # pylint: disable=too-many-locals,too-many-branches,too-many-statements,too-many-nested-blocks
@@ -734,10 +723,11 @@ def generate(
         namespace = rsrc.get("namespace")
         module_name = f"{namespace}_{rsrc_name}" if namespace else rsrc_name
 
+        url_name = rsrc.get("plural") or rsrc_name
         baseurl = "/"
         if rsrc.get("versionInPath", False):
             baseurl += f"v{rsrc['apiVersion']}/"
-        baseurl += rsrc_name
+        baseurl += url_name
         _LOGGER.debug(f"baseurl: {baseurl}")
 
         default_query_params = rsrc.get("default_query_params", [])
@@ -818,7 +808,7 @@ def generate(
 
         rsrcs.append(
             {
-                "name": rsrc_name,  # original kind (used in API call paths)
+                "name": url_name,  # plural URL name (used in API call paths and client module names)
                 "module_name": module_name,  # namespace-qualified name (used for mod/file)
                 "pascal_name": rsrc_pascal,
                 "upper_name": rsrc_upper,

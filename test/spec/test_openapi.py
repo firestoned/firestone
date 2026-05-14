@@ -1,3 +1,4 @@
+# pylint: disable=too-many-lines
 """
 Test the firestone.spec.openapi module.
 """
@@ -823,6 +824,197 @@ class TestOpenAPIGenerate(unittest.TestCase):
         self.assertIn("/foo/{foo_key}", spec)
         self.assertIn("The get method is fabulous", spec)
         self.assertIn("1.0", spec)
+
+
+class TestOpenAPIToSingular(unittest.TestCase):
+    """Test the shared to_singular helper via spec_base."""
+
+    def test_simple_s(self):
+        """Strips trailing -s for simple plurals."""
+        self.assertEqual(spec_base.to_singular("books"), "book")
+        self.assertEqual(spec_base.to_singular("users"), "user")
+
+    def test_es_suffix(self):
+        """Strips -es for sibilant-ending words."""
+        self.assertEqual(spec_base.to_singular("addresses"), "address")
+        self.assertEqual(spec_base.to_singular("boxes"), "box")
+        self.assertEqual(spec_base.to_singular("churches"), "church")
+        self.assertEqual(spec_base.to_singular("statuses"), "status")
+
+    def test_ies_suffix(self):
+        """Converts -ies back to -y."""
+        self.assertEqual(spec_base.to_singular("categories"), "category")
+        self.assertEqual(spec_base.to_singular("policies"), "policy")
+
+    def test_double_ss_unchanged(self):
+        """Words ending in -ss are not modified."""
+        self.assertEqual(spec_base.to_singular("subclass"), "subclass")
+        self.assertEqual(spec_base.to_singular("access"), "access")
+
+    def test_no_s_unchanged(self):
+        """Leaves words that do not end in -s unchanged."""
+        self.assertEqual(spec_base.to_singular("person"), "person")
+        self.assertEqual(spec_base.to_singular("addressbook"), "addressbook")
+
+
+_MINIMAL_SCHEMA = {
+    "type": "array",
+    "key": {"name": "id", "schema": {"type": "string"}},
+    "items": {"type": "object", "properties": {"name": {"type": "string"}}},
+}
+
+_GET_METHODS = {"resource": ["get"], "instance": ["get"]}
+
+
+class TestOpenAPIPlural(unittest.TestCase):
+    """Test explicit plural field and singular field in openapi.generate."""
+
+    def test_plural_field_overrides_url_path(self):
+        """kind is singular; plural field controls the URL path."""
+        spec = openapi.generate(
+            [
+                {
+                    "kind": "proxy",
+                    "plural": "proxies",
+                    "apiVersion": "v1",
+                    "methods": _GET_METHODS,
+                    "schema": _MINIMAL_SCHEMA,
+                }
+            ],
+            "Test API",
+            "desc",
+            "summary",
+            "1.0",
+        )
+        self.assertIn("/proxies", spec)
+        self.assertNotIn("/proxy\n", spec)
+
+    def test_plural_field_drives_instance_path(self):
+        """Instance path also uses the plural URL name."""
+        spec = openapi.generate(
+            [
+                {
+                    "kind": "proxy",
+                    "plural": "proxies",
+                    "apiVersion": "v1",
+                    "methods": _GET_METHODS,
+                    "schema": _MINIMAL_SCHEMA,
+                }
+            ],
+            "Test API",
+            "desc",
+            "summary",
+            "1.0",
+        )
+        self.assertIn("/proxies/{id}", spec)
+
+    def test_no_plural_field_uses_kind_as_url(self):
+        """Without plural, kind is used verbatim for the URL (backward compat)."""
+        spec = openapi.generate(
+            [
+                {
+                    "kind": "proxies",
+                    "apiVersion": "v1",
+                    "methods": _GET_METHODS,
+                    "schema": _MINIMAL_SCHEMA,
+                }
+            ],
+            "Test API",
+            "desc",
+            "summary",
+            "1.0",
+        )
+        self.assertIn("/proxies", spec)
+
+    def test_singular_field_controls_component_name(self):
+        """Explicit singular field is used for the component schema name."""
+        spec = openapi.generate(
+            [
+                {
+                    "kind": "proxies",
+                    "singular": "proxy",
+                    "apiVersion": "v1",
+                    "methods": _GET_METHODS,
+                    "schema": _MINIMAL_SCHEMA,
+                }
+            ],
+            "Test API",
+            "desc",
+            "summary",
+            "1.0",
+        )
+        # component key in the YAML should be 'proxy:' not 'proxie:'
+        self.assertIn("proxy:", spec)
+        self.assertNotIn("proxie:", spec)
+
+    def test_sibilant_plural_produces_correct_component(self):
+        """kind ending in -ses derives the right singular without explicit field."""
+        spec = openapi.generate(
+            [
+                {
+                    "kind": "statuses",
+                    "apiVersion": "v1",
+                    "methods": _GET_METHODS,
+                    "schema": _MINIMAL_SCHEMA,
+                }
+            ],
+            "Test API",
+            "desc",
+            "summary",
+            "1.0",
+        )
+        # component key in the YAML should be 'status:' not 'statu:'
+        self.assertIn("status:", spec)
+        self.assertNotIn("statu:", spec)
+
+    def test_plural_and_singular_together(self):
+        """plural controls URL, singular controls component name independently."""
+        spec = openapi.generate(
+            [
+                {
+                    "kind": "policy",
+                    "plural": "policies",
+                    "singular": "policy",
+                    "apiVersion": "v1",
+                    "methods": _GET_METHODS,
+                    "schema": _MINIMAL_SCHEMA,
+                }
+            ],
+            "Test API",
+            "desc",
+            "summary",
+            "1.0",
+        )
+        self.assertIn("/policies", spec)
+        self.assertIn("policy", spec)
+
+    def test_double_ss_word_with_explicit_plural(self):
+        """Words ending in -ss (e.g. subclass) are not mangled by singularization.
+
+        kind: subclass  plural: subclasses
+        Expected URL:        /subclasses
+        Expected component:  subclass  (not 'subclas')
+        """
+        spec = openapi.generate(
+            [
+                {
+                    "kind": "subclass",
+                    "plural": "subclasses",
+                    "apiVersion": "v1",
+                    "methods": _GET_METHODS,
+                    "schema": _MINIMAL_SCHEMA,
+                }
+            ],
+            "Test API",
+            "desc",
+            "summary",
+            "1.0",
+        )
+        self.assertIn("/subclasses", spec)
+        self.assertIn("/subclasses/{id}", spec)
+        # component key must be the full word, not a truncated form
+        self.assertIn("subclass:", spec)
+        self.assertNotIn("subclas:", spec)
 
 
 if __name__ == "__main__":

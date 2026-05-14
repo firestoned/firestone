@@ -25,7 +25,7 @@ The underlying Python library that powers the `firestone` CLI. It can be importe
 A vocabulary that allows you to annotate and validate JSON documents. Firestone uses JSON Schema to define the structure of resources (fields, types, validation rules).
 
 ### Kind
-A string identifier for a resource (e.g., `book`, `user`). It is a required field in the resource blueprint and is used to generate URL paths, CLI commands, and documentation tags.
+A string identifier for a resource (e.g., `books`, `users`). It is a required field in the resource blueprint and is used to generate URL paths, CLI commands, and documentation tags. By convention `kind` is the plural noun (e.g. `kind: books` → `/books`). For resource names that auto-pluralize incorrectly, use the companion `plural` field to specify the URL path explicitly (e.g. `kind: subclass` + `plural: subclasses`).
 
 ### Metadata
 A section in the resource blueprint used to provide human-readable descriptions and other non-functional information about the resource.

@@ -90,7 +90,7 @@ def get_responses(
 
 
 def _get_comp_name(rsrc_name: str, method: str):
-    comp_name = rsrc_name if not rsrc_name.endswith("s") else rsrc_name[:-1]
+    comp_name = rsrc_name
     if method == "post":
         comp_name = f"Create{comp_name.capitalize()}"
     if method == "put":
@@ -388,7 +388,7 @@ def add_instance_attr_methods(
                 )
                 continue
 
-            comp_name = rsrc_name if not rsrc_name.endswith("s") else rsrc_name[:-1]
+            comp_name = rsrc_name
             inst_attr_op = get_method_op(
                 path, method, prop_schema, comp_name=comp_name, attr_name=prop
             )
@@ -531,7 +531,7 @@ def add_rsrc_components(
     components: dict, rsrc_name: str, methods: dict, schema: dict, security: dict
 ):
     """Get the components for this resource."""
-    comp_name = rsrc_name if not rsrc_name.endswith("s") else rsrc_name[:-1]
+    comp_name = rsrc_name
 
     # Reosurce level component, without required
     comp_schema = copy.deepcopy(schema["items"])
@@ -595,10 +595,13 @@ def generate(
     all_paths = {}
     for rsrc in rsrc_data:
         rsrc_name = rsrc["kind"]
+        # plural drives URL paths; singular drives component/schema names
+        url_name = rsrc.get("plural") or rsrc_name
+        singular = rsrc.get("singular") or spec_base.to_singular(rsrc_name)
         baseurl = "/"
         if rsrc.get("versionInPath", False):
             baseurl += f"v{rsrc['apiVersion']}/"
-        baseurl += rsrc_name
+        baseurl += url_name
         _LOGGER.debug(f"baseurl: {baseurl}")
 
         # Extract authc or security from the header
@@ -606,7 +609,7 @@ def generate(
 
         # Extract and set high-level resource component schema
         methods = rsrc.get("methods", {})
-        components = add_rsrc_components(components, rsrc_name, methods, rsrc["schema"], security)
+        components = add_rsrc_components(components, singular, methods, rsrc["schema"], security)
         _LOGGER.debug(f"components: {components['schemas']}")
         if (
             security
@@ -621,14 +624,14 @@ def generate(
         _LOGGER.debug(f"default_query_params: {default_query_params}")
 
         paths = get_paths(
-            rsrc["kind"],
+            singular,
             rsrc,
             baseurl,
             paths={},
             keys=[],
             default_query_params=default_query_params,
             components=components,
-            orig_rsrc_name=rsrc_name,
+            orig_rsrc_name=url_name,
             security=security,
         )
         _LOGGER.debug(f"paths: {paths}")

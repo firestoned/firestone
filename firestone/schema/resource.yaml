@@ -110,6 +110,12 @@ properties:
       type names (e.g. CreateAddress).  Only needed when the automatic
       singularization produces the wrong result.
     type: string
+  plural:
+    description: >
+      Explicit plural form of the resource kind, used for URL paths
+      (e.g. plural: proxies when kind: proxy).  Only needed when the
+      kind value is not already the plural form.
+    type: string
   schema:
     description: The schema of the resource
     type: object

@@ -297,10 +297,11 @@ def generate(
     rsrcs = []
     for rsrc in rsrc_data:
         rsrc_name = rsrc["kind"]
+        url_name = rsrc.get("plural") or rsrc_name
         baseurl = "/"
         if rsrc.get("versionInPath", False):
             baseurl += f"v{rsrc['apiVersion']}/"
-        baseurl += rsrc_name
+        baseurl += url_name
         _LOGGER.debug(f"baseurl: {baseurl}")
 
         ops = get_ops(
