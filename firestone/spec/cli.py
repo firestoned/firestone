@@ -304,14 +304,17 @@ def generate(
     rsrcs = []
     for rsrc in rsrc_data:
         rsrc_name = rsrc["kind"]
+        url_name = rsrc.get("plural") or rsrc_name
         baseurl = "/"
         if rsrc.get("versionInPath", False):
             baseurl += f"v{rsrc['apiVersion']}/"
-        baseurl += rsrc_name
+        baseurl += url_name
         _LOGGER.debug(f"baseurl: {baseurl}")
 
         default_query_params = rsrc.get("default_query_params", [])
         _LOGGER.debug(f"default_query_params: {default_query_params}")
+
+        comp_name = rsrc.get("singular") or spec_base.to_singular(rsrc_name)
 
         ops = get_ops(
             rsrc,
@@ -324,6 +327,8 @@ def generate(
         rsrcs.append(
             {
                 "name": rsrc_name,
+                "url_name": url_name,
+                "comp_name": comp_name,
                 "operations": ops,
             }
         )

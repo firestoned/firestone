@@ -31,8 +31,8 @@ from {{ client_pkg }} import exceptions
 {% endif -%}
 {% endfor -%}
 
-{% set comp_name = rsrc["name"] if not rsrc["name"].endswith("s") else rsrc["name"][:-1] %}
-from {{ client_pkg }}.api import {{ rsrc["name"] }}_api
+{% set comp_name = rsrc["comp_name"] %}
+from {{ client_pkg }}.api import {{ rsrc["url_name"] }}_api
 from {{ client_pkg }}.models import {{ comp_name }} as {{ comp_name }}_model
 {% if ns.has_create -%}
 from {{ client_pkg }}.models import create_{{ comp_name }} as create_{{ comp_name }}_model
@@ -73,7 +73,7 @@ def init():
     async def {{ rsrc["name"] }}(ctx_obj):
         """High level command for an {{ rsrc["name"] }}."""
         _LOGGER.debug(f"ctx_obj: {ctx_obj}")
-        {% set clazz_name = rsrc["name"].capitalize() -%}
+        {% set clazz_name = rsrc["url_name"].capitalize() -%}
         {% if "_" in clazz_name -%}
         {% set new_clazz_name = [] -%}
         {% for part in  clazz_name.split("_") -%}
@@ -83,7 +83,7 @@ def init():
         {% endif -%}
         config = ctx_obj["api_client_config"]
         aclient = api_client.ApiClient(configuration=config)
-        ctx_obj["api_obj"] = {{ rsrc["name"] }}_api.{{ clazz_name }}Api(api_client=aclient)
+        ctx_obj["api_obj"] = {{ rsrc["url_name"] }}_api.{{ clazz_name }}Api(api_client=aclient)
 
 
     # pylint: disable=redefined-builtin
@@ -110,7 +110,7 @@ def init():
             "{{ attr["name"] }}":  {{ attr["name"].replace("-", "_") }},
             {% endfor %}
         }
-        {% set comp_name = rsrc["name"] if not rsrc["name"].endswith("s") else rsrc["name"][:-1] -%}
+        {% set comp_name = rsrc["comp_name"] -%}
         {% if op["name"] == "create" -%}
 
         {% set clazz_name = comp_name.capitalize() -%}
@@ -167,7 +167,7 @@ def init():
             {% endif -%}
             {% endfor %}
         }
-        {% set comp_name = rsrc["name"] if not rsrc["name"].endswith("s") else rsrc["name"][:-1] %}
+        {% set comp_name = rsrc["comp_name"] %}
         {% if op["name"] == "create" %}
         req_body = create_{{ comp_name }}_model.{{ comp_name.capitalize(**params) }}()
         {% elif op["name"] == "update" %}

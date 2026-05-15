@@ -49,7 +49,7 @@ asyncapi:                         # Optional
 ### kind (Required)
 
 **Type:** String
-**Description:** Resource name used in API paths
+**Description:** Resource name used in API paths. By convention this should be the plural noun — it is used directly as the URL path segment.
 **URL Format:** `/{kind}` and `/{kind}/{id}`
 
 **Rules:**
@@ -64,6 +64,36 @@ kind: users              # → /users, /users/{user_id}
 kind: blog-posts         # → /blog-posts, /blog-posts/{post_id}
 kind: product_categories # → /product_categories, /product_categories/{category_id}
 ```
+
+---
+
+### plural (Optional)
+
+**Type:** String
+**Description:** Explicit plural form of the resource kind, used as the URL path when `kind` cannot be the plural noun itself (e.g. a composite word whose plural Firestone cannot infer).
+
+**Example:**
+```yaml
+kind: subclass
+plural: subclasses   # → /subclasses, /subclasses/{id}
+```
+
+When omitted, `kind` is used as the URL path verbatim.
+
+---
+
+### singular (Optional)
+
+**Type:** String
+**Description:** Explicit singular form of the resource kind, used when deriving model type names (e.g. `CreateProxy`). Only needed when the automatic singularization produces the wrong result.
+
+**Example:**
+```yaml
+kind: proxies
+singular: proxy      # model types: Proxy, CreateProxy, UpdateProxy
+```
+
+When omitted, the singular is inferred from `kind` (or `plural`) automatically.
 
 ---
 

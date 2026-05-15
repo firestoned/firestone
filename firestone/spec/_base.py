@@ -30,6 +30,21 @@ def yaml_pretty(data, indent=2):
 JINJA_ENV.filters["yaml_pretty"] = yaml_pretty
 
 
+def to_singular(name: str) -> str:
+    """Convert a plural resource name to its singular form.
+
+    Handles common English pluralization patterns. For irregular cases,
+    callers should prefer an explicit ``singular`` key in the resource schema.
+    """
+    if name.endswith(("ses", "xes", "ches", "shes", "zes")):
+        return name[:-2]  # addresses -> address, boxes -> box
+    if name.endswith("ies") and len(name) > 3:
+        return name[:-3] + "y"  # categories -> category
+    if name.endswith("s") and not name.endswith("ss"):
+        return name[:-1]  # books -> book  (but "class" stays "class")
+    return name
+
+
 def get_opid(path: str, method: str):
     """Get a unique operationId given the path and method."""
     opid = path[1:].replace("/", "_")

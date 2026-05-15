@@ -564,11 +564,15 @@ class TestCliRustHelpers(unittest.TestCase):
         self.assertEqual(cli_rust._to_singular("addresses"), "address")
         self.assertEqual(cli_rust._to_singular("boxes"), "box")
         self.assertEqual(cli_rust._to_singular("churches"), "church")
+        self.assertEqual(cli_rust._to_singular("proxies"), "proxy")
+        # composite word whose plural ends in -ses must survive round-trip
+        self.assertEqual(cli_rust._to_singular("statuses"), "status")
 
     def test_to_singular_ies_suffix(self):
         """Converts -ies back to -y."""
         self.assertEqual(cli_rust._to_singular("categories"), "category")
         self.assertEqual(cli_rust._to_singular("libraries"), "library")
+        self.assertEqual(cli_rust._to_singular("policies"), "policy")
 
     def test_to_singular_no_s(self):
         """Leaves words that don't end in -s unchanged."""
@@ -576,8 +580,10 @@ class TestCliRustHelpers(unittest.TestCase):
         self.assertEqual(cli_rust._to_singular("person"), "person")
 
     def test_to_singular_double_s(self):
-        """Words ending in -ss are not modified."""
+        """Words ending in -ss are not modified (composite or plain)."""
         self.assertEqual(cli_rust._to_singular("class"), "class")
+        self.assertEqual(cli_rust._to_singular("subclass"), "subclass")
+        self.assertEqual(cli_rust._to_singular("access"), "access")
 
     def test_number_type_mapping(self):
         """OpenAPI 'number' type maps to Rust f64."""

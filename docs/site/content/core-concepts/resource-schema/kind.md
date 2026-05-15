@@ -102,6 +102,36 @@ The influence of `kind` goes far beyond just the API path. It's used everywhere 
 -   **Documentation:** Titles, descriptions, and help text will all reference the `kind`.
 -   **Generated Code:** Variable names and function names in generated clients will often be based on the `kind`.
 
+## Handling Irregular Plurals with `plural` and `singular`
+
+Standard English pluralization works automatically for most resource names (`books`, `users`, `addresses`). Composite or domain-specific words sometimes can't follow the plural-form-as-`kind` convention, or auto-singularization produces the wrong model name. Two companion fields let you override both independently.
+
+### `plural` — override the URL path
+
+Use `plural` when `kind` cannot be the plural noun itself (for example, a word whose plural is ambiguous to the generator):
+
+```yaml
+kind: subclass
+plural: subclasses   # URL path becomes /subclasses and /subclasses/{id}
+apiVersion: v1
+# ...
+```
+
+Without `plural`, the URL path is taken directly from `kind`. With `plural`, all generated URL paths, CLI routes, and API tags use the `plural` value while `kind` still drives the resource's internal identity and CLI command name.
+
+### `singular` — override the model name
+
+Firestone derives the singular form from `kind` (or `plural`) to name generated model types (e.g. `CreateProxy`). When the derived name is wrong, set `singular` explicitly:
+
+```yaml
+kind: proxies
+singular: proxy      # model types become Proxy, CreateProxy, UpdateProxy
+apiVersion: v1
+# ...
+```
+
+Both fields are optional and independent — you can set either, both, or neither.
+
 ## Formal Definition & Validation
 
 `firestone` enforces a few simple rules for the `kind` field.

@@ -208,6 +208,7 @@ versionInPath: false
 - Becomes the base URL path (e.g., `/addressbook`)
 - Should be plural for collections (books, users, addresses)
 - Must be a valid URL path segment
+- Use `plural: <value>` to override the URL path when `kind` cannot be a plural noun (e.g. composite words like `subclass` → `plural: subclasses`)
 
 **apiVersion** (required)
 - Semantic version of your resource definition
