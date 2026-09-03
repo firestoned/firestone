@@ -80,6 +80,11 @@ def generate(ctx, description, resources, summary, title, version):
 
         ctx.obj["data"].append(rsrc_data)
 
+    # Validations are optional: a project that declares none gets an empty ruleset here
+    # and every generator below behaves exactly as it did before the feature existed.
+    ctx.obj["validations"] = firestone_spec.validations.extract(ctx.obj["data"])
+    ctx.obj["data"] = firestone_spec.validations.strip(ctx.obj["data"])
+
 
 # TODO add support for providing an existing openapi spec file and merge data in
 @generate.command()
@@ -117,6 +122,7 @@ def openapi(rsrc_data, output, ui_server, prefix, version):
         rsrc_data["version"],
         prefix=prefix,
         openapi_version=version,
+        validations=rsrc_data["validations"],
     )
     print(openapi_spec, file=output)
 
@@ -334,6 +340,65 @@ def streamlit(rsrc_data, backend_url, col_mappings, output, output_dir, as_modul
             fh.write(st_spec[rsrc])
 
     return None
+
+
+@generate.command()
+@click.option(
+    "--output-dir",
+    "-o",
+    help="Location of the directory to write the validation package to",
+    type=click.Path(file_okay=False, dir_okay=True, writable=True),
+    required=True,
+)
+@click.option(
+    "--no-tests",
+    help="Do not generate the pytest suite from the rules' examples",
+    is_flag=True,
+)
+@click.option(
+    "--language",
+    "-l",
+    help="The language to generate the validation package for",
+    type=click.Choice([LANG_PYTHON, LANG_RUST], case_sensitive=False),
+    default=LANG_PYTHON,
+    show_default=True,
+)
+@click.pass_obj
+def validations(rsrc_data, output_dir, no_tests, language):
+    """Generate a server side validation package for the given resource data.
+
+    The package holds the rules declared by the resources and the engine that runs
+    them. It has no dependency on firestone: you implement a Resolver against your
+    own database or cache, and the generated code does the rest.
+    """
+    ruleset = rsrc_data["validations"]
+    if not ruleset:
+        click.echo(
+            "No resource declares any 'references' or 'validations', so there is "
+            "nothing to generate.",
+            err=True,
+        )
+        return
+
+    files = firestone_spec.validations.generate(
+        ruleset, language=language.lower(), with_tests=not no_tests
+    )
+
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    for name, content in files.items():
+        path = os.path.join(output_dir, name)
+        _LOGGER.info(f"Writing {path}")
+        with io.open(path, "w", encoding="utf-8") as fh:
+            fh.write(content)
+
+    rule_count = sum(len(rules) for rules in ruleset.values())
+    click.echo(
+        f"Wrote {len(files)} file(s) to {output_dir} for {rule_count} rule(s) "
+        f"across {len(ruleset)} resource(s).",
+        err=True,
+    )
 
 
 if __name__ == "main":

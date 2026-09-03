@@ -81,6 +81,118 @@ properties:
       instance: *http_methods
       instance_attrs: *http_methods
       additionalProperties: false
+  validations:
+    type: object
+    description: >
+      Optional, declarative validation rules for this resource, evaluated server
+      side by the generated validation package. Resources that omit this key are
+      completely unaffected.
+    properties:
+      rules:
+        description: A list of rules, each a CEL expression over the lookups it declares
+        type: array
+        items:
+          type: object
+          properties:
+            name:
+              description: A unique name for this rule, within this resource
+              type: string
+            description:
+              description: What this rule enforces, and why
+              type: string
+            methods:
+              description: The HTTP methods this rule runs on, all mutating methods by default
+              type: array
+              items:
+                type: string
+                enum:
+                  - delete
+                  - patch
+                  - post
+                  - put
+            refs:
+              description: >
+                The resources this rule needs, keyed by the name it refers to them
+                by in the expression. Each entry needs a 'kind' and a 'value', the
+                dotted path in the request body holding the value to look up.
+              type: object
+              patternProperties:
+                ^[a-zA-Z_][a-zA-Z0-9_]*$:
+                  type: object
+                  properties:
+                    kind:
+                      description: The kind of resource to look up
+                      type: string
+                    key:
+                      description: >
+                        The attribute of that resource to match on, its schema key
+                        by default
+                      type: string
+                    value:
+                      description: The dotted path in the request body holding the value
+                      type: string
+                    optional:
+                      description: >
+                        Whether the rule still runs when this lookup finds nothing.
+                        False by default, meaning the rule fails if the resource is
+                        missing. Set true for a rule that is about absence, and guard
+                        the expression with has().
+                      type: boolean
+                  required:
+                    - kind
+                    - value
+                  additionalProperties: false
+              additionalProperties: false
+            expr:
+              description: A CEL expression over self, old, refs and ctx, which must be true
+              type: string
+            error:
+              description: The response to give when this rule fails
+              type: object
+              properties:
+                status:
+                  description: The HTTP status code, 422 by default
+                  type: integer
+                message:
+                  description: >
+                    The message, which may interpolate values with {self.city} style
+                    placeholders
+                  type: string
+              additionalProperties: false
+            examples:
+              description: Cases this rule must accept or reject, used to generate tests
+              type: array
+              items:
+                type: object
+                properties:
+                  self:
+                    description: The request body
+                    type: object
+                  old:
+                    description: The resource as it currently stands
+                    type: object
+                  refs:
+                    description: The resources the resolver would find, keyed by ref name
+                    type: object
+                  ctx:
+                    description: Anything else the rule needs, e.g. the caller's roles
+                    type: object
+                  expect:
+                    description: Whether this rule should accept or reject the case
+                    type: string
+                    enum:
+                      - pass
+                      - fail
+                required:
+                  - expect
+                additionalProperties: false
+          required:
+            - name
+            - expr
+          additionalProperties: false
+    required:
+      - rules
+    additionalProperties: false
   client_pkg:
     description: >
       The Rust client crate generated for this resource (e.g. my_project_client).

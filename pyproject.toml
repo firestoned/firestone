@@ -23,6 +23,9 @@ pydantic = ">=1.10.5"
 python-dateutil = ">=2.8.2"
 aiohttp = ">=3.8.4"
 diff-match-patch = ">=20230430"
+# Only needed to evaluate the CEL expressions in generated validation rules;
+# firestone itself never imports it. Install with: pip install firestoned[validations]
+cel-python = { version = ">=0.1.5", optional = true }
 
 [tool.poetry.group.asyncapi.dependencies]
 asyncapi = {extras = ["http"], version = ">=0.14.1"}
@@ -48,6 +51,9 @@ swagger-ui-py = ">=22.7.13"
 aiohttp-retry = "^2.8.3"
 #firestone-lib = { path = "../firestone-lib/", develop = true }
 toml = "^0.10.2"
+# Also declared as the optional "validations" extra, for consumers. Kept here so a
+# plain 'poetry install' can run the tests that evaluate CEL rules.
+cel-python = ">=0.1.5"
 
 
 [tool.poetry.group.fastapi.dependencies]
@@ -60,6 +66,7 @@ dictdiffer = "^0.9.0"
 
 [tool.poetry.extras]
 caching = ["quart", "asyncapi", "requests", "websockets", "typer", "uvicorn", "apidaora"]
+validations = ["cel-python"]
 
 [tool.poetry.scripts]
 firestone = 'firestone.__main__:main'
@@ -67,6 +74,11 @@ firestone = 'firestone.__main__:main'
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+# The generated validation package under examples/ carries its own generated tests,
+# which are meant to run inside the project firestone generated them into.
+[tool.pytest.ini_options]
+testpaths = ["test"]
 
 [tool.black]
 line-length = 100

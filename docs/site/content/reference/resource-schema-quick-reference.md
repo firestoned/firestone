@@ -40,6 +40,8 @@ security:                         # Optional
 asyncapi:                         # Optional
   publish: <boolean>
   subscribe: <boolean>
+validations:                      # Optional
+  rules: [...]
 ```
 
 ---
@@ -474,6 +476,55 @@ asyncapi:
   publish: true    # Clients can publish to this resource
   subscribe: true  # Clients can subscribe to updates
 ```
+
+---
+
+### validations (Optional)
+
+Server side business rules. Absent, nothing changes anywhere.
+
+```yaml
+# A relationship, declared on the property that holds it
+schema:
+  items:
+    properties:
+      person:
+        schema:
+          $ref: "person.yaml#/schema"
+        references:
+          kind: persons              # Required: the resource referenced
+          key: first_name            # Optional: defaults to the target's schema key
+          value: person.first_name   # Optional: defaults to the property name
+          on_missing: reject         # Optional: reject (default) or ignore
+          immutable: false           # Optional: can the reference be repointed
+
+# Anything conditional, as a CEL expression
+validations:
+  rules:
+    - name: postal_code_matches_city   # Required, unique within the resource
+      description: <string>            # Optional
+      methods: [post, put]             # Optional: defaults to [post, put, patch]
+      refs:                            # Optional: the lookups the rule needs
+        postal:
+          kind: postal_codes
+          key: name                    # A path into the target, not a column name
+          value: postal_code
+          optional: false              # Default: the rule fails if this finds nothing
+      expr: refs.postal.city == self.city   # Required
+      error:                           # Optional
+        status: 422                    # Defaults to 422
+        message: "{self.postal_code} is not in {self.city}."
+      examples:                        # Optional, generates tests
+        - self: {postal_code: K1A, city: Ottawa}
+          refs: {postal: {city: Ottawa}}
+          expect: pass
+```
+
+An expression sees `self` (the resource as it will be), `old` (as it currently is), `refs` (what the resolver found) and `ctx` (whatever the caller passes). Use `methods`, not `on`: YAML parses a bare `on:` key as the boolean `true`.
+
+Lookups are required by default, so a rule whose lookup finds nothing fails rather than blowing up in the expression. Mark a lookup `optional: true` for a rule that is *about* absence, and guard it with `has()`.
+
+See [Validations](../../core-concepts/resource-schema/validations) for the full reference.
 
 ---
 

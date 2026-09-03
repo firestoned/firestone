@@ -55,3 +55,26 @@ jobs:
       #     pytest-coverage-path: ./pytest-coverage.txt
       #     junitxml-path: ./pytest-coverage.xml
       #     github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  rust-validations:
+    name: Generated rust validations 🦀
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: "poetry"
+
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Install rust toolchain
+        run: rustup component add rustfmt clippy
+
+      - name: Type check the generated validation package
+        run: poetry run make verify-validations-rust
