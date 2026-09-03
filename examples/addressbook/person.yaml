@@ -53,6 +53,35 @@ security:
   instance_attrs: []
 #   - delete
 #   - put
+validations:
+  rules:
+    - name: person_is_not_in_use
+      description: A person cannot be deleted while an address still points at them.
+      methods:
+        - delete
+      refs:
+        address:
+          kind: addressbook
+          key: person.first_name
+          value: first_name
+          # This rule is about absence, so finding nothing is the passing case
+          # rather than a failure. Lookups are required by default.
+          optional: true
+      expr: "!has(refs.address)"
+      error:
+        status: 409
+        message: "{self.first_name} still has an address in the addressbook."
+      examples:
+        - self:
+            first_name: Ann
+          refs: {}
+          expect: pass
+        - self:
+            first_name: Bob
+          refs:
+            address:
+              address_key: bob-home
+          expect: fail
 schema:
   type: array
   key:

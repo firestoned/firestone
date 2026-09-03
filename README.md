@@ -32,6 +32,7 @@ Firestone lives alongside a couple of sibling projects that share tooling and de
 | AsyncAPI | `firestone generate … asyncapi` | AsyncAPI 2.x specification | Event-driven contracts, channel documentation |
 | Python CLI | `firestone generate … cli` | Click-based CRUD utilities (`main.py` or modules) | Internal tooling, scripted batch jobs |
 | Streamlit UI | `firestone generate … streamlit` | Streamlit pages/modules | Lightweight admin dashboards over your API |
+| Validations | `firestone generate … validations` | Server side validation package (Python or Rust) | Enforcing cross-resource rules declared in the schema |
 
 ## Quick Start
 
@@ -259,6 +260,39 @@ Map of `resource`, `instance`, and `instance_attrs` to the HTTP verbs you want g
 #### `descriptions`
 
 Override operation descriptions for `resource`, `instance`, or `instance_attrs` endpoints. Any omitted method falls back to Firestone’s defaults.
+
+#### `references` and `validations`
+
+Optional, server side business rules, so that checks like “only create an address for a person who already exists” live in the schema rather than in every handler.
+
+Declare a relationship on the property that holds it:
+
+```yaml
+person:
+  schema:
+    $ref: "person.yaml#/schema"
+  references:
+    kind: persons
+    key: first_name
+    value: person.first_name
+```
+
+Declare anything conditional as a [CEL](https://github.com/google/cel-spec) expression over the lookups it needs:
+
+```yaml
+validations:
+  rules:
+    - name: only_admins_may_invalidate
+      methods: [put, patch]
+      expr: 'self.is_valid == old.is_valid || (has(ctx.roles) && "admin" in ctx.roles)'
+      error:
+        status: 403
+        message: Only an admin may change is_valid on an address.
+```
+
+`firestone generate ... validations -o myapi/validation` then writes a self-contained package that runs them, for Python or, with `--language rust`, for Rust. Firestone works out *what* each rule needs to look up; you implement a small `Resolver` against your own database or cache, once for the whole API. Both packages are generated from the same rules and behave identically. Failures come back as an RFC 9457 problem document, and the generated OpenAPI spec gains the matching error responses.
+
+Resources that declare neither key are completely unaffected: identical spec, no new files, no new dependencies. See the [validations guide](https://firestone.firestoned.io/generation-guides/validations/) for the full story.
 
 ### Generate OpenAPI Client
 
