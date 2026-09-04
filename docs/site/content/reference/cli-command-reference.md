@@ -49,7 +49,7 @@ firestone generate [OPTIONS] <generator>
 
 ### Generators
 
-Firestone supports four generators: `openapi`, `asyncapi`, `cli`, and `streamlit`.
+Firestone supports five generators: `openapi`, `asyncapi`, `cli`, `streamlit`, and `validations`.
 
 ---
 
@@ -296,6 +296,65 @@ Opens at `http://localhost:8501`.
 
 ---
 
+## Validations Generator
+
+Generates a self-contained, server side package that enforces the `references` and `validations` declared in your resources. Only meaningful for resources that declare them; if none do, the command writes nothing and says so.
+
+### Syntax
+
+```bash
+firestone generate [COMMON_OPTIONS] validations [OPTIONS]
+```
+
+### Options
+
+| Option | Short | Type | Required | Default | Description |
+|--------|-------|------|----------|---------|-------------|
+| `--output-dir` | `-o` | PATH | Yes | - | Directory to write the package to, created if missing |
+| `--no-tests` | - | FLAG | No | `false` | Skip the pytest suite generated from the rules' `examples` |
+| `--language` | `-l` | CHOICE | No | `python` | Target language: `python` or `rust` |
+
+### Examples
+
+```bash
+# Generate the package for the addressbook example
+firestone generate \
+  -t "Addressbook API" \
+  -d "Addressbook API" \
+  -r examples/addressbook/addressbook.yaml,examples/addressbook/person.yaml \
+  -v 1.0 \
+  validations -o addressbook/validation
+
+# The same rules, generated for a rust server
+firestone generate \
+  -t "Addressbook API" \
+  -d "Addressbook API" \
+  -r examples/addressbook/addressbook.yaml,examples/addressbook/person.yaml \
+  -v 1.0 \
+  validations -l rust -o src/validation
+
+# Without the generated test suite
+firestone generate -t "API" -d "API" -r resources/ -v 1.0 \
+  validations -o myapi/validation --no-tests
+```
+
+Pass every resource file, not just the ones carrying rules: a reference with no explicit `key` needs its target's schema, and a typo in a `kind` is only caught when the referenced resource is present.
+
+### Output
+
+```
+myapi/validation/            src/validation/
+├── __init__.py              ├── mod.rs
+├── ports.py                 ├── ports.rs
+├── runtime.py               ├── runtime.rs
+├── rules.py                 ├── rules.rs
+└── test_rules.py            └── tests.rs
+```
+
+Neither package has a runtime dependency on firestone. Rules carrying a CEL `expr` need `cel-python` in a python server, or the `cel` feature (`cel-interpreter`) in a rust one; rules using only `references` need nothing extra in either.
+
+---
+
 ## Multiple Resources
 
 All generators support multiple resources via:
@@ -378,6 +437,9 @@ firestone generate -r resources/ -t "My API" cli --pkg myapi --client-pkg myapi_
 
 # Generate Streamlit UI
 firestone generate -r resources/ -t "My API" streamlit --backend-url http://localhost:8000 > app.py
+
+# Generate the server side validation package
+firestone generate -r resources/ -t "My API" validations -o myapi/validation
 ```
 
 ### CI/CD Integration

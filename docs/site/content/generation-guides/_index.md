@@ -14,6 +14,7 @@ From one resource schema, you can create:
 
 - **OpenAPI Specifications** - REST API documentation and contracts
 - **AsyncAPI Specifications** - WebSocket and event-driven API docs
+- **Validation Packages** - Server side enforcement of the rules declared in your resources
 - **CLI Tools** - Command-line interfaces with full CRUD operations
 - **Streamlit UIs** - Interactive web interfaces for your APIs
 

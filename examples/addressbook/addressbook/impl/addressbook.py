@@ -30,6 +30,8 @@ from addressbook.models.addressbook import Addressbook
 from addressbook.models.create_addressbook import CreateAddressbook
 from addressbook.models.update_addressbook import UpdateAddressbook
 from addressbook.security_api import get_token_bearer_auth
+from addressbook.impl.resolver import InMemoryResolver, problem_response
+from addressbook.validation import ValidationError, validate
 
 
 class AddressBook(BaseAddressbookApi):
@@ -90,4 +92,15 @@ class AddressBook(BaseAddressbookApi):
     ) -> CreateAddressbook:
         """Create a new address in this addressbook, a new address key will be created."""
         print(f"create_addressbook: {create_addressbook}")
+
+        # Everything declared in addressbook.yaml runs here, in one call. For this
+        # resource that is the 'person' reference: an address can only be created
+        # for a person who already exists.
+        try:
+            await validate("post", "addressbook", create_addressbook, resolver=InMemoryResolver())
+        except ValidationError as exc:
+            # Returned, not raised: RFC 9457 wants the problem at the top level of
+            # the body, and HTTPException would nest it under 'detail'.
+            return problem_response(exc)
+
         return create_addressbook.to_dict()

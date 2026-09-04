@@ -67,6 +67,45 @@ methods:
 #  instance_attrs:
 #    - delete
 #    - put
+# Rules that need more than a relationship are written as CEL expressions over
+# self, old, refs and ctx. Rules that read 'old' need the current resource to be
+# passed in alongside the request body.
+validations:
+  rules:
+    - name: only_admins_may_invalidate
+      description: Marking an address invalid is an administrative action.
+      methods:
+        - put
+        - patch
+      expr: 'self.is_valid == old.is_valid || (has(ctx.roles) && "admin" in ctx.roles)'
+      error:
+        status: 403
+        message: Only an admin may change is_valid on an address.
+      examples:
+        - self:
+            is_valid: false
+          old:
+            is_valid: true
+          ctx:
+            roles:
+              - admin
+          expect: pass
+        - self:
+            is_valid: false
+          old:
+            is_valid: true
+          ctx:
+            roles:
+              - user
+          expect: fail
+        - self:
+            is_valid: true
+          old:
+            is_valid: true
+          ctx:
+            roles:
+              - user
+          expect: pass
 # Metadata: end
 schema:
   type: array
@@ -99,6 +138,14 @@ schema:
         description: This is a person object that lives at this address.
         schema:
           $ref: "person.yaml#/schema"
+        # An address can only be created for a person who is already known. The
+        # generated validation package turns this into an existence check; you
+        # implement the lookup itself in your Resolver.
+        references:
+          kind: persons
+          key: first_name
+          value: person.first_name
+          on_missing: reject
       addrtype:
         description: The address type, e.g. work or home
         type: string
