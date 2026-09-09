@@ -32,6 +32,49 @@ components:
       allOf:
       - $ref: '#/components/schemas/person'
       - type: object
+    ValidationProblem:
+      description: An RFC 9457 problem detail, returned when one or more validation
+        rules fail.
+      properties:
+        detail:
+          description: The first violation's message.
+          type: string
+        status:
+          description: The HTTP status code.
+          type: integer
+        title:
+          description: A short summary of the problem.
+          type: string
+        type:
+          default: about:blank
+          type: string
+        violations:
+          description: Every rule that failed for this request.
+          items:
+            properties:
+              field:
+                description: The field the rule applies to, if any.
+                type: string
+              message:
+                description: Why the rule failed.
+                type: string
+              resource:
+                description: The resource validated.
+                type: string
+              rule:
+                description: The name of the rule.
+                type: string
+            required:
+            - rule
+            - resource
+            - message
+            type: object
+          type: array
+      required:
+      - title
+      - status
+      - violations
+      type: object
     addressbook:
       properties:
         address_key:
@@ -83,6 +126,10 @@ components:
           type: array
         last_name:
           description: The person's last name
+          type: string
+        timezone:
+          default: UTC
+          description: The person's timezone (e.g. UTC, America/New_York)
           type: string
         uuid:
           description: A UUID associated to this person
@@ -161,6 +208,12 @@ paths:
             application/json:
               schema: *id003
           description: Response for CREATED
+        422:
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblem'
+          description: One or more validation rules failed
       tags:
       - addressbook
   /addressbook/{address_key}:
@@ -244,6 +297,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/UpdateAddressbook'
           description: Response for OK
+        403:
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblem'
+          description: One or more validation rules failed
+        422:
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblem'
+          description: One or more validation rules failed
       tags:
       - addressbook
   /addressbook/{address_key}/addrtype:
@@ -332,6 +397,18 @@ paths:
             application/json:
               schema: *id004
           description: Response for OK
+        403:
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblem'
+          description: One or more validation rules failed
+        422:
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblem'
+          description: One or more validation rules failed
       tags:
       - addressbook
   /addressbook/{address_key}/city:
@@ -414,6 +491,18 @@ paths:
             application/json:
               schema: *id005
           description: Response for OK
+        403:
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblem'
+          description: One or more validation rules failed
+        422:
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblem'
+          description: One or more validation rules failed
       tags:
       - addressbook
   /addressbook/{address_key}/country:
@@ -496,6 +585,18 @@ paths:
             application/json:
               schema: *id006
           description: Response for OK
+        403:
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblem'
+          description: One or more validation rules failed
+        422:
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblem'
+          description: One or more validation rules failed
       tags:
       - addressbook
   /addressbook/{address_key}/is_valid:
@@ -578,6 +679,18 @@ paths:
             application/json:
               schema: *id007
           description: Response for OK
+        403:
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblem'
+          description: One or more validation rules failed
+        422:
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblem'
+          description: One or more validation rules failed
       tags:
       - addressbook
   /addressbook/{address_key}/people:
@@ -664,6 +777,18 @@ paths:
             application/json:
               schema: *id008
           description: Response for OK
+        403:
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblem'
+          description: One or more validation rules failed
+        422:
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblem'
+          description: One or more validation rules failed
       tags:
       - addressbook
   /addressbook/{address_key}/person:
@@ -749,6 +874,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/person'
           description: Response for OK
+        403:
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblem'
+          description: One or more validation rules failed
+        422:
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblem'
+          description: One or more validation rules failed
       tags:
       - addressbook
     post:
@@ -775,6 +912,12 @@ paths:
             application/json:
               schema: *id009
           description: Response for CREATED
+        422:
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblem'
+          description: One or more validation rules failed
       tags:
       - addressbook
   /addressbook/{address_key}/state:
@@ -857,6 +1000,18 @@ paths:
             application/json:
               schema: *id010
           description: Response for OK
+        403:
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblem'
+          description: One or more validation rules failed
+        422:
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblem'
+          description: One or more validation rules failed
       tags:
       - addressbook
   /addressbook/{address_key}/street:
@@ -939,6 +1094,18 @@ paths:
             application/json:
               schema: *id011
           description: Response for OK
+        403:
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblem'
+          description: One or more validation rules failed
+        422:
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblem'
+          description: One or more validation rules failed
       tags:
       - addressbook
   /persons:
@@ -1015,6 +1182,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/person'
           description: Response for OK
+        409:
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblem'
+          description: One or more validation rules failed
       security:
       - bearer_auth: []
       tags:
@@ -1246,3 +1419,51 @@ paths:
           description: Response for OK
       tags:
       - postal_codes
+x-firestone-validations:
+  addressbook:
+  - description: The referenced persons must already exist.
+    error:
+      message: No persons found with first_name '{self.person.first_name}'.
+      status: 422
+    field: person.first_name
+    kind: exists
+    methods:
+    - post
+    - put
+    - patch
+    name: person_must_exist
+    refs:
+    - key: first_name
+      kind: persons
+      name: person
+      optional: false
+      value: person.first_name
+    resource: addressbook
+  - description: Marking an address invalid is an administrative action.
+    error:
+      message: Only an admin may change is_valid on an address.
+      status: 403
+    expr: self.is_valid == old.is_valid || (has(ctx.roles) && "admin" in ctx.roles)
+    kind: expr
+    methods:
+    - put
+    - patch
+    name: only_admins_may_invalidate
+    resource: addressbook
+  persons:
+  - description: A person cannot be deleted while an address still points at them.
+    error:
+      message: '{self.first_name} still has an address in the addressbook.'
+      status: 409
+    expr: '!has(refs.address)'
+    kind: expr
+    methods:
+    - delete
+    name: person_is_not_in_use
+    refs:
+    - key: person.first_name
+      kind: addressbook
+      name: address
+      optional: true
+      value: first_name
+    resource: persons

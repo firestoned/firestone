@@ -56,6 +56,9 @@ Troubleshooting guide for frequent errors.
 ### 14. [Version in Path](./version-in-path)
 Controlling whether the API version is included in the URL path.
 
+### 15. [Validations](./validations)
+Declaring relationships between resources, and the rules that govern them.
+
 ## Next Steps
 
 Ready to design your API's foundation?

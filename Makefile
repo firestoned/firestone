@@ -17,13 +17,16 @@ CLIENT_PKG := addressbook.client
 MAIN_FILE := ${ADDRESSBOOK_DIR}/main.py
 STREAMLIT_FILE := ${ADDRESSBOOK_DIR}/addressbook/webui/pages.py
 
-.PHONY: gen-openapi gen-server gen-client gen-cli
+.PHONY: gen-openapi gen-server gen-client gen-cli gen-validations gen-validations-rust verify-validations-rust
 
 help:
 	@echo "gen-openapi: Generate OpenAPI file from resources."
 	@echo "gen-server: Generate FastAPI server code."
 	@echo "gen-client: Generate Python client code."
 	@echo "gen-cli: Generate CRUD Python (Click-based) CLI."
+	@echo "gen-validations: Generate the python server side validation package."
+	@echo "gen-validations-rust: Generate the rust server side validation package."
+	@echo "verify-validations-rust: Type check the generated rust validation package."
 
 gen-openapi: ${FIRESTONE}
 	${FIRESTONE} generate \
@@ -67,6 +70,28 @@ gen-client: $(OPENAPI_GEN) \
 
 	@echo "Copying client files from ${CLIENT_OUTDIR} to project"
 	${CP} -rv ${CLIENT_OUTDIR}/addressbook/* ${ADDRESSBOOK_DIR}/addressbook
+
+gen-validations: ${FIRESTONE}
+	${FIRESTONE} generate \
+		--title 'Example person and addressbook API' \
+		--description 'Example person and addressbook API' \
+		--resources ${RESOURCES} \
+		--version 1.0 \
+		 validations \
+		 --output-dir ${ADDRESSBOOK_DIR}/addressbook/validation
+
+gen-validations-rust: ${FIRESTONE}
+	${FIRESTONE} generate \
+		--title 'Example person and addressbook API' \
+		--description 'Example person and addressbook API' \
+		--resources ${RESOURCES} \
+		--version 1.0 \
+		 validations \
+		 --language rust \
+		 --output-dir ${ADDRESSBOOK_DIR}/validation-rs/src/validation
+
+verify-validations-rust: ${FIRESTONE}
+	FIRESTONE=${FIRESTONE} test/rust/verify.sh
 
 gen-cli: $(FIRESTONE)
 	@echo "Creating directory for ${MAIN_FILE}"

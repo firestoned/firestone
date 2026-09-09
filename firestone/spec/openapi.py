@@ -10,6 +10,7 @@ import http.client
 import logging
 
 from firestone.spec import _base as spec_base
+from firestone.spec import validations as spec_validations
 
 DEFAULT_VERSION = "3.0.0"
 
@@ -580,6 +581,41 @@ def add_rsrc_components(
     return components
 
 
+def add_validation_responses(
+    paths: dict,
+    baseurl: str,
+    instance_baseurl: str,
+    rules: list,
+    attrs: list = None,
+):
+    """Add the validation error responses to every operation the rules cover.
+
+    The resource and instance operations are covered, and so are the instance
+    attribute operations: updating one attribute of a resource can just as easily
+    break a rule about the whole resource, so those endpoints have to advertise
+    the same failures. Only the HTTP methods at least one rule actually runs on
+    are touched, so a resource with no rules is left exactly as it was.
+
+    :param dict paths: the paths for this resource
+    :param str baseurl: the resource level path
+    :param str instance_baseurl: the resource instance path
+    :param list rules: the rules for this resource
+    :param list attrs: the exposed attribute names of a resource instance
+    """
+    methods = spec_validations.methods_with_rules(rules)
+    _LOGGER.debug(f"Adding validation responses for {sorted(methods)} on {baseurl}")
+
+    covered = [baseurl, instance_baseurl]
+    covered.extend(f"{instance_baseurl}/{attr}" for attr in attrs or [])
+
+    for path in covered:
+        for method in sorted(methods):
+            if path not in paths or method not in paths[path]:
+                continue
+            responses = spec_validations.problem_response(rules, method=method)
+            paths[path][method]["responses"].update(copy.deepcopy(responses))
+
+
 # pylint: disable=too-many-locals
 def generate(
     rsrc_data: list,
@@ -589,9 +625,27 @@ def generate(
     version: str,
     prefix: str = None,
     openapi_version: str = None,
+    validations: dict = None,
 ):
-    """Generate an OpenAPI spec based on the resource data sent and other meta data."""
+    """Generate an OpenAPI spec based on the resource data sent and other meta data.
+
+    :param dict validations: the validation rules, as returned by
+        :func:`firestone.spec.validations.extract`. Extracted from the resource data
+        when not given. Pass an empty dict to leave validations out entirely.
+    """
+    if validations is None:
+        validations = spec_validations.extract(rsrc_data)
+
+    # 'references' and 'validations' are firestone concepts, not JSON Schema, so they
+    # never make it into the components or the paths.
+    rsrc_data = spec_validations.strip(rsrc_data)
+
     components = {"schemas": {}}
+    if validations:
+        components["schemas"][
+            spec_validations.PROBLEM_COMPONENT
+        ] = spec_validations.problem_component()
+
     all_paths = {}
     for rsrc in rsrc_data:
         rsrc_name = rsrc["kind"]
@@ -635,6 +689,16 @@ def generate(
             security=security,
         )
         _LOGGER.debug(f"paths: {paths}")
+
+        rules = validations.get(rsrc_name)
+        if rules:
+            key_name = rsrc["schema"]["key"]["name"]
+            properties = rsrc["schema"]["items"]["properties"]
+            attrs = [attr for attr in properties if properties[attr].get("expose", True)]
+            add_validation_responses(
+                paths, baseurl, f"{baseurl}/{{{key_name}}}", rules, attrs=attrs
+            )
+
         all_paths.update(paths)
 
     servers = []
@@ -651,4 +715,5 @@ def generate(
         paths=all_paths,
         servers=servers,
         openapi_version=openapi_version,
+        validations=spec_validations.openapi_extension(validations),
     )
