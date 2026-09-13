@@ -160,7 +160,7 @@ async def addressbook(ctx_obj):
     "--country", help="The country of this address", type=str, show_default=True, required=True
 )
 @click.option(
-    "--is-valid--no-is-valid",
+    "--is-valid/--no-is-valid",
     help="Address is valid or not",
     is_flag=True,
     show_default=True,
@@ -311,7 +311,6 @@ async def addressbook_address_key_get(ctx_obj, address_key, city):
 
 @addressbook.command("update")
 @click.argument("address_key", type=str)
-@click.argument("address_key", type=str)
 @click.option(
     "--addrtype",
     help="The address type, e.g. work or home",
@@ -338,17 +337,7 @@ async def addressbook_address_key_get(ctx_obj, address_key, city):
 @firestone_utils.click_coro
 @api_exc
 async def addressbook_address_key_put(
-    ctx_obj,
-    address_key,
-    address_key,
-    addrtype,
-    city,
-    country,
-    is_valid,
-    people,
-    person,
-    state,
-    street,
+    ctx_obj, address_key, addrtype, city, country, is_valid, people, person, state, street
 ):
     """Update an existing address in this addressbook, with the given address key."""
     api_obj = ctx_obj["api_obj"]
@@ -364,7 +353,7 @@ async def addressbook_address_key_put(
     }
 
     req_body = update_addressbook_model.UpdateAddressbook(**params)
-    resp = await api_obj.addressbook_address_key_put(address_key, address_key, req_body)
+    resp = await api_obj.addressbook_address_key_put(address_key, req_body)
     _LOGGER.debug(f"resp: {resp}")
 
     if isinstance(resp, list):
@@ -398,12 +387,19 @@ async def persons(ctx_obj):
     "--last-name", help="The person's last name", type=str, show_default=True, required=False
 )
 @click.option(
+    "--timezone",
+    help="The person's timezone (e.g. UTC, America/New_York)",
+    type=str,
+    show_default=True,
+    required=False,
+)
+@click.option(
     "--uuid", help="A UUID associated to this person", type=str, show_default=True, required=False
 )
 @click.pass_obj
 @firestone_utils.click_coro
 @api_exc
-async def persons_post(ctx_obj, age, first_name, hobbies, last_name, uuid):
+async def persons_post(ctx_obj, age, first_name, hobbies, last_name, timezone, uuid):
     """Create a new person in this collection, a new UUID key will be created"""
     api_obj = ctx_obj["api_obj"]
     params = {
@@ -411,6 +407,7 @@ async def persons_post(ctx_obj, age, first_name, hobbies, last_name, uuid):
         "first_name": first_name,
         "hobbies": hobbies,
         "last_name": last_name,
+        "timezone": timezone,
         "uuid": uuid,
     }
     req_body = create_person_model.CreatePerson(**params)
@@ -520,12 +517,17 @@ async def persons_uuid_get(ctx_obj, last_name, uuid):
 @click.option("--first-name", help="The person's first name", type=str, required=False)
 @click.option("--hobbies", help="The person's hobbies", type=cli.StrList, required=False)
 @click.option("--last-name", help="The person's last name", type=str, required=False)
-@click.argument("uuid", type=str)
+@click.option(
+    "--timezone",
+    help="The person's timezone (e.g. UTC, America/New_York)",
+    type=str,
+    required=False,
+)
 @click.argument("uuid", type=str)
 @click.pass_obj
 @firestone_utils.click_coro
 @api_exc
-async def persons_uuid_put(ctx_obj, age, first_name, hobbies, last_name, uuid, uuid):
+async def persons_uuid_put(ctx_obj, age, first_name, hobbies, last_name, timezone, uuid):
     """Put a new person in this collection, with the given UUId key"""
     api_obj = ctx_obj["api_obj"]
     params = {
@@ -533,10 +535,11 @@ async def persons_uuid_put(ctx_obj, age, first_name, hobbies, last_name, uuid, u
         "first_name": first_name,
         "hobbies": hobbies,
         "last_name": last_name,
+        "timezone": timezone,
     }
 
     req_body = update_person_model.UpdatePerson(**params)
-    resp = await api_obj.persons_uuid_put(uuid, uuid, req_body)
+    resp = await api_obj.persons_uuid_put(uuid, req_body)
     _LOGGER.debug(f"resp: {resp}")
 
     if isinstance(resp, list):

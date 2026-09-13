@@ -1443,7 +1443,8 @@ x-firestone-validations:
     error:
       message: Only an admin may change is_valid on an address.
       status: 403
-    expr: self.is_valid == old.is_valid || (has(ctx.roles) && "admin" in ctx.roles)
+    expr: '!has(old.is_valid) || (has(self.is_valid) && self.is_valid == old.is_valid)
+      || (has(ctx.roles) && "admin" in ctx.roles)'
     kind: expr
     methods:
     - put

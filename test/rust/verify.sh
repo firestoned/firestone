@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Type-check the generated rust validation package against a real toolchain.
+# Type-check firestone's generated rust against a real toolchain.
 #
 # The python tests can only inspect the generated text; nothing there catches a
 # template that stops compiling. This regenerates into a throwaway crate and runs
@@ -9,7 +9,8 @@
 #   1. a ruleset with CEL expressions, built with the cel feature on
 #   2. a references-only ruleset, built with --no-default-features
 #
-# It then runs the committed example crate, which adds hand written behaviour tests.
+# It then runs the committed example crates, which add hand written tests, and the
+# generated axum server.
 #
 # Run it directly, or via `make verify-validations-rust`.
 set -euo pipefail
@@ -105,4 +106,32 @@ cargo test --manifest-path "${REPO}/examples/addressbook/validation-rs/Cargo.tom
 cargo clippy --manifest-path "${REPO}/examples/addressbook/validation-rs/Cargo.toml" \
     --all-targets --all-features -- -D warnings
 
-echo "==> generated rust validations type check clean"
+# The server crate is generated from the same resources, so a template that stops
+# compiling, or a route that stops matching the schema, fails here.
+echo "==> generated axum server"
+SERVER="${WORKDIR}/server"
+"${FIRESTONE}" generate \
+    --title 'Server type check' \
+    --description 'Server type check' \
+    --resources "${RESOURCES}" \
+    --version 1.0 \
+    server --pkg type_check_server --output-dir "${SERVER}"
+
+# The server generator does not format, so the documented workflow is applied here
+# before anything else looks at the crate.
+cargo fmt --manifest-path "${SERVER}/Cargo.toml"
+cargo test --manifest-path "${SERVER}/Cargo.toml"
+cargo clippy --manifest-path "${SERVER}/Cargo.toml" --all-targets -- -D warnings
+
+echo "==> committed example server crate"
+# Committed rather than generated on the fly, so it has to have been formatted. This
+# fails when someone regenerates and forgets the cargo fmt that gen-server-rust runs.
+cargo fmt --manifest-path "${REPO}/examples/addressbook/server-rs/Cargo.toml" --check
+cargo test --manifest-path "${REPO}/examples/addressbook/server-rs/Cargo.toml"
+cargo clippy --manifest-path "${REPO}/examples/addressbook/server-rs/Cargo.toml" \
+    --all-targets --all-features -- -D warnings
+
+echo "==> committed example validation crate is formatted"
+cargo fmt --manifest-path "${REPO}/examples/addressbook/validation-rs/Cargo.toml" --check
+
+echo "==> generated rust type check clean"

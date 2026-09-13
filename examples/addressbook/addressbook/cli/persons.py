@@ -76,6 +76,13 @@ def init():
         "--last-name", help="The person's last name", type=str, show_default=True, required=False
     )
     @click.option(
+        "--timezone",
+        help="The person's timezone (e.g. UTC, America/New_York)",
+        type=str,
+        show_default=True,
+        required=False,
+    )
+    @click.option(
         "--uuid",
         help="A UUID associated to this person",
         type=str,
@@ -85,7 +92,7 @@ def init():
     @click.pass_obj
     @firestone_utils.click_coro
     @api_exc
-    async def persons_post(ctx_obj, age, first_name, hobbies, last_name, uuid):
+    async def persons_post(ctx_obj, age, first_name, hobbies, last_name, timezone, uuid):
         """Create a new person in this collection, a new UUID key will be created"""
         api_obj = ctx_obj["api_obj"]
         params = {
@@ -93,6 +100,7 @@ def init():
             "first_name": first_name,
             "hobbies": hobbies,
             "last_name": last_name,
+            "timezone": timezone,
             "uuid": uuid,
         }
         req_body = create_person_model.CreatePerson(**params)
@@ -198,11 +206,17 @@ def init():
     @click.option("--first-name", help="The person's first name", type=str, required=False)
     @click.option("--hobbies", help="The person's hobbies", type=cli.StrList, required=False)
     @click.option("--last-name", help="The person's last name", type=str, required=False)
+    @click.option(
+        "--timezone",
+        help="The person's timezone (e.g. UTC, America/New_York)",
+        type=str,
+        required=False,
+    )
     @click.argument("uuid", type=str)
     @click.pass_obj
     @firestone_utils.click_coro
     @api_exc
-    async def persons_uuid_put(ctx_obj, age, first_name, hobbies, last_name, uuid):
+    async def persons_uuid_put(ctx_obj, age, first_name, hobbies, last_name, timezone, uuid):
         """Put a new person in this collection, with the given UUId key"""
         api_obj = ctx_obj["api_obj"]
         params = {
@@ -210,6 +224,7 @@ def init():
             "first_name": first_name,
             "hobbies": hobbies,
             "last_name": last_name,
+            "timezone": timezone,
         }
 
         req_body = update_person_model.UpdatePerson(**params)

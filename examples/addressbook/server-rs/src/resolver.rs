@@ -1,0 +1,116 @@
+//! Connecting the generated validation rules to the backend.
+//!
+//! The rules say *what* has to exist; the [`Backend`](crate::backend::Backend) is
+//! the only thing that knows how to look it up. This is the adapter between them,
+//! and it is generated because both halves are.
+
+use async_trait::async_trait;
+use serde_json::Value;
+
+use crate::error::ApiError;
+use crate::validation::validate;
+use crate::validation::Error as ValidationFailure;
+use crate::validation::RefRequest;
+use crate::validation::Request as ValidationRequest;
+use crate::validation::Resolved;
+use crate::validation::Resolver;
+use crate::validation::ResolverError;
+use crate::AppState;
+
+/// Answers a rule's lookups out of the backend.
+///
+/// Built per request, so a backend holding a transaction can hand this its own
+/// handle and have the checks read through the same one as the write they guard.
+pub struct BackendResolver<'a> {
+    state: &'a AppState,
+}
+
+#[async_trait]
+impl Resolver for BackendResolver<'_> {
+    async fn resolve(
+        &mut self,
+        requests: &[RefRequest],
+        _ctx: &Value,
+    ) -> Result<Resolved, ResolverError> {
+        let mut resolved = Resolved::new();
+        for request in requests {
+            // 'key' is a path into the resource being looked up, not a column, so it
+            // goes to the backend as one.
+            if let Some(found) = self
+                .state
+                .backend
+                .find(&request.kind, &request.key, &request.value)
+                .await?
+            {
+                resolved.insert(request.id(), found);
+            }
+        }
+
+        Ok(resolved)
+    }
+}
+
+/// Run every rule that applies to this request, and turn a failure into a response.
+///
+/// A rejected request becomes the RFC 9457 problem document the OpenAPI document
+/// declares. A broken rule, or a backend that could not answer, is this service's
+/// fault and becomes a 500 rather than being reported as a bad body.
+pub async fn validate_request(
+    state: &AppState,
+    op: &str,
+    resource: &str,
+    body: Option<&Value>,
+    old: Option<&Value>,
+) -> Result<(), ApiError> {
+    let mut request = ValidationRequest::new(op, resource);
+    if let Some(body) = body {
+        request = request.body(body);
+    }
+    if let Some(old) = old {
+        request = request.old(old);
+    }
+
+    run(state, request, op, resource).await
+}
+
+/// Run the rules against a resource you have already worked out.
+///
+/// An attribute endpoint changes one field of a resource, and the rules are written
+/// against the whole thing, so they are handed the resource as it will be rather
+/// than being asked to merge a fragment they would not understand.
+pub async fn validate_subject(
+    state: &AppState,
+    op: &str,
+    resource: &str,
+    subject: &Value,
+    old: Option<&Value>,
+) -> Result<(), ApiError> {
+    let mut request = ValidationRequest::new(op, resource).subject(subject);
+    if let Some(old) = old {
+        request = request.old(old);
+    }
+
+    run(state, request, op, resource).await
+}
+
+async fn run(
+    state: &AppState,
+    request: ValidationRequest<'_>,
+    op: &str,
+    resource: &str,
+) -> Result<(), ApiError> {
+    let mut resolver = BackendResolver { state };
+    match validate(request, Some(&mut resolver)).await {
+        Ok(()) => Ok(()),
+        Err(ValidationFailure::Validation(failed)) => {
+            tracing::info!(
+                resource,
+                op,
+                "rejected by {} rule(s)",
+                failed.violations.len()
+            );
+            Err(ApiError::Validation(failed.to_problem()))
+        }
+        Err(other) => Err(ApiError::Internal(other.to_string())),
+    }
+}

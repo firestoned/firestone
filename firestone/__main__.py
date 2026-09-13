@@ -401,6 +401,64 @@ def validations(rsrc_data, output_dir, no_tests, language):
     )
 
 
+@generate.command()
+@click.option(
+    "--output-dir",
+    "-o",
+    help="Location of the directory to write the server crate to",
+    type=click.Path(file_okay=False, dir_okay=True, writable=True),
+    required=True,
+)
+@click.option(
+    "--pkg",
+    help="The name of the generated crate",
+    default="api_server",
+    show_default=True,
+)
+@click.option(
+    "--no-validations",
+    help="Do not wire the resources' validation rules into the handlers",
+    is_flag=True,
+)
+@click.option(
+    "--language",
+    "-l",
+    help="The language to generate the server for",
+    type=click.Choice([LANG_RUST], case_sensitive=False),
+    default=LANG_RUST,
+    show_default=True,
+)
+@click.pass_obj
+def server(rsrc_data, output_dir, pkg, no_validations, language):
+    """Generate a server for the given resource data.
+
+    The crate holds the router, models, handlers, middleware and error handling that
+    the resource files already describe. What firestone cannot know is where the data
+    lives, so that is a Backend trait for you to implement; an in-memory one is
+    generated alongside it so the server runs as it is.
+    """
+    del language  # only rust for now, the option keeps the interface open
+
+    files = firestone_spec.server_rust.generate(
+        rsrc_data["data"],
+        rsrc_data["title"],
+        rsrc_data["desc"],
+        rsrc_data["version"],
+        pkg=pkg,
+        ruleset=rsrc_data["validations"],
+        with_validations=not no_validations,
+    )
+
+    for name, content in files.items():
+        path = os.path.join(output_dir, name)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        _LOGGER.info(f"Writing {path}")
+        with io.open(path, "w", encoding="utf-8") as fh:
+            fh.write(content)
+
+    click.echo(f"Wrote {len(files)} file(s) to {output_dir}.", err=True)
+
+
 if __name__ == "main":
     # pylint: disable=no-value-for-parameter
     main()
