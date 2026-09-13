@@ -1,7 +1,7 @@
 openapi: "3.1.0"
 info:
-  title: Example person and addressbook API
-  description: Example person and addressbook API
+  title: "Example person and addressbook API"
+  description: "Example person and addressbook API"
   version: "1.0"
 # https://www.jvt.me/posts/2022/05/29/openapi-json-patch/
 components:
@@ -269,7 +269,7 @@ paths:
         schema:
           type: string
       responses:
-        default:
+        200:
           description: Default HEAD response
       tags:
       - addressbook
@@ -367,7 +367,7 @@ paths:
         schema:
           type: string
       responses:
-        default:
+        200:
           description: Default HEAD response
       tags:
       - addressbook
@@ -464,7 +464,7 @@ paths:
         schema:
           type: string
       responses:
-        default:
+        200:
           description: Default HEAD response
       tags:
       - addressbook
@@ -558,7 +558,7 @@ paths:
         schema:
           type: string
       responses:
-        default:
+        200:
           description: Default HEAD response
       tags:
       - addressbook
@@ -652,7 +652,7 @@ paths:
         schema:
           type: string
       responses:
-        default:
+        200:
           description: Default HEAD response
       tags:
       - addressbook
@@ -748,7 +748,7 @@ paths:
         schema:
           type: string
       responses:
-        default:
+        200:
           description: Default HEAD response
       tags:
       - addressbook
@@ -852,7 +852,7 @@ paths:
       - *id001
       - *id002
       responses:
-        default:
+        200:
           description: Default HEAD response
       tags:
       - addressbook
@@ -973,7 +973,7 @@ paths:
         schema:
           type: string
       responses:
-        default:
+        200:
           description: Default HEAD response
       tags:
       - addressbook
@@ -1067,7 +1067,7 @@ paths:
         schema:
           type: string
       responses:
-        default:
+        200:
           description: Default HEAD response
       tags:
       - addressbook
@@ -1226,7 +1226,7 @@ paths:
         schema:
           type: string
       responses:
-        default:
+        200:
           description: Default HEAD response
       tags:
       - persons
@@ -1370,7 +1370,7 @@ paths:
         schema:
           type: string
       responses:
-        default:
+        200:
           description: Default HEAD response
       tags:
       - postal_codes
@@ -1443,7 +1443,8 @@ x-firestone-validations:
     error:
       message: Only an admin may change is_valid on an address.
       status: 403
-    expr: self.is_valid == old.is_valid || (has(ctx.roles) && "admin" in ctx.roles)
+    expr: '!has(old.is_valid) || !has(self.is_valid) || self.is_valid == old.is_valid
+      || (has(ctx.roles) && "admin" in ctx.roles)'
     kind: expr
     methods:
     - put

@@ -1,0 +1,7 @@
+# A workspace holding the two halves of the generated server.
+#
+#   api/  openapi-generator -g rust-axum, from the OpenAPI document firestone emits
+#   app/  firestone, implementing the traits that crate declares
+[workspace]
+members = ["api", "app"]
+resolver = "2"

@@ -30,6 +30,14 @@ def yaml_pretty(data, indent=2):
 JINJA_ENV.filters["yaml_pretty"] = yaml_pretty
 
 
+def pascal(name: str) -> str:
+    """Convert a name to PascalCase, keeping inner capitals."""
+    return "".join(part[0].upper() + part[1:] for part in str(name).split("_") if part)
+
+
+JINJA_ENV.filters["pascal"] = pascal
+
+
 def to_singular(name: str) -> str:
     """Convert a plural resource name to its singular form.
 

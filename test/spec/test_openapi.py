@@ -28,6 +28,24 @@ class TestOpenAPIGetResponses(unittest.TestCase):
         )
         self.assertIsNotNone(responses)
 
+    def test_head_declares_a_real_status(self):
+        """A HEAD answers 200, not 'default'.
+
+        'default' is a fallback shape rather than a status, so a server generator
+        has no code to put on the response: rust-axum resolves it to status 0, which
+        no response can carry, and every HEAD answers 500.
+        """
+        responses = openapi.get_responses("head", None, None)
+
+        self.assertNotIn("default", responses)
+        self.assertIn(http.client.OK.value, responses)
+
+    def test_head_carries_no_content(self):
+        """A HEAD response has no body to describe."""
+        responses = openapi.get_responses("head", None, None)
+
+        self.assertNotIn("content", responses[http.client.OK.value])
+
     def test_get_comp_name(self):
         """Test firestone.spec.openapi.get_responses() 'get' with comp name."""
         responses = openapi.get_responses(

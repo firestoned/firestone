@@ -5,10 +5,12 @@ RM := $(shell which RM)
 
 CLIENT_OUTDIR := $(shell mktemp -d)
 SERVER_CLIENT_OUTDIR := $(shell mktemp -d)
-OPENAPI_GEN := $(shell which openapi-generator)
+# brew installs it as openapi-generator, the npm wrapper as openapi-generator-cli.
+OPENAPI_GEN := $(shell which openapi-generator || which openapi-generator-cli)
 FIRESTONE := $(shell which firestone)
 
 ADDRESSBOOK_DIR := examples/addressbook
+SERVER_RS_DIR := examples/addressbook/server-rs
 RESOURCES := ${ADDRESSBOOK_DIR}/addressbook.yaml,${ADDRESSBOOK_DIR}/person.yaml,${ADDRESSBOOK_DIR}/postal_codes.yaml
 OPENAPI_DOC := ${ADDRESSBOOK_DIR}/openapi.yaml
 
@@ -17,16 +19,17 @@ CLIENT_PKG := addressbook.client
 MAIN_FILE := ${ADDRESSBOOK_DIR}/main.py
 STREAMLIT_FILE := ${ADDRESSBOOK_DIR}/addressbook/webui/pages.py
 
-.PHONY: gen-openapi gen-server gen-client gen-cli gen-validations gen-validations-rust verify-validations-rust
+.PHONY: gen-openapi gen-server gen-server-rust gen-client gen-cli gen-validations gen-validations-rust verify-rust
 
 help:
 	@echo "gen-openapi: Generate OpenAPI file from resources."
 	@echo "gen-server: Generate FastAPI server code."
+	@echo "gen-server-rust: Generate the axum server and its implementation."
 	@echo "gen-client: Generate Python client code."
 	@echo "gen-cli: Generate CRUD Python (Click-based) CLI."
 	@echo "gen-validations: Generate the python server side validation package."
 	@echo "gen-validations-rust: Generate the rust server side validation package."
-	@echo "verify-validations-rust: Type check the generated rust validation package."
+	@echo "verify-rust: Type check firestone's generated rust."
 
 gen-openapi: ${FIRESTONE}
 	${FIRESTONE} generate \
@@ -80,6 +83,32 @@ gen-validations: ${FIRESTONE}
 		 validations \
 		 --output-dir ${ADDRESSBOOK_DIR}/addressbook/validation
 
+gen-server-rust: ${OPENAPI_GEN} ${FIRESTONE} gen-openapi
+	@echo "Generating the axum server from the OpenAPI document"
+	${OPENAPI_GEN} generate \
+		-i ${OPENAPI_DOC} \
+		-g rust-axum \
+		-o ${SERVER_RS_DIR}/api \
+		--skip-validate-spec \
+		-p packageName=addressbook_api,packageVersion=1.0.0
+
+	@echo "Generating the implementation of the traits it declares"
+	@# --force: this example is generator output, so it is refreshed wholesale.
+	@# A real project leaves it off, and keeps the Backend it wrote.
+	${FIRESTONE} generate \
+		--title 'Example person and addressbook API' \
+		--description 'Example person and addressbook API' \
+		--resources ${RESOURCES} \
+		--version 1.0 \
+		 server \
+		 --pkg addressbook_server \
+		 --api-pkg addressbook_api \
+		 --output-dir ${SERVER_RS_DIR}/app \
+		 --force
+
+	@echo "Formatting"
+	cd ${SERVER_RS_DIR} && cargo fmt --all
+
 gen-validations-rust: ${FIRESTONE}
 	${FIRESTONE} generate \
 		--title 'Example person and addressbook API' \
@@ -90,7 +119,7 @@ gen-validations-rust: ${FIRESTONE}
 		 --language rust \
 		 --output-dir ${ADDRESSBOOK_DIR}/validation-rs/src/validation
 
-verify-validations-rust: ${FIRESTONE}
+verify-rust: ${FIRESTONE}
 	FIRESTONE=${FIRESTONE} test/rust/verify.sh
 
 gen-cli: $(FIRESTONE)
@@ -116,6 +145,9 @@ gen-cli: $(FIRESTONE)
 		 --client-pkg ${CLIENT_PKG} \
 		 --output-dir ${ADDRESSBOOK_DIR}/addressbook/cli \
 		 --as-modules
+
+	@echo "Formatting the generated CLI"
+	black ${MAIN_FILE} ${ADDRESSBOOK_DIR}/addressbook/cli
 
 gen-streamlit: $(FIRESTONE)
 	@echo "Creating directory for ${STREAMLIT_FILE}"

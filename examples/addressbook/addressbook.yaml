@@ -77,7 +77,13 @@ validations:
       methods:
         - put
         - patch
-      expr: 'self.is_valid == old.is_valid || (has(ctx.roles) && "admin" in ctx.roles)'
+      # Guarded with has(), because is_valid is optional: an attribute endpoint
+      # can hand the rule a resource that never had one.
+      expr: >-
+        !has(old.is_valid)
+        || !has(self.is_valid)
+        || self.is_valid == old.is_valid
+        || (has(ctx.roles) && "admin" in ctx.roles)
       error:
         status: 403
         message: Only an admin may change is_valid on an address.
@@ -101,6 +107,27 @@ validations:
         - self:
             is_valid: true
           old:
+            is_valid: true
+          ctx:
+            roles:
+              - user
+          expect: pass
+        # The case that used to 500: is_valid is optional, and an attribute
+        # endpoint can hand the rule a resource that never had one.
+        - self:
+            city: Ottawa
+          old:
+            city: Toronto
+          ctx:
+            roles:
+              - user
+          expect: pass
+        # And the case that used to 403: a partial update that never mentions
+        # is_valid is not a change to it.
+        - self:
+            city: Ottawa
+          old:
+            city: Toronto
             is_valid: true
           ctx:
             roles:

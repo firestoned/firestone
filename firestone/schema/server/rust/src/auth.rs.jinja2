@@ -1,0 +1,67 @@
+//! Who is asking.
+//!
+//! The generated server decides *which* operations need credentials, from the
+//! `security` block in the resource files, and refuses those with a 401 when this
+//! returns None. What counts as an acceptable credential is a deployment question,
+//! so it lives here.
+
+use subtle::Choice;
+use subtle::ConstantTimeEq;
+
+use {{ api_pkg }}::apis::ApiAuthBasic;
+use {{ api_pkg }}::apis::BasicAuthKind;
+
+use crate::Api;
+
+/// Whatever a handler should know about the caller.
+///
+/// The generated traits carry this through to every secured operation, so add to
+/// it whatever your rules need: a subject, a tenant, a set of roles.
+#[derive(Clone, Debug)]
+pub struct Claims {
+    /// The token the caller presented.
+    pub token: String,
+}
+
+/// Whether any configured token matches, compared in constant time.
+///
+/// Every candidate is checked rather than stopping at the first match, and the
+/// comparison itself comes from `subtle` rather than being hand rolled, so a wrong
+/// token cannot be narrowed down by timing the response.
+fn accepted(known: &[String], presented: &str) -> bool {
+    known.iter().fold(Choice::from(0u8), |found, candidate| {
+        found | candidate.as_bytes().ct_eq(presented.as_bytes())
+    })
+    .into()
+}
+
+#[async_trait::async_trait]
+impl ApiAuthBasic for Api {
+    type Claims = Claims;
+
+    async fn extract_claims_from_auth_header(
+        &self,
+        kind: BasicAuthKind,
+        headers: &axum::http::header::HeaderMap,
+        key: &str,
+    ) -> Option<Self::Claims> {
+        if !matches!(kind, BasicAuthKind::Bearer) {
+            return None;
+        }
+
+        // RFC 7235 auth-scheme names are case insensitive, so 'bearer' is as valid
+        // as 'Bearer'.
+        let header = headers.get(key)?.to_str().ok()?;
+        let (scheme, token) = header.split_once(' ')?;
+        if !scheme.eq_ignore_ascii_case("bearer") {
+            return None;
+        }
+        let token = token.trim();
+
+        // No configured tokens means every secured request is refused, which is the
+        // safe way round for a service that asked for authentication.
+        accepted(&self.tokens, token).then(|| Claims {
+            token: token.to_string(),
+        })
+    }
+}
