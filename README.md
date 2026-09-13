@@ -33,6 +33,7 @@ Firestone lives alongside a couple of sibling projects that share tooling and de
 | Python CLI | `firestone generate … cli` | Click-based CRUD utilities (`main.py` or modules) | Internal tooling, scripted batch jobs |
 | Streamlit UI | `firestone generate … streamlit` | Streamlit pages/modules | Lightweight admin dashboards over your API |
 | Validations | `firestone generate … validations` | Server side validation package (Python or Rust) | Enforcing cross-resource rules declared in the schema |
+| Server | `firestone generate … server` | Runnable axum server crate (Rust) | Standing an API up from the schema, rules and auth included |
 
 ## Quick Start
 

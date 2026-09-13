@@ -17,16 +17,17 @@ CLIENT_PKG := addressbook.client
 MAIN_FILE := ${ADDRESSBOOK_DIR}/main.py
 STREAMLIT_FILE := ${ADDRESSBOOK_DIR}/addressbook/webui/pages.py
 
-.PHONY: gen-openapi gen-server gen-client gen-cli gen-validations gen-validations-rust verify-validations-rust
+.PHONY: gen-openapi gen-server gen-server-rust gen-client gen-cli gen-validations gen-validations-rust verify-rust
 
 help:
 	@echo "gen-openapi: Generate OpenAPI file from resources."
 	@echo "gen-server: Generate FastAPI server code."
+	@echo "gen-server-rust: Generate an axum server crate."
 	@echo "gen-client: Generate Python client code."
 	@echo "gen-cli: Generate CRUD Python (Click-based) CLI."
 	@echo "gen-validations: Generate the python server side validation package."
 	@echo "gen-validations-rust: Generate the rust server side validation package."
-	@echo "verify-validations-rust: Type check the generated rust validation package."
+	@echo "verify-rust: Type check firestone's generated rust."
 
 gen-openapi: ${FIRESTONE}
 	${FIRESTONE} generate \
@@ -80,6 +81,19 @@ gen-validations: ${FIRESTONE}
 		 validations \
 		 --output-dir ${ADDRESSBOOK_DIR}/addressbook/validation
 
+gen-server-rust: ${FIRESTONE}
+	${FIRESTONE} generate \
+		--title 'Example person and addressbook API' \
+		--description 'Example person and addressbook API' \
+		--resources ${RESOURCES} \
+		--version 1.0 \
+		 server \
+		 --pkg addressbook_server \
+		 --output-dir ${ADDRESSBOOK_DIR}/server-rs
+
+	@echo "Formatting the generated crate"
+	cd ${ADDRESSBOOK_DIR}/server-rs && cargo fmt || true
+
 gen-validations-rust: ${FIRESTONE}
 	${FIRESTONE} generate \
 		--title 'Example person and addressbook API' \
@@ -90,7 +104,7 @@ gen-validations-rust: ${FIRESTONE}
 		 --language rust \
 		 --output-dir ${ADDRESSBOOK_DIR}/validation-rs/src/validation
 
-verify-validations-rust: ${FIRESTONE}
+verify-rust: ${FIRESTONE}
 	FIRESTONE=${FIRESTONE} test/rust/verify.sh
 
 gen-cli: $(FIRESTONE)
@@ -116,6 +130,9 @@ gen-cli: $(FIRESTONE)
 		 --client-pkg ${CLIENT_PKG} \
 		 --output-dir ${ADDRESSBOOK_DIR}/addressbook/cli \
 		 --as-modules
+
+	@echo "Formatting the generated CLI"
+	black ${MAIN_FILE} ${ADDRESSBOOK_DIR}/addressbook/cli || true
 
 gen-streamlit: $(FIRESTONE)
 	@echo "Creating directory for ${STREAMLIT_FILE}"

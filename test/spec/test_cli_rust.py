@@ -1,3 +1,4 @@
+# pylint: disable=too-many-lines
 # pylint: disable=protected-access
 """
 Test the firestone.spec.cli_rust module.
@@ -549,6 +550,59 @@ class TestCliRustGenerate(unittest.TestCase):
         # Check for command enum
         self.assertIn("#[derive(Subcommand, Debug)]", rust_code)
         self.assertIn("pub enum FooCommands", rust_code)
+
+
+class TestCliRustAuth(unittest.TestCase):
+    """Test how the generated rust CLI presents its credentials."""
+
+    @staticmethod
+    def _generate() -> dict:
+        """Generate a CLI for a resource behind a bearer scheme."""
+        rsrc_data = [
+            {
+                "kind": "foo",
+                "apiVersion": "v1",
+                "security": {
+                    "scheme": {"bearer_auth": {"type": "http", "scheme": "bearer"}},
+                    "resource": ["post"],
+                },
+                "schema": {
+                    "type": "array",
+                    "key": {"name": "foo_key", "schema": {"type": "string"}},
+                    "items": {"type": "object", "properties": {"name": {"type": "string"}}},
+                },
+                "methods": {"resource": ["get", "post"], "instance": ["get"]},
+            }
+        ]
+
+        return cli_rust.generate(
+            "test_pkg",
+            "test_pkg",
+            rsrc_data,
+            "Test",
+            "Test CLI",
+            "Test",
+            "1.0",
+            True,
+        )
+
+    def test_bearer_token_is_set(self):
+        """The token reaches the field the generated client actually reads.
+
+        A 'bearer' scheme is sent from configuration.bearer_access_token; the
+        api_key field is only consulted for an 'apiKey' scheme, so setting that
+        alone means --api-key is accepted and then silently dropped.
+        """
+        module = self._generate()["foo"]
+
+        self.assertIn("config.bearer_access_token = Some(key.clone());", module)
+
+    def test_api_key_is_also_set(self):
+        """An apiKey scheme is covered too, since the schema decides which is used."""
+        module = self._generate()["foo"]
+
+        self.assertIn("config.api_key = Some(", module)
+        self.assertIn("prefix: None", module)
 
 
 class TestCliRustHelpers(unittest.TestCase):

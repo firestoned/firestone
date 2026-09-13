@@ -51,7 +51,7 @@ RULES = {
                 "patch",
             ],
             "refs": [],
-            "expr": 'self.is_valid == old.is_valid || (has(ctx.roles) && "admin" in ctx.roles)',
+            "expr": '!has(old.is_valid) || (has(self.is_valid) && self.is_valid == old.is_valid) || (has(ctx.roles) && "admin" in ctx.roles)',
             "error": {
                 "status": 403,
                 "message": "Only an admin may change is_valid on an address.",

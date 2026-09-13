@@ -49,7 +49,7 @@ firestone generate [OPTIONS] <generator>
 
 ### Generators
 
-Firestone supports five generators: `openapi`, `asyncapi`, `cli`, `streamlit`, and `validations`.
+Firestone supports six generators: `openapi`, `asyncapi`, `cli`, `streamlit`, `validations`, and `server`.
 
 ---
 
@@ -355,6 +355,52 @@ Neither package has a runtime dependency on firestone. Rules carrying a CEL `exp
 
 ---
 
+## Server Generator
+
+Generates a runnable axum server crate: the router, models, handlers, middleware and RFC 9457 error handling the resource files already describe, plus a `Backend` trait for the one thing firestone cannot know.
+
+### Syntax
+
+```bash
+firestone generate [COMMON_OPTIONS] server [OPTIONS]
+```
+
+### Options
+
+| Option | Short | Type | Required | Default | Description |
+|--------|-------|------|----------|---------|-------------|
+| `--output-dir` | `-o` | PATH | Yes | - | Directory to write the crate to, created if missing |
+| `--pkg` | - | TEXT | No | `api_server` | The name of the generated crate |
+| `--no-validations` | - | FLAG | No | `false` | Do not wire the resources' rules into the handlers |
+| `--language` | `-l` | CHOICE | No | `rust` | Target language; `rust` is currently the only choice |
+
+### Examples
+
+```bash
+firestone generate \
+  -t "Addressbook API" \
+  -d "Addressbook API" \
+  -r examples/addressbook/addressbook.yaml,examples/addressbook/person.yaml \
+  -v 1.0 \
+  server --pkg addressbook_server -o addressbook/server-rs
+
+cd addressbook/server-rs && cargo fmt && cargo run
+```
+
+### Output
+
+```
+addressbook/server-rs/
+├── Cargo.toml
+├── src/{main,lib,routes,handlers,models,backend,middleware,error,resolver}.rs
+├── src/validation/          # when the resources declare rules
+└── tests/routes.rs
+```
+
+The generator does not format its output; run `cargo fmt` after generating.
+
+---
+
 ## Multiple Resources
 
 All generators support multiple resources via:
@@ -440,6 +486,9 @@ firestone generate -r resources/ -t "My API" streamlit --backend-url http://loca
 
 # Generate the server side validation package
 firestone generate -r resources/ -t "My API" validations -o myapi/validation
+
+# Generate a runnable axum server
+firestone generate -r resources/ -t "My API" server -o myapi/server-rs
 ```
 
 ### CI/CD Integration
