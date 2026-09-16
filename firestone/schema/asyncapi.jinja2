@@ -1,8 +1,8 @@
 asyncapi: 2.5.0
 defaultContentType: application/json
 info:
-  title: {{ title }}
-  description: {{ description }}
+  title: {{ title | tojson }}
+  description: {{ description | tojson }}
   version: '{{ version }}'
 {% if components -%}
 servers:

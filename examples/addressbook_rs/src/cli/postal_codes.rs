@@ -95,8 +95,12 @@ pub async fn handle_postal_codes_post(
         config.base_path = url.clone();
     }
     if let Some(ref key) = ctx.api_key {
+        // A 'bearer' scheme and an 'apiKey' scheme are read from different fields by
+        // the generated client, and which one a resource declares is up to its
+        // schema, so both are set rather than guessing.
+        config.bearer_access_token = Some(key.clone());
         config.api_key = Some(crate::apis::configuration::ApiKey {
-            prefix: Some("Bearer".to_string()),
+            prefix: None,
             key: key.clone(),
         });
     }
@@ -123,8 +127,12 @@ pub async fn handle_postal_codes_get(
         config.base_path = url.clone();
     }
     if let Some(ref key) = ctx.api_key {
+        // A 'bearer' scheme and an 'apiKey' scheme are read from different fields by
+        // the generated client, and which one a resource declares is up to its
+        // schema, so both are set rather than guessing.
+        config.bearer_access_token = Some(key.clone());
         config.api_key = Some(crate::apis::configuration::ApiKey {
-            prefix: Some("Bearer".to_string()),
+            prefix: None,
             key: key.clone(),
         });
     }
@@ -147,8 +155,12 @@ pub async fn handle_postal_codes_uuid_delete(
         config.base_path = url.clone();
     }
     if let Some(ref key) = ctx.api_key {
+        // A 'bearer' scheme and an 'apiKey' scheme are read from different fields by
+        // the generated client, and which one a resource declares is up to its
+        // schema, so both are set rather than guessing.
+        config.bearer_access_token = Some(key.clone());
         config.api_key = Some(crate::apis::configuration::ApiKey {
-            prefix: Some("Bearer".to_string()),
+            prefix: None,
             key: key.clone(),
         });
     }
@@ -182,8 +194,12 @@ pub async fn handle_postal_codes_uuid_get(
         config.base_path = url.clone();
     }
     if let Some(ref key) = ctx.api_key {
+        // A 'bearer' scheme and an 'apiKey' scheme are read from different fields by
+        // the generated client, and which one a resource declares is up to its
+        // schema, so both are set rather than guessing.
+        config.bearer_access_token = Some(key.clone());
         config.api_key = Some(crate::apis::configuration::ApiKey {
-            prefix: Some("Bearer".to_string()),
+            prefix: None,
             key: key.clone(),
         });
     }

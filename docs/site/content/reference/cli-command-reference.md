@@ -49,7 +49,7 @@ firestone generate [OPTIONS] <generator>
 
 ### Generators
 
-Firestone supports five generators: `openapi`, `asyncapi`, `cli`, `streamlit`, and `validations`.
+Firestone supports six generators: `openapi`, `asyncapi`, `cli`, `streamlit`, `validations`, and `server`.
 
 ---
 
@@ -355,6 +355,57 @@ Neither package has a runtime dependency on firestone. Rules carrying a CEL `exp
 
 ---
 
+## Server Generator
+
+Generates the implementation of a rust-axum server. The server itself comes from `openapi-generator -g rust-axum`, which turns firestone's OpenAPI document into the router, models, per-operation authentication and request validation; this implements the traits it leaves behind, wired to a `Backend` trait and enforcing the resources' validation rules.
+
+### Syntax
+
+```bash
+firestone generate [COMMON_OPTIONS] server [OPTIONS]
+```
+
+### Options
+
+| Option | Short | Type | Required | Default | Description |
+|--------|-------|------|----------|---------|-------------|
+| `--output-dir` | `-o` | PATH | Yes | - | Directory to write the crate to, created if missing |
+| `--pkg` | - | TEXT | No | `api_server` | The name of the generated crate |
+| `--api-pkg` | - | TEXT | No | `openapi` | The crate name openapi-generator was given |
+| `--no-validations` | - | FLAG | No | `false` | Do not wire the resources' rules into the handlers |
+| `--language` | `-l` | CHOICE | No | `rust` | Target language; `rust` is currently the only choice |
+
+### Examples
+
+```bash
+# 1. the server, from the OpenAPI document
+openapi-generator generate -i openapi.yaml -g rust-axum \
+  -o server-rs/api --skip-validate-spec \
+  -p packageName=addressbook_api,packageVersion=1.0.0
+
+# 2. the implementation of the traits it declares
+firestone generate \
+  -t "Addressbook API" -d "Addressbook API" -v 1.0 \
+  -r examples/addressbook/addressbook.yaml,examples/addressbook/person.yaml \
+  server --pkg addressbook_server --api-pkg addressbook_api -o server-rs/app
+
+cd server-rs && cargo fmt --all && cargo run -p addressbook_server
+```
+
+### Output
+
+```
+server-rs/
+├── api/                 # openapi-generator: router, models, auth, validation
+└── app/                 # firestone
+    └── src/{main,lib,handlers,backend,auth,error,resolver}.rs
+        └── validation/  # when the resources declare rules
+```
+
+The generator does not format its output; run `cargo fmt` after generating.
+
+---
+
 ## Multiple Resources
 
 All generators support multiple resources via:
@@ -440,6 +491,9 @@ firestone generate -r resources/ -t "My API" streamlit --backend-url http://loca
 
 # Generate the server side validation package
 firestone generate -r resources/ -t "My API" validations -o myapi/validation
+
+# Generate a runnable axum server
+firestone generate -r resources/ -t "My API" server -o myapi/server-rs
 ```
 
 ### CI/CD Integration

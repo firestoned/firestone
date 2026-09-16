@@ -401,6 +401,95 @@ def validations(rsrc_data, output_dir, no_tests, language):
     )
 
 
-if __name__ == "main":
+@generate.command()
+@click.option(
+    "--output-dir",
+    "-o",
+    help="Location of the directory to write the server crate to",
+    type=click.Path(file_okay=False, dir_okay=True, writable=True),
+    required=True,
+)
+@click.option(
+    "--pkg",
+    help="The name of the generated crate",
+    default="api_server",
+    show_default=True,
+)
+@click.option(
+    "--api-pkg",
+    help="The crate name openapi-generator was given for the server",
+    default="openapi",
+    show_default=True,
+)
+@click.option(
+    "--no-validations",
+    help="Do not wire the resources' validation rules into the handlers",
+    is_flag=True,
+)
+@click.option(
+    "--force",
+    help="Overwrite the scaffolded files too, losing any edits made to them",
+    is_flag=True,
+)
+@click.option(
+    "--language",
+    "-l",
+    help="The language to generate the server for (only rust today)",
+    type=click.Choice([LANG_RUST], case_sensitive=False),
+    default=LANG_RUST,
+    show_default=True,
+)
+@click.pass_obj
+def server(rsrc_data, output_dir, pkg, api_pkg, no_validations, force, language):
+    """Generate the implementation of a rust-axum server.
+
+    The server itself comes from openapi-generator, which turns the OpenAPI document
+    firestone produces into a router, typed models, per-operation authentication and
+    request validation. This generates the implementation of the traits it leaves
+    behind: every operation, wired to a Backend trait for you to implement, with the
+    resources' validation rules enforced along the way.
+    """
+    del language  # only rust for now, the option keeps the interface open
+
+    files = firestone_spec.server_rust.generate(
+        rsrc_data["data"],
+        rsrc_data["title"],
+        rsrc_data["desc"],
+        rsrc_data["version"],
+        pkg=pkg,
+        api_pkg=api_pkg,
+        ruleset=rsrc_data["validations"],
+        with_validations=not no_validations,
+    )
+
+    written = 0
+    kept = []
+    for name, content in files.items():
+        path = os.path.join(output_dir, name)
+
+        # A scaffold is yours once it exists: the Backend you implemented and the
+        # tokens you accept must survive a regeneration. Only the files that follow
+        # the OpenAPI document exactly are rewritten every time.
+        scaffold = name in firestone_spec.server_rust.SCAFFOLD
+        if scaffold and not force and os.path.exists(path):
+            kept.append(name)
+            continue
+
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        _LOGGER.info(f"Writing {path}")
+        with io.open(path, "w", encoding="utf-8") as fh:
+            fh.write(content)
+        written += 1
+
+    click.echo(f"Wrote {written} file(s) to {output_dir}.", err=True)
+    if kept:
+        click.echo(
+            f"Kept {len(kept)} file(s) you own: {', '.join(sorted(kept))}. "
+            "Pass --force to overwrite them.",
+            err=True,
+        )
+
+
+if __name__ == "__main__":
     # pylint: disable=no-value-for-parameter
     main()

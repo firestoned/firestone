@@ -77,6 +77,47 @@ EXAMPLES = [
         },
     ],
     [
+        "addressbook",
+        "only_admins_may_invalidate",
+        "put",
+        {
+            "self": {
+                "city": "Ottawa",
+            },
+            "old": {
+                "city": "Toronto",
+            },
+            "refs": {},
+            "ctx": {
+                "roles": [
+                    "user",
+                ],
+            },
+            "expect": "pass",
+        },
+    ],
+    [
+        "addressbook",
+        "only_admins_may_invalidate",
+        "put",
+        {
+            "self": {
+                "city": "Ottawa",
+            },
+            "old": {
+                "city": "Toronto",
+                "is_valid": True,
+            },
+            "refs": {},
+            "ctx": {
+                "roles": [
+                    "user",
+                ],
+            },
+            "expect": "pass",
+        },
+    ],
+    [
         "persons",
         "person_is_not_in_use",
         "delete",

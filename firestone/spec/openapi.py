@@ -50,7 +50,10 @@ def get_responses(
 ):
     """Set schema for a given operation type."""
     if method == "head":
-        return {"default": {"description": "Default HEAD response"}}
+        # A real status rather than 'default': a HEAD answers 200 with no body, and
+        # a generator reading 'default' has no code to put on the response. rust-axum
+        # emits status 0 for it, which is not a status a response can carry.
+        return {http.client.OK.value: {"description": "Default HEAD response"}}
 
     resp_code_enum = http.client.OK
     if method == "post":
@@ -545,7 +548,10 @@ def add_rsrc_components(
     if required:
         del components["schemas"][comp_name]["required"]
 
-    rscr_methods = methods.get("resource", [])
+    # add_resource_methods emits every collection method when methods.resource is
+    # absent, so the components have to be worked out the same way or the document
+    # ends up referencing a Create/Update schema it never defines.
+    rscr_methods = methods.get("resource") or RSRC_HTTP_METHODS
     rscr_inst_methods = methods.get("instance", [])
     _LOGGER.debug(f"rscr_methods: {rscr_methods}")
     _LOGGER.debug(f"rscr_inst_methods: {rscr_inst_methods}")

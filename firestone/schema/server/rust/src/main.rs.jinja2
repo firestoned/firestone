@@ -1,0 +1,65 @@
+//! {{ title }}
+//!
+//! The thin part: choose a backend, build the router, serve it. Anything you want
+//! to add - your own routes, your own middleware - goes on the router here, and
+//! `{{ pkg }}::router` hands back an ordinary `axum::Router` so all of axum is
+//! available. See <https://docs.rs/axum/latest/axum/>.
+
+use std::net::SocketAddr;
+use std::sync::Arc;
+
+use {{ pkg }}::backend::InMemory;
+use {{ pkg }}::router;
+use {{ pkg }}::Api;
+use tokio::net::TcpListener;
+use tokio::signal;
+use tower_http::trace::TraceLayer;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    tracing_subscriber::fmt()
+        .with_env_filter(
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| "info,tower_http=debug".into()),
+        )
+        .init();
+
+    let api = Api::new(Arc::new(InMemory::new()));
+    let app = router(api).layer(TraceLayer::new_for_http());
+
+    let bind: SocketAddr = std::env::var("BIND")
+        .unwrap_or_else(|_| "127.0.0.1:8080".to_string())
+        .parse()?;
+    let listener = TcpListener::bind(bind).await?;
+    tracing::info!("{{ title_fmt }} v{{ version }} listening on http://{bind}");
+
+    axum::serve(listener, app)
+        .with_graceful_shutdown(shutdown())
+        .await?;
+
+    Ok(())
+}
+
+/// Stop serving on Ctrl-C or SIGTERM, letting in-flight requests finish.
+async fn shutdown() {
+    let interrupt = async {
+        signal::ctrl_c()
+            .await
+            .expect("the interrupt handler installs");
+    };
+
+    #[cfg(unix)]
+    let terminate = async {
+        signal::unix::signal(signal::unix::SignalKind::terminate())
+            .expect("the terminate handler installs")
+            .recv()
+            .await;
+    };
+    #[cfg(not(unix))]
+    let terminate = std::future::pending::<()>();
+
+    tokio::select! {
+        () = interrupt => tracing::info!("interrupted, shutting down"),
+        () = terminate => tracing::info!("terminated, shutting down"),
+    }
+}
