@@ -1,8 +1,8 @@
 asyncapi: 2.5.0
 defaultContentType: application/json
 info:
-  title: Example person and addressbook API
-  description: An example API with more than one resource
+  title: "Example person and addressbook API"
+  description: "An example API with more than one resource"
   version: '1.0'
 servers:
   dev:
@@ -13,6 +13,11 @@ components:
   schemas:
     addressbook:
       properties:
+        address_key:
+          description: A unique identifier for an addressbook entry.
+          expose: false
+          schema:
+            type: string
         addrtype:
           description: The address type, e.g. work or home
           enum:
@@ -25,16 +30,133 @@ components:
         country:
           description: The country of this address
           type: string
-        person_uuid:
-          description: reference to the person's UUID, for this address
-          type: string
+        is_valid:
+          description: Address is valid or not
+          type: boolean
+        people:
+          description: A list of people's names living there
+          items:
+            type: string
+          type: array
+        person:
+          description: This is a person object that lives at this address.
+          schema:
+            items:
+              properties:
+                age:
+                  description: The person's age
+                  type: integer
+                first_name:
+                  description: The person's first name
+                  type: string
+                hobbies:
+                  description: The person's hobbies
+                  items:
+                    type: string
+                  type: array
+                last_name:
+                  description: The person's last name
+                  type: string
+                timezone:
+                  default: UTC
+                  description: The person's timezone (e.g. UTC, America/New_York)
+                  type: string
+                uuid:
+                  description: A UUID associated to this person
+                  expose: false
+                  schema:
+                    type: string
+              type: object
+            key:
+              description: A UUID associated to this person
+              name: uuid
+              schema:
+                type: string
+            query_params:
+            - description: Filter by last name
+              methods:
+              - get
+              name: last_name
+              schema:
+                type: string
+            type: array
         state:
           description: The state of this address
           type: string
         street:
           description: The street and civic number of this address
           type: string
-      type: objectchannels:
+      required:
+      - addrtype
+      - street
+      - city
+      - state
+      - country
+      type: object
+    person:
+      properties:
+        age:
+          description: The person's age
+          type: integer
+        first_name:
+          description: The person's first name
+          type: string
+        hobbies:
+          description: The person's hobbies
+          items:
+            type: string
+          type: array
+        last_name:
+          description: The person's last name
+          type: string
+        timezone:
+          default: UTC
+          description: The person's timezone (e.g. UTC, America/New_York)
+          type: string
+        uuid:
+          description: A UUID associated to this person
+          expose: false
+          schema:
+            type: string
+      type: object
+    persons:
+      properties:
+        age:
+          description: The person's age
+          type: integer
+        first_name:
+          description: The person's first name
+          type: string
+        hobbies:
+          description: The person's hobbies
+          items:
+            type: string
+          type: array
+        last_name:
+          description: The person's last name
+          type: string
+        timezone:
+          default: UTC
+          description: The person's timezone (e.g. UTC, America/New_York)
+          type: string
+        uuid:
+          description: A UUID associated to this person
+          expose: false
+          schema:
+            type: string
+      type: object
+    postal_codes:
+      properties:
+        name:
+          description: The postal code's name/id
+          type: string
+        uuid:
+          description: A UUID associated to this postal code
+          expose: false
+          schema:
+            type: string
+      type: object
+channels:
   /addressbook:
     description: Channel for /addressbook
     parameters: {}
@@ -55,8 +177,7 @@ components:
                 type: integer
             required: []
             type: object
-      description: Create a new address in this addressbook, a new address key will
-        be created
+      description: Publish to /addressbook
       message:
         contentType: application/json
         name: addressbook
@@ -82,7 +203,7 @@ components:
                 type: integer
             required: []
             type: object
-      description: List all addresses in this addressbook
+      description: Subscribe from /addressbook
       message:
         contentType: application/json
         name: addressbook
@@ -143,7 +264,7 @@ components:
                 type: integer
             required: []
             type: object
-      description: Get a specific address from this addressbook
+      description: Subscribe from /addressbook/{address_key}
       message:
         contentType: application/json
         name: addressbook
@@ -177,7 +298,7 @@ components:
         ws:
           method: get
           query: {}
-      description: Get a specific address from this addressbook
+      description: Subscribe from /addressbook/{address_key}/addrtype
       message:
         contentType: application/json
         name: addressbook
@@ -211,7 +332,7 @@ components:
         ws:
           method: get
           query: {}
-      description: Get a specific address from this addressbook
+      description: Subscribe from /addressbook/{address_key}/city
       message:
         contentType: application/json
         name: addressbook
@@ -245,7 +366,7 @@ components:
         ws:
           method: get
           query: {}
-      description: Get a specific address from this addressbook
+      description: Subscribe from /addressbook/{address_key}/country
       message:
         contentType: application/json
         name: addressbook
@@ -254,8 +375,8 @@ components:
       operationId: addressbook_address_key_country_subscribe
       tags:
       - name: addressbook
-  /addressbook/{address_key}/person_uuid:
-    description: Channel for /addressbook/{address_key}/person_uuid
+  /addressbook/{address_key}/is_valid:
+    description: Channel for /addressbook/{address_key}/is_valid
     parameters:
       address_key:
         description: A unique identifier for an addressbook entry.
@@ -265,13 +386,13 @@ components:
         ws:
           method: post
           query: {}
-      description: Publish to /addressbook/{address_key}/person_uuid
+      description: Publish to /addressbook/{address_key}/is_valid
       message:
         contentType: application/json
         name: addressbook
         payload:
-          $ref: '#/components/schemas/addressbook/properties/person_uuid'
-      operationId: addressbook_address_key_person_uuid_publish
+          $ref: '#/components/schemas/addressbook/properties/is_valid'
+      operationId: addressbook_address_key_is_valid_publish
       tags:
       - name: addressbook
     subscribe:
@@ -279,15 +400,356 @@ components:
         ws:
           method: get
           query: {}
-      description: Get a specific address from this addressbook
+      description: Subscribe from /addressbook/{address_key}/is_valid
       message:
         contentType: application/json
         name: addressbook
         payload:
-          $ref: '#/components/schemas/addressbook/properties/person_uuid'
-      operationId: addressbook_address_key_person_uuid_subscribe
+          $ref: '#/components/schemas/addressbook/properties/is_valid'
+      operationId: addressbook_address_key_is_valid_subscribe
       tags:
       - name: addressbook
+  /addressbook/{address_key}/people:
+    description: Channel for /addressbook/{address_key}/people
+    parameters:
+      address_key:
+        description: A unique identifier for an addressbook entry.
+        schema: *id001
+    publish:
+      bindings:
+        ws:
+          method: post
+          query: {}
+      description: Publish to /addressbook/{address_key}/people
+      message:
+        contentType: application/json
+        name: addressbook
+        payload:
+          $ref: '#/components/schemas/addressbook/properties/people'
+      operationId: addressbook_address_key_people_publish
+      tags:
+      - name: addressbook
+    subscribe:
+      bindings:
+        ws:
+          method: get
+          query: {}
+      description: Subscribe from /addressbook/{address_key}/people
+      message:
+        contentType: application/json
+        name: addressbook
+        payload:
+          $ref: '#/components/schemas/addressbook/properties/people'
+      operationId: addressbook_address_key_people_subscribe
+      tags:
+      - name: addressbook
+  /addressbook/{address_key}/person:
+    description: Channel for /addressbook/{address_key}/person
+    parameters:
+      address_key:
+        description: A unique identifier for an addressbook entry.
+        schema: *id001
+    publish:
+      bindings:
+        ws:
+          method: post
+          query:
+            properties:
+              last_name:
+                description: Filter by last name
+                type: string
+              limit:
+                description: Limit the number of responses back
+                type: integer
+              offset:
+                description: The offset to start returning resources
+                type: integer
+            required: []
+            type: object
+      description: Publish to /addressbook/{address_key}/person
+      message:
+        contentType: application/json
+        name: person
+        payload:
+          $ref: '#/components/schemas/person'
+      operationId: addressbook_address_key_person_publish
+      tags:
+      - name: person
+    subscribe:
+      bindings:
+        ws:
+          method: get
+          query:
+            properties:
+              last_name:
+                description: Filter by last name
+                type: string
+              limit:
+                description: Limit the number of responses back
+                type: integer
+              offset:
+                description: The offset to start returning resources
+                type: integer
+            required: []
+            type: object
+      description: Subscribe from /addressbook/{address_key}/person
+      message:
+        contentType: application/json
+        name: person
+        payload:
+          items:
+            $ref: '#/components/schemas/person'
+          type: array
+      operationId: addressbook_address_key_person_subscribe
+      tags:
+      - name: person
+  /addressbook/{address_key}/person/{uuid}:
+    description: Channel for /addressbook/{address_key}/person/{uuid}
+    parameters:
+      address_key:
+        description: A unique identifier for an addressbook entry.
+        schema: *id001
+      uuid:
+        description: A UUID associated to this person
+        schema: &id002
+          type: string
+    publish:
+      bindings:
+        ws:
+          method: post
+          query:
+            properties:
+              last_name:
+                description: Filter by last name
+                type: string
+              limit:
+                description: Limit the number of responses back
+                type: integer
+              offset:
+                description: The offset to start returning resources
+                type: integer
+            required: []
+            type: object
+      description: Publish to /addressbook/{address_key}/person/{uuid}
+      message:
+        contentType: application/json
+        name: person
+        payload:
+          $ref: '#/components/schemas/person'
+      operationId: addressbook_address_key_person_uuid_publish
+      tags:
+      - name: person
+    subscribe:
+      bindings:
+        ws:
+          method: get
+          query:
+            properties:
+              last_name:
+                description: Filter by last name
+                type: string
+              limit:
+                description: Limit the number of responses back
+                type: integer
+              offset:
+                description: The offset to start returning resources
+                type: integer
+            required: []
+            type: object
+      description: Subscribe from /addressbook/{address_key}/person/{uuid}
+      message:
+        contentType: application/json
+        name: person
+        payload:
+          $ref: '#/components/schemas/person'
+      operationId: addressbook_address_key_person_uuid_subscribe
+      tags:
+      - name: person
+  /addressbook/{address_key}/person/{uuid}/age:
+    description: Channel for /addressbook/{address_key}/person/{uuid}/age
+    parameters:
+      address_key:
+        description: A unique identifier for an addressbook entry.
+        schema: *id001
+      uuid:
+        description: A UUID associated to this person
+        schema: *id002
+    publish:
+      bindings:
+        ws:
+          method: post
+          query: {}
+      description: Publish to /addressbook/{address_key}/person/{uuid}/age
+      message:
+        contentType: application/json
+        name: person
+        payload:
+          $ref: '#/components/schemas/person/properties/age'
+      operationId: addressbook_address_key_person_uuid_age_publish
+      tags:
+      - name: person
+    subscribe:
+      bindings:
+        ws:
+          method: get
+          query: {}
+      description: Subscribe from /addressbook/{address_key}/person/{uuid}/age
+      message:
+        contentType: application/json
+        name: person
+        payload:
+          $ref: '#/components/schemas/person/properties/age'
+      operationId: addressbook_address_key_person_uuid_age_subscribe
+      tags:
+      - name: person
+  /addressbook/{address_key}/person/{uuid}/first_name:
+    description: Channel for /addressbook/{address_key}/person/{uuid}/first_name
+    parameters:
+      address_key:
+        description: A unique identifier for an addressbook entry.
+        schema: *id001
+      uuid:
+        description: A UUID associated to this person
+        schema: *id002
+    publish:
+      bindings:
+        ws:
+          method: post
+          query: {}
+      description: Publish to /addressbook/{address_key}/person/{uuid}/first_name
+      message:
+        contentType: application/json
+        name: person
+        payload:
+          $ref: '#/components/schemas/person/properties/first_name'
+      operationId: addressbook_address_key_person_uuid_first_name_publish
+      tags:
+      - name: person
+    subscribe:
+      bindings:
+        ws:
+          method: get
+          query: {}
+      description: Subscribe from /addressbook/{address_key}/person/{uuid}/first_name
+      message:
+        contentType: application/json
+        name: person
+        payload:
+          $ref: '#/components/schemas/person/properties/first_name'
+      operationId: addressbook_address_key_person_uuid_first_name_subscribe
+      tags:
+      - name: person
+  /addressbook/{address_key}/person/{uuid}/hobbies:
+    description: Channel for /addressbook/{address_key}/person/{uuid}/hobbies
+    parameters:
+      address_key:
+        description: A unique identifier for an addressbook entry.
+        schema: *id001
+      uuid:
+        description: A UUID associated to this person
+        schema: *id002
+    publish:
+      bindings:
+        ws:
+          method: post
+          query: {}
+      description: Publish to /addressbook/{address_key}/person/{uuid}/hobbies
+      message:
+        contentType: application/json
+        name: person
+        payload:
+          $ref: '#/components/schemas/person/properties/hobbies'
+      operationId: addressbook_address_key_person_uuid_hobbies_publish
+      tags:
+      - name: person
+    subscribe:
+      bindings:
+        ws:
+          method: get
+          query: {}
+      description: Subscribe from /addressbook/{address_key}/person/{uuid}/hobbies
+      message:
+        contentType: application/json
+        name: person
+        payload:
+          $ref: '#/components/schemas/person/properties/hobbies'
+      operationId: addressbook_address_key_person_uuid_hobbies_subscribe
+      tags:
+      - name: person
+  /addressbook/{address_key}/person/{uuid}/last_name:
+    description: Channel for /addressbook/{address_key}/person/{uuid}/last_name
+    parameters:
+      address_key:
+        description: A unique identifier for an addressbook entry.
+        schema: *id001
+      uuid:
+        description: A UUID associated to this person
+        schema: *id002
+    publish:
+      bindings:
+        ws:
+          method: post
+          query: {}
+      description: Publish to /addressbook/{address_key}/person/{uuid}/last_name
+      message:
+        contentType: application/json
+        name: person
+        payload:
+          $ref: '#/components/schemas/person/properties/last_name'
+      operationId: addressbook_address_key_person_uuid_last_name_publish
+      tags:
+      - name: person
+    subscribe:
+      bindings:
+        ws:
+          method: get
+          query: {}
+      description: Subscribe from /addressbook/{address_key}/person/{uuid}/last_name
+      message:
+        contentType: application/json
+        name: person
+        payload:
+          $ref: '#/components/schemas/person/properties/last_name'
+      operationId: addressbook_address_key_person_uuid_last_name_subscribe
+      tags:
+      - name: person
+  /addressbook/{address_key}/person/{uuid}/timezone:
+    description: Channel for /addressbook/{address_key}/person/{uuid}/timezone
+    parameters:
+      address_key:
+        description: A unique identifier for an addressbook entry.
+        schema: *id001
+      uuid:
+        description: A UUID associated to this person
+        schema: *id002
+    publish:
+      bindings:
+        ws:
+          method: post
+          query: {}
+      description: Publish to /addressbook/{address_key}/person/{uuid}/timezone
+      message:
+        contentType: application/json
+        name: person
+        payload:
+          $ref: '#/components/schemas/person/properties/timezone'
+      operationId: addressbook_address_key_person_uuid_timezone_publish
+      tags:
+      - name: person
+    subscribe:
+      bindings:
+        ws:
+          method: get
+          query: {}
+      description: Subscribe from /addressbook/{address_key}/person/{uuid}/timezone
+      message:
+        contentType: application/json
+        name: person
+        payload:
+          $ref: '#/components/schemas/person/properties/timezone'
+      operationId: addressbook_address_key_person_uuid_timezone_subscribe
+      tags:
+      - name: person
   /addressbook/{address_key}/state:
     description: Channel for /addressbook/{address_key}/state
     parameters:
@@ -313,7 +775,7 @@ components:
         ws:
           method: get
           query: {}
-      description: Get a specific address from this addressbook
+      description: Subscribe from /addressbook/{address_key}/state
       message:
         contentType: application/json
         name: addressbook
@@ -347,7 +809,7 @@ components:
         ws:
           method: get
           query: {}
-      description: Get a specific address from this addressbook
+      description: Subscribe from /addressbook/{address_key}/street
       message:
         contentType: application/json
         name: addressbook

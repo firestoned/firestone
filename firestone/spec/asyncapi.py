@@ -457,6 +457,7 @@ def generate(rsrc_data: list, title: str, desc: str, summary: str, version: str)
             baseurl,
             rschema,
             keys=[],
+            rsrc_name=rsrc_name,
             channels={},
             components=components,
         )
