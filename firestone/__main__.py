@@ -489,6 +489,25 @@ def server(rsrc_data, output_dir, pkg, api_pkg, no_validations, force, language)
             err=True,
         )
 
+    if "Cargo.toml" in kept:
+        _check_kept_cargo_toml(output_dir, files["Cargo.toml"])
+
+
+def _check_kept_cargo_toml(output_dir: str, generated: str):
+    """Say what to add when a kept Cargo.toml lacks a crate the rewritten files now use.
+
+    Without it the crate does not build, and nothing would say why.
+    """
+    with io.open(os.path.join(output_dir, "Cargo.toml"), "r", encoding="utf-8") as fh:
+        missing = firestone_spec.server_rust.missing_dependencies(generated, fh.read())
+
+    if missing:
+        click.echo(
+            "Your Cargo.toml lacks dependencies the regenerated code needs. "
+            "Add these under [dependencies]:\n  " + "\n  ".join(missing),
+            err=True,
+        )
+
 
 if __name__ == "__main__":
     # pylint: disable=no-value-for-parameter

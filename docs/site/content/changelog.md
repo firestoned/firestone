@@ -6,6 +6,12 @@ description = "History of changes, improvements, and fixes in the Firestone proj
 
 ## Version History
 
+### Unreleased
+*   **Change:** A `security` level (`resource`, `instance`, `instance_attrs`) without its own list of methods now secures every method at that level, as the resource schema describes. Previously a scheme on its own secured nothing. If you relied on that, add an empty list (`[]`) for each level that should stay open. A generated Rust server will then expect tokens in `API_TOKENS` for those operations.
+*   **Fix:** Security schemes from every resource are kept in `components/securitySchemes`, instead of only the last resource's.
+*   **Fix:** When a resource lists several schemes, any one of them is accepted, instead of only the first.
+*   **Improvement:** `firestone generate server` warns when a kept `Cargo.toml` lacks a dependency the regenerated code needs, such as `subtle` once an operation is secured.
+
 ### v0.8.0 (Current)
 *   **Feature:** Added support for Python 3.12 and 3.13.
 *   **Feature:** Integrated `pdoc-markdown` for auto-generated API documentation.

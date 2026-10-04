@@ -326,6 +326,33 @@ class TestOwnership(unittest.TestCase):
             sorted(server_rust.GENERATED + server_rust.SCAFFOLD),
         )
 
+    def test_kept_cargo_toml_missing_a_dependency(self):
+        """A Cargo.toml kept from before the schema was secured lacks subtle."""
+        plain = _generate([_resource()])["Cargo.toml"]
+        secured = _generate([_resource(security={"scheme": {"bearer_auth": {"type": "http"}}})])[
+            "Cargo.toml"
+        ]
+
+        self.assertEqual(server_rust.missing_dependencies(secured, plain), ['subtle = "2"'])
+
+    def test_kept_cargo_toml_with_every_dependency(self):
+        """Nothing is reported when the kept Cargo.toml declares all it needs."""
+        plain = _generate([_resource()])["Cargo.toml"]
+        secured = _generate([_resource(security={"scheme": {"bearer_auth": {"type": "http"}}})])[
+            "Cargo.toml"
+        ]
+
+        self.assertEqual(server_rust.missing_dependencies(secured, secured), [])
+        self.assertEqual(server_rust.missing_dependencies(plain, secured), [])
+
+    def test_kept_cargo_toml_unparsable(self):
+        """A Cargo.toml that cannot be read is left for cargo to complain about."""
+        secured = _generate([_resource(security={"scheme": {"bearer_auth": {"type": "http"}}})])[
+            "Cargo.toml"
+        ]
+
+        self.assertEqual(server_rust.missing_dependencies(secured, "[dependencies"), [])
+
 
 class TestGeneratedTests(unittest.TestCase):
     """Test the test suite firestone generates alongside the implementation."""

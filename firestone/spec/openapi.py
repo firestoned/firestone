@@ -23,6 +23,13 @@ RSRC_INST_HTTP_METHODS = ["delete", "get", "head", "patch", "put"]
 # This is a list of all HTTP methods supported on attributes of an instance of a resource
 RSRC_ATTR_HTTP_METHODS = ["delete", "get", "head", "put"]
 
+# The methods a security scheme covers at each level that has no list of its own
+SECURITY_DEFAULT_METHODS = {
+    "resource": RSRC_HTTP_METHODS,
+    "instance": RSRC_INST_HTTP_METHODS,
+    "instance_attrs": RSRC_ATTR_HTTP_METHODS,
+}
+
 _LOGGER = logging.getLogger(__name__)
 
 # TODO add support for JSON Patch: https://www.jvt.me/posts/2022/05/29/openapi-json-patch/
@@ -230,6 +237,29 @@ def get_params(
     return parameters
 
 
+def get_security(security: dict, level: str, method: str):
+    """Get the security requirement for a method at this level, if it is secured.
+
+    A level without its own list of methods is secured for every method, as
+    resource.yaml describes it; an empty list secures none. Each scheme is a
+    separate requirement, so a request satisfying any one of them is accepted.
+
+    :param dict security: the resource's security, with its scheme and method lists
+    :param str level: one of resource, instance or instance_attrs
+    :param str method: the HTTP method of the operation
+    """
+    if not security or not security.get("scheme"):
+        return None
+
+    methods = security.get(level)
+    if methods is None:
+        methods = SECURITY_DEFAULT_METHODS[level]
+    if method not in methods:
+        return None
+
+    return [{security_scheme: []} for security_scheme in security["scheme"]]
+
+
 # pylint: disable=too-many-arguments
 def add_resource_methods(
     rsrc_name: str,
@@ -279,9 +309,9 @@ def add_resource_methods(
         paths[baseurl][method]["tags"] = [orig_rsrc_name or rsrc_name]
 
         # Add security if required
-        if security and method in security.get("resource", []):
-            security_scheme = list(security["scheme"].keys())[0]
-            paths[baseurl][method]["security"] = [{security_scheme: []}]
+        op_security = get_security(security, "resource", method)
+        if op_security:
+            paths[baseurl][method]["security"] = op_security
 
         # Add parameters
         params = get_params(baseurl, method, schema, keys=keys)
@@ -338,9 +368,9 @@ def add_instance_methods(
         )
 
         # Add security if required
-        if security and method in security.get("instance", []):
-            security_scheme = list(security["scheme"].keys())[0]
-            paths[baseurl][method]["security"] = [{security_scheme: []}]
+        op_security = get_security(security, "instance", method)
+        if op_security:
+            paths[baseurl][method]["security"] = op_security
 
         # Add parameters
         params = get_params(baseurl, method, schema, keys=keys)
@@ -398,9 +428,9 @@ def add_instance_attr_methods(
             )
 
             # Add security if required
-            if security and method in security.get("instance_attrs", []):
-                security_scheme = list(security["scheme"].keys())[0]
-                inst_attr_op["security"] = [{security_scheme: []}]
+            op_security = get_security(security, "instance_attrs", method)
+            if op_security:
+                inst_attr_op["security"] = op_security
 
             _LOGGER.debug(f"inst_attr_op: {inst_attr_op}")
 
@@ -556,8 +586,9 @@ def add_rsrc_components(
     _LOGGER.debug(f"rscr_methods: {rscr_methods}")
     _LOGGER.debug(f"rscr_inst_methods: {rscr_inst_methods}")
 
+    # Merged, not replaced: every resource's operations must find their scheme here
     if security and "scheme" in security:
-        components["securitySchemes"] = security.get("scheme", {})
+        components.setdefault("securitySchemes", {}).update(security["scheme"])
 
     # Create resource model
     if "post" in rscr_methods or "post" in rscr_inst_methods:
@@ -671,14 +702,6 @@ def generate(
         methods = rsrc.get("methods", {})
         components = add_rsrc_components(components, singular, methods, rsrc["schema"], security)
         _LOGGER.debug(f"components: {components['schemas']}")
-        if (
-            security
-            and "resource" not in security
-            and "instance" not in security
-            and "instance_attrs" not in security
-        ):
-            security_scheme = list(security["scheme"].keys())[0]
-            rsrc["security"] = [{security_scheme: []}]
 
         default_query_params = rsrc.get("default_query_params", [])
         _LOGGER.debug(f"default_query_params: {default_query_params}")

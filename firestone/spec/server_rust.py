@@ -16,6 +16,7 @@ the server was generated from, so the two cannot disagree about a name.
 import json
 import logging
 import re
+import tomllib
 
 import yaml
 
@@ -467,6 +468,38 @@ def generate(
             files[f"src/validation/{name}"] = content
 
     return {name: content.rstrip("\n") + "\n" for name, content in files.items()}
+
+
+def missing_dependencies(generated: str, kept: str) -> list:
+    """Get the dependency lines a freshly generated Cargo.toml has and a kept one lacks.
+
+    Cargo.toml is a scaffold, so a regeneration keeps yours. The files that are
+    rewritten can still come to need a crate they did not before, such as subtle
+    once an operation is secured, and a kept Cargo.toml would not declare it.
+
+    :param str generated: the Cargo.toml this generation would have written
+    :param str kept: the Cargo.toml already in the output directory
+    :return: the lines of ``generated`` declaring each dependency ``kept`` lacks
+    :rtype: list
+    """
+    try:
+        have = tomllib.loads(kept).get("dependencies", {})
+    except tomllib.TOMLDecodeError:
+        _LOGGER.warning("Cannot parse the kept Cargo.toml, so its dependencies are not checked")
+        return []
+    need = tomllib.loads(generated).get("dependencies", {})
+    missing = [name for name in need if name not in have]
+
+    lines = []
+    section = None
+    for line in generated.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("["):
+            section = stripped
+        elif section == "[dependencies]" and stripped.split("=", 1)[0].strip() in missing:
+            lines.append(stripped)
+
+    return lines
 
 
 def crate_version(version: str) -> str:

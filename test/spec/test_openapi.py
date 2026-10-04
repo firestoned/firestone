@@ -8,6 +8,8 @@ import http.client
 import unittest
 from unittest import mock
 
+import yaml
+
 from firestone.spec import _base as spec_base
 from firestone.spec import openapi
 
@@ -842,6 +844,160 @@ class TestOpenAPIGenerate(unittest.TestCase):
         self.assertIn("/foo/{foo_key}", spec)
         self.assertIn("The get method is fabulous", spec)
         self.assertIn("1.0", spec)
+
+
+BEARER = {"bearer_auth": {"type": "http", "scheme": "bearer"}}
+API_KEY = {"api_key": {"type": "apiKey"}}
+
+# Every operation a resource with one exposed attribute gets when it has no methods block
+ALL_OPS = {
+    ("/foo", "delete"),
+    ("/foo", "get"),
+    ("/foo", "head"),
+    ("/foo", "patch"),
+    ("/foo", "post"),
+    ("/foo/{foo_key}", "delete"),
+    ("/foo/{foo_key}", "get"),
+    ("/foo/{foo_key}", "head"),
+    ("/foo/{foo_key}", "patch"),
+    ("/foo/{foo_key}", "put"),
+    ("/foo/{foo_key}/bar", "delete"),
+    ("/foo/{foo_key}/bar", "get"),
+    ("/foo/{foo_key}/bar", "head"),
+    ("/foo/{foo_key}/bar", "put"),
+}
+
+
+def _secured_rsrc(kind: str = "foo", security: dict = None, properties: dict = None) -> dict:
+    """A resource with every method exposed and the given security."""
+    return {
+        "kind": kind,
+        "apiVersion": "1.0",
+        "security": security,
+        "methods": {
+            "instance": openapi.RSRC_INST_HTTP_METHODS,
+            "instance_attrs": openapi.RSRC_ATTR_HTTP_METHODS,
+        },
+        "schema": {
+            "type": "array",
+            "key": {"name": f"{kind}_key", "schema": {"type": "string"}},
+            "items": {
+                "type": "object",
+                "properties": properties or {"bar": {"type": "string"}},
+            },
+        },
+    }
+
+
+def _generate_secured(rsrcs: list) -> dict:
+    """Generate the OpenAPI document for the given resources."""
+    return yaml.safe_load(
+        openapi.generate(rsrcs, "Foo API", "Some Foo API", "Summary of Foo API", "1.0")
+    )
+
+
+def _security_by_op(spec: dict) -> dict:
+    """Get each operation's security, keyed by path and method."""
+    return {
+        (path, method): operation.get("security")
+        for path, ops in spec["paths"].items()
+        for method, operation in ops.items()
+    }
+
+
+class TestOpenAPISecurity(unittest.TestCase):
+    """Test how a resource's security is applied to its operations."""
+
+    def test_get_security(self):
+        """A level without a list is secured for every method, an empty list for none."""
+        security = {"scheme": BEARER, "instance": ["put"], "instance_attrs": []}
+
+        self.assertEqual(openapi.get_security(security, "resource", "head"), [{"bearer_auth": []}])
+        self.assertEqual(openapi.get_security(security, "instance", "put"), [{"bearer_auth": []}])
+        self.assertIsNone(openapi.get_security(security, "instance", "get"))
+        self.assertIsNone(openapi.get_security(security, "instance_attrs", "get"))
+        self.assertIsNone(openapi.get_security({}, "resource", "get"))
+        self.assertIsNone(openapi.get_security(None, "resource", "get"))
+
+    def test_scheme_only_secures_every_method(self):
+        """A scheme with no method lists secures every operation, delete, head and patch included."""
+        ops = _security_by_op(_generate_secured([_secured_rsrc(security={"scheme": BEARER})]))
+
+        self.assertEqual(set(ops), ALL_OPS)
+        for operation, security in ops.items():
+            self.assertEqual(security, [{"bearer_auth": []}], operation)
+
+    def test_no_methods_block_secures_every_method(self):
+        """Without a methods block, every collection operation is still secured."""
+        rsrc = _secured_rsrc(security={"scheme": BEARER})
+        del rsrc["methods"]
+        ops = _security_by_op(_generate_secured([rsrc]))
+
+        self.assertEqual(set(ops), {op for op in ALL_OPS if op[0] == "/foo"})
+        for operation, security in ops.items():
+            self.assertEqual(security, [{"bearer_auth": []}], operation)
+
+    def test_unlisted_levels_secure_every_method(self):
+        """Listing the methods of one level leaves the other levels fully secured."""
+        rsrc = _secured_rsrc(security={"scheme": BEARER, "instance": ["delete", "put"]})
+        ops = _security_by_op(_generate_secured([rsrc]))
+
+        for (path, method), security in ops.items():
+            if path == "/foo/{foo_key}" and method not in ("delete", "put"):
+                self.assertIsNone(security, (path, method))
+            else:
+                self.assertEqual(security, [{"bearer_auth": []}], (path, method))
+
+    def test_empty_list_secures_none(self):
+        """An empty list leaves that level unsecured, and only that level."""
+        rsrc = _secured_rsrc(security={"scheme": BEARER, "instance_attrs": []})
+        ops = _security_by_op(_generate_secured([rsrc]))
+
+        for (path, method), security in ops.items():
+            if path == "/foo/{foo_key}/bar":
+                self.assertIsNone(security, (path, method))
+            else:
+                self.assertEqual(security, [{"bearer_auth": []}], (path, method))
+
+    def test_nested_resource_secured(self):
+        """An embedded resource is secured by its parent's scheme too."""
+        nested = {
+            "schema": {
+                "type": "array",
+                "key": {"name": "bar_key", "schema": {"type": "string"}},
+                "items": {"type": "object", "properties": {"baz": {"type": "string"}}},
+            }
+        }
+        rsrc = _secured_rsrc(security={"scheme": BEARER}, properties={"bars": nested})
+        ops = _security_by_op(_generate_secured([rsrc]))
+
+        nested_ops = {op: sec for op, sec in ops.items() if op[0] == "/foo/{foo_key}/bars"}
+        self.assertTrue(nested_ops)
+        for operation, security in nested_ops.items():
+            self.assertEqual(security, [{"bearer_auth": []}], operation)
+
+    def test_every_scheme_accepted(self):
+        """Several schemes are alternatives, so each one is listed as its own requirement."""
+        rsrc = _secured_rsrc(security={"scheme": {**BEARER, **API_KEY}})
+        ops = _security_by_op(_generate_secured([rsrc]))
+
+        for operation, security in ops.items():
+            self.assertEqual(security, [{"bearer_auth": []}, {"api_key": []}], operation)
+
+    def test_schemes_merged_across_resources(self):
+        """Every resource's scheme is kept, so no operation refers to a missing one."""
+        spec = _generate_secured(
+            [
+                _secured_rsrc("foo", security={"scheme": BEARER}),
+                _secured_rsrc("baz", security={"scheme": API_KEY}),
+            ]
+        )
+
+        schemes = spec["components"]["securitySchemes"]
+        self.assertEqual(set(schemes), {"bearer_auth", "api_key"})
+        for operation, security in _security_by_op(spec).items():
+            for requirement in security:
+                self.assertTrue(set(requirement) <= set(schemes), operation)
 
 
 class TestOpenAPIToSingular(unittest.TestCase):
